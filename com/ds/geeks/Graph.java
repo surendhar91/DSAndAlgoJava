@@ -6,8 +6,10 @@
 package com.ds.geeks;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  *
@@ -15,12 +17,23 @@ import java.util.Stack;
  */
 public class Graph {
     public int vertices;
-    public LinkedList<Integer> arr[];
+    public List<Integer> arr[];
+    public int in[];//To store indegree of a vertex
     public Graph(int v){
         vertices = v;
         arr = new LinkedList[v];
+        in = new int[v];
         for(int i=0;i<v;i++){
             arr[i] = new LinkedList<Integer>();
+            in[i] = 0;
+        }
+    }
+    public Graph(int v, boolean isUndirected, String isConcurrent){
+        vertices = v;
+        this.isUndirected = isUndirected;
+        arr = new CopyOnWriteArrayList[v];
+        for(int i=0;i<v;i++){
+            arr[i] = new CopyOnWriteArrayList<Integer>();
             
         }
     }
@@ -30,8 +43,18 @@ public class Graph {
     }
     void addEdge(int v,int w){
         arr[v].add(w);//adding edge w to v graph
+        in[w]++;
         if(this.isUndirected){
             arr[w].add(v);
+            in[v]++;
+        }
+    }
+    void removeEdge(int v,int w){
+        arr[v].remove((Object)w);
+        in[w]--;
+        if(this.isUndirected){
+            arr[w].remove((Object)v);
+            in[v]--;
         }
     }
     
@@ -46,7 +69,7 @@ public class Graph {
         while(queue.size()!=0){
             int startVertex = queue.poll();
             System.out.println(startVertex+" ");
-            LinkedList<Integer> adjList = arr[startVertex];
+            List<Integer> adjList = arr[startVertex];
             for(Integer edge:adjList){
                 if(!visited[edge]){
                     visited[edge] = true;
@@ -61,13 +84,36 @@ public class Graph {
         //For an unweighted graph,  dfs traversal produces the minimum spanning tree and all pair shortest path
         visited[src] = true;
         System.out.println(src + " ");
-        LinkedList<Integer> adjList = arr[src];
+        List<Integer> adjList = arr[src];
         for(Integer edge: adjList){
             if(!visited[edge]){
                 DFSUtil(edge, visited);
             }
         }
     
+    }
+    int DFSCount(int src, boolean[] visited){
+        visited[src] = true;
+        int count = 1;
+        List<Integer> adjList = arr[src];
+        for(Integer edge: adjList){
+            if(!visited[edge]){
+                count += DFSCount(edge, visited);
+            }
+        }
+        return count;
+    }
+    void DFSUtilPushStack(int src,boolean[] visited,Stack stack){
+        visited[src]= true;
+        List<Integer> adjList = arr[src];
+        for(Integer edge:adjList){
+            if(!visited[edge]){
+                DFSUtilPushStack(edge, visited,stack);
+            }
+        }
+        // All vertices reachable from v are processed by now,
+        // push v to Stack
+        stack.push(src);
     }
     void DFS(int v){
         boolean visited[] = new boolean[this.vertices];//this is necessary.
@@ -105,7 +151,7 @@ public class Graph {
             recStack[vertex] = true;
 
              // Recur for all the vertices adjacent to this vertex
-            LinkedList<Integer> adjList = arr[vertex];//get the adjacency list of a vertex
+            List<Integer> adjList = arr[vertex];//get the adjacency list of a vertex
 
             for (Integer edge : adjList) {
                 if (!visited[edge] && isCyclicUtil(edge, visited, recStack)) {
@@ -172,7 +218,7 @@ and hence there is a cycle.
     private boolean isCyclicUtilUsingColor(int vertex, Color[] colors) {
        colors[vertex] = Color.GREY; //in processing.
        
-       LinkedList<Integer> adjList = arr[vertex];
+       List<Integer> adjList = arr[vertex];
        for(Integer edge:adjList){
            
            if(colors[edge]==Color.GREY){//Back edge
@@ -239,7 +285,7 @@ and hence there is a cycle.
 
         for (int i = 0; i < graph.vertices; i++) {
             int src = i;
-            LinkedList<Integer> edge = graph.arr[src];//edge.
+            List<Integer> edge = graph.arr[src];//edge.
             for (Integer dest : edge) {
                 // Iterate through all edges of graph, find subset of both
                 // vertices of every edge, if both subsets are same, then
@@ -279,7 +325,7 @@ and hence there is a cycle.
     private boolean isCycleUtilParentUndirected(Graph graph,boolean[] visited, int currentNode, int parent) {
         visited[currentNode]= true;// Mark the current node as visited
         
-        LinkedList<Integer> allEdges = graph.arr[currentNode];
+        List<Integer> allEdges = graph.arr[currentNode];
         // Recur for all the vertices adjacent to this vertex
         for(Integer destination:allEdges){
             // If an adjacent is not visited, then recur for that
@@ -425,7 +471,7 @@ and hence there is a cycle.
         while(queue.size()!=0){
             int startVertex = queue.poll();
             System.out.println(startVertex+" ");
-            LinkedList<Integer> adjList = arr[startVertex];
+            List<Integer> adjList = arr[startVertex];
             for(Integer adjNode:adjList){
                 if(colorArr[adjNode]==-1){
                     colorArr[adjNode] = 1-colorArr[startVertex];//assign alternate color to the adjacent node.
