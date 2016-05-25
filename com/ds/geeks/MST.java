@@ -139,7 +139,16 @@ public class MST{
         public int compareTo(Edge o) {
             return this.weight - o.weight;
         }
+        public Edge(int src,int dest){
+            this.src = src; this.dest = dest;
+        }
+        public Edge(){
+        }
         
+        @Override
+        public String toString(){
+            return "src "+src+" dest "+dest;
+        }
         
     };
     class subset{

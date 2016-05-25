@@ -695,6 +695,281 @@ A cell in 2D matrix can be connected to 8 neighbors. So, unlike standard DFS(), 
         return true;
     
     }
+    int bccCount = 0;
+    void BCCUtil(Graph g, int u, int disc[], int low[], Stack<MST.Edge> st, int parent[],boolean visited[]){
+        
+        //Example
+        
+        /*
+                4
+              /   \
+            2 ----- 3
+             \     /
+                1
+                |
+                0
+        
+              disc   low (after traversing)
+           0    0     1
+           1    1     2
+           2    2     2
+           3    3     2
+           4    4 
+        
+        */
+        
+        
+        // A recursive function that finds and prints strongly connected
+    // components using DFS traversal
+    // u --> The vertex to be visited next
+    // disc[] --> Stores discovery times of visited vertices
+    // low[] -- >> earliest visited vertex (the vertex with minimum
+    //             discovery time) that can be reached from subtree
+    //             rooted with current vertex
+    // *st -- >> To store visited edges
+        int children = 0;
+        
+        visited[u] = true;//mark this node as visited
+        
+        disc[u] = low[u] = ++time;//Pre increment is important.
+        
+        List<Integer> edges = g.arr[u];
+        for(Integer v:edges){//For each of the adjacent node, if not visited
+//            System.out.println("vertex "+v);
+            if(!visited[v]){//If at all not discovered / visited
+                
+                children++;
+                
+                parent[v] = u;
+                
+//                APUtil(v,graph,visited,disc,low,parent,articPoint);
+                st.add(new MST().new Edge(u,v)); //src to dest add edge
+                BCCUtil(g, v, disc, low, st, parent, visited);
+                
+                low[u] = Math.min(low[u], low[v]);//v is already traversed, it would have the low value (i.e. it would have already determined, if it has a back edge or not
+                //u is an articulation point in the following cases.
+                if((parent[u]==NIL && children > 1) || (parent[u]!=NIL && low[v]>=disc[u])){
+                    //Case 1: if it is a root node, and has more than one child, then it is a articulate point
+                    //If non root node, and not back edge formed from subtree to the ancestor of u, then it is a articulate point
+                    System.out.println("Processed Vertex, on finding articulation point "+v);
+                    System.out.println("Articulation point "+u);
+                    System.out.println("Stack Elements"+st);
+                    while(st.peek().src!=u || st.peek().dest!=v){
+                        System.out.print(st.peek().src+"--"+st.peek().dest+" ");
+                        st.pop();
+                    }
+                    //print the edge that we are in //u--v
+                    System.out.println(st.peek().src+"--"+st.peek().dest+" ");
+                    st.pop();
+                    bccCount++;//Increment the number of binary connected component
+
+                }
+                
+           }else if(v!=parent[u] && disc[v]<low[u]){
+                System.out.println("Src "+u+" Dest v "+v+" visited? "+visited[v]);
+                 System.out.println("Disc of v "+disc[v]+
+                         "Low of u "+low[u]);
+               //for the c->a in the given example,
+               //c being the u, a being the v, in DFS Traversal
+               //V is not the parent, but an ancestor, then
+               low[u] = Math.min(low[u], disc[v]);//If there is a back edge, then the low value of current node, would point to the discovery time of vertex v(which exists in the ancestor of u)
+               st.add(new MST().new Edge(u,v));
+               
+           }
+        }
+    }
+    void BCC(Graph g)
+    {
+        int disc[] = new int[g.vertices];
+        int low[] = new int[g.vertices];
+        int parent[] = new int[g.vertices];
+        boolean visited[] = new boolean[g.vertices];
+        Stack<MST.Edge> st = new Stack<MST.Edge>();
+ 
+        // Initialize disc and low, and parent arrays
+        for (int i = 0; i < g.vertices; i++)
+        {
+            disc[i] = -1;
+            low[i] = -1;
+            parent[i] = -1;
+            visited[i] = false;
+        }
+ 
+        for (int i = 0; i < g.vertices; i++)
+        {
+            if (disc[i]==-1)//If there is any disconnected sub graph, for that, this method will be called.
+                BCCUtil(g,i, disc, low, st, parent,visited);
+ 
+            int j = 0;
+ 
+            // If stack is not empty, pop all edges from stack
+            if(st.size()>0){
+                System.out.println("popping all edges from the stack..");
+            }
+            while (st.size() > 0)
+            {
+                j = 1;
+                System.out.print(st.peek().src + "--" +
+                                 st.peek().dest + " ");
+                st.pop();
+            }
+            if (j == 1)
+            {
+                System.out.println();
+                bccCount++;//For the sub graph, increment the bccCount
+            }
+        }
+    }
+    void sccUtil(Graph g, int u,int disc[],int low[],Stack st){
+      
+        disc[u] = low[u] = ++time;
+        
+        st.add(u);
+        
+        List<Integer> edges = g.arr[u];
+        
+        for(Integer v:edges){//For each of the adjacent node, if not visited
+            
+            if(disc[v]==-1){
+                //If not visited, then recursively call sccUtil
+                sccUtil(g,v,disc,low,st);
+                low[u] = Math.min(low[u], low[v]);//check if the subtree rooted with 'v' has a connection to one of the ancestors of 'u'
+            }
+            else if(st.contains(v)){//If it's already visited, ensure that the edge being traversed is not a cross edge.
+                //It is a back edge, when the vertex v is contained in Stack
+                low[u] = Math.min(low[u],disc[v]);//Same as the one for AP Util
+             
+           }
+        }
+        //Now that the elements are traversed, we need to print the strongly connected component
+        //for this, we need to find the head node of the sub graph which is strongly connected component. 
+        // if low[u] == disc[u] then it's the head node
+        if(low[u]==disc[u]){
+            while((Integer)st.peek()!=u){
+                System.out.print(st.peek()+" ");
+                st.pop();
+            }
+            System.out.print(st.peek()+" ");
+            System.out.println("");
+            st.pop();
+        }
+        
+    }
+    void printStronglyConnectedGraphUsingLowDisc(Graph g){
+        int disc[] = new int[g.vertices];
+        int low[] = new int[g.vertices];
+        Stack stack = new Stack();
+        
+        for(int i=0;i<g.vertices;i++){
+            disc[i] = -1;
+            low[i] = -1;
+        }
+        for(int i=0;i<g.vertices;i++){
+            if(disc[i]==-1){
+                sccUtil(g, i, disc, low, stack);
+            }
+        }
+    }
+    void bccTestData(){
+    
+        Graph g = new Graph(12);
+        g.addEdge(0,1);
+        g.addEdge(1,0);
+        g.addEdge(1,2);
+        g.addEdge(2,1);
+        g.addEdge(1,3);
+        g.addEdge(3,1);
+        g.addEdge(2,3);
+        g.addEdge(3,2);
+        g.addEdge(2,4);
+        g.addEdge(4,2);
+        g.addEdge(3,4);
+        g.addEdge(4,3);
+        g.addEdge(1,5);
+        g.addEdge(5,1);
+        g.addEdge(0,6);
+        g.addEdge(6,0);
+        g.addEdge(5,6);
+        g.addEdge(6,5);
+        g.addEdge(5,7);
+        g.addEdge(7,5);
+        g.addEdge(5,8);
+        g.addEdge(8,5);
+        g.addEdge(7,8);
+        g.addEdge(8,7);
+        g.addEdge(8,9);
+        g.addEdge(9,8);
+        g.addEdge(10,11);
+        g.addEdge(11,10);
+ 
+        BCC(g);
+ 
+        System.out.println("Above are " + bccCount +
+                           " biconnected components in graph");
+    }
+    
+    void printSccTestDataUsingDiscAndLow(){
+        Graph g1 = new Graph(5);
+        g1.addEdge(1, 0);
+        g1.addEdge(0, 2);
+        g1.addEdge(2, 1);
+        g1.addEdge(0, 3);
+        g1.addEdge(3, 4);
+        System.out.println("Sccs in first graph");
+        printStronglyConnectedGraphUsingLowDisc(g1);
+        Graph g2 = new Graph
+        (4);
+    g2.addEdge(0, 1);
+        g2.addEdge(1, 2);
+        g2.addEdge(2, 3);
+        System.out.println("Sccs in second graph");
+
+        printStronglyConnectedGraphUsingLowDisc(g2);
+        Graph g3 = new Graph
+        (7);
+    g3.addEdge(0, 1);
+        g3.addEdge(1, 2);
+        g3.addEdge(2, 0);
+        g3.addEdge(1, 3);
+        g3.addEdge(1, 4);
+        g3.addEdge(1, 6);
+        g3.addEdge(3, 5);
+        g3.addEdge(4, 5);
+        System.out.println("Sccs in third graph");
+        printStronglyConnectedGraphUsingLowDisc(g3);
+        Graph g4 = new Graph
+        (11);
+        g4.addEdge(0, 1);
+        g4.addEdge(0, 3);
+        g4.addEdge(1, 2);
+        g4.addEdge(1, 4);
+        g4.addEdge(2, 0);
+        g4.addEdge(2, 6);
+        g4.addEdge(3, 2);
+        g4.addEdge(4, 5);
+        g4.addEdge(4, 6);
+        g4.addEdge(5, 6);
+        g4.addEdge(5, 7);
+        g4.addEdge(5, 8);
+        g4.addEdge(5, 9);
+        g4.addEdge(6, 4);
+        g4.addEdge(7, 9);
+        g4.addEdge(8, 9);
+        g4.addEdge(9, 8);
+        System.out.println("Sccs in fourth graph");
+        printStronglyConnectedGraphUsingLowDisc(g4);
+        Graph g5=new Graph
+        (5);
+    g5.addEdge(0, 1);
+        g5.addEdge(1, 2);
+        g5.addEdge(2, 3);
+        g5.addEdge(2, 4);
+        g5.addEdge(3, 0);
+        g5.addEdge(4, 2);
+        System.out.println("Sccs in fifth graph");
+        printStronglyConnectedGraphUsingLowDisc(g5);
+
+    }
     static final int NIL = -1;
     int time = 0;
     void isReachableFromSrcToDestTestData(){
@@ -1012,12 +1287,13 @@ A cell in 2D matrix can be connected to 8 neighbors. So, unlike standard DFS(), 
 //        articulationPointTestData();
 //        binaryConnectedGraphTestData();
 //        bridgeInGraphTestData();
-        EulerianTestData();
+//        EulerianTestData();
 //        printEulerTestData();
 //        printSccTestData();
 //        printReachabilityTransclosureTestData();
 //        countIslandsTestData();
-          
+//          bccTestData();
+//        printSccTestDataUsingDiscAndLow();
     }
     
     
