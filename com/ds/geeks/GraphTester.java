@@ -308,5 +308,6 @@ public class GraphTester {
     spt.shortestPathTestData();
     
     new Connectivity().connectivityTestData();
+    new GraphHardProblems().hardProblemsTestData();
     }
 }
