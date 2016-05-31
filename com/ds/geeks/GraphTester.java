@@ -307,7 +307,8 @@ public class GraphTester {
     spt.dijkstraUsingAdjList(graph, 0);
     spt.shortestPathTestData();
     
-    new Connectivity().connectivityTestData();
-    new GraphHardProblems().hardProblemsTestData();
+//    new Connectivity().connectivityTestData();
+//    new GraphHardProblems().hardProblemsTestData();
+      new MaxFlowGraph().maxFlowTestData();
     }
 }

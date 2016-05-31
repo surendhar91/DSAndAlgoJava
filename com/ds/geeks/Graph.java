@@ -92,6 +92,16 @@ public class Graph {
         }
     
     }
+    // A DFS based function to find all reachable vertices from s.  The function
+    // marks visited[i] as true if i is reachable from s.  The initial values in
+    // visited[] must be false. We can also use BFS to find reachable vertices
+    void dfs(int graph[][], int u, boolean visited[])
+    {
+        visited[u] = true;
+        for (int v = 0; v < graph.length; v++)
+            if (graph[u][v]>0 && !visited[v])
+                dfs(graph, v, visited);
+    }
     int DFSCount(int src, boolean[] visited){
         visited[src] = true;
         int count = 1;
