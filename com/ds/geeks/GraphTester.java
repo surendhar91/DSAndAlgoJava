@@ -309,6 +309,7 @@ public class GraphTester {
     
 //    new Connectivity().connectivityTestData();
 //    new GraphHardProblems().hardProblemsTestData();
-      new MaxFlowGraph().maxFlowTestData();
+//      new MaxFlowGraph().maxFlowTestData();
+      new GraphMisc().graphMiscTestData();
     }
 }

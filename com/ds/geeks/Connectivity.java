@@ -319,7 +319,54 @@ public class Connectivity {
         }
         return true;
     }
-    int isEulerian(Graph graph){
+    
+    boolean isNonZeroStronglyConnected(Graph graph){
+        
+         boolean[] visited = new boolean[graph.vertices];
+        
+        for(int i=0;i<graph.vertices;i++){
+            visited[i] = false;
+        }
+        int i;
+        //find a vertex with non zero degree
+        for(i=0;i<graph.vertices;i++){
+            if(graph.arr[i].size()!=0){
+                break;
+            }
+        }
+        if(i==graph.vertices){//if all the vertices are zero vertex, then return true
+            return true;//eulierian cycle
+        }
+        
+        graph.DFSUtil(i, visited);//Traverse dfs from vertex i (should be a non zero vertex)
+        
+        //few edges, may be of zero degree
+        for(int j=0;j<graph.vertices;j++){
+            if(visited[j]==false && graph.arr[j].size()>0){
+                //Non zero degree vertex, if not visited, then it's not connected
+                return false;
+            }
+        }
+        graph = getTransclosure(graph);
+        
+        for(int j=0;j<graph.vertices;j++){
+            visited[j] = false;
+        }
+        
+        graph.DFSUtil(i, visited);
+        
+        //few edges, may be of zero degree
+        for(int j=0;j<graph.vertices;j++){
+            if(visited[j]==false && graph.arr[j].size()>0){
+                //Non zero degree vertex, if not visited, then it's not connected
+                return false;
+            }
+        }
+        
+        return true;
+        
+    }
+    int isEulerian(Graph graph){//For undirected graph
         
         /*
         Eulerian Path is a path in graph that uses every edge of a graph exactly once. Eulerian Circuit is an Eulerian Path which starts and ends on the same vertex.
@@ -673,7 +720,7 @@ A cell in 2D matrix can be connected to 8 neighbors. So, unlike standard DFS(), 
             }
         }
     }
-    boolean isEulerianCycleInDirected(Graph graph){
+    boolean isEulerianCycleInDirected(Graph graph, boolean nonZeroVertex){
         /*
         How to check if a directed graph is eulerian?
          A directed graph has an eulerian cycle if following conditions are true (Source: Wiki)
@@ -682,9 +729,15 @@ A cell in 2D matrix can be connected to 8 neighbors. So, unlike standard DFS(), 
         
         To compare in degree and out degree, we need to store in degree an out degree of every vertex. Out degree can be obtained by size of adjacency list. In degree can be stored by creating an array of size equal to number of vertices.
         */
-        if(!isStronglyConnectedGraph(graph)){//considers that the given graph is a non zero vertex
+        if(!nonZeroVertex){
+            if (!isStronglyConnectedGraph(graph)) {//considers that the given graph is a non zero vertex
 //            System.out.println("");
-            return false;
+                return false;
+            }
+        }else{
+            if(!isNonZeroStronglyConnected(graph)){
+                return false;
+            }
         }
         for(int i=0;i<graph.vertices;i++){
             if(graph.arr[i].size()!=graph.in[i]){
@@ -1186,7 +1239,7 @@ A cell in 2D matrix can be connected to 8 neighbors. So, unlike standard DFS(), 
         g.addEdge(3, 4);
         g.addEdge(4, 0);
   //O(V + E)
-        if (isEulerianCycleInDirected(g))
+        if (isEulerianCycleInDirected(g,false))
             System.out.println("Given directed graph is eulerian ");
         else
             System.out.println("Given directed graph is NOT eulerian ");
