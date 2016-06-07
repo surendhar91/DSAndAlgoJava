@@ -5,6 +5,8 @@
  */
 package com.ds.geeks;
 
+import com.ds.geeks.greedy.GreedyAlgorithms;
+
 /**
  *
  * @author surendhar-2481
@@ -310,6 +312,7 @@ public class GraphTester {
 //    new Connectivity().connectivityTestData();
 //    new GraphHardProblems().hardProblemsTestData();
 //      new MaxFlowGraph().maxFlowTestData();
-      new GraphMisc().graphMiscTestData();
+//      new GraphMisc().graphMiscTestData();
+      new GreedyAlgorithms().greedyAlgorithmsTestData();
     }
 }

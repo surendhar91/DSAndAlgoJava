@@ -5,7 +5,16 @@
  */
 package com.ds.geeks;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.Random;
+import java.util.Set;
+import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  *
@@ -194,7 +203,348 @@ public class GraphMisc {
         
         
     }
+    static final int NIL = 0;
+    static final int INF = Integer.MAX_VALUE;
+    int biPartiteGraphMaxMatchingHopcroftkarp(Graph g,int m, int n){
+        
+        /*
+        The idea is to use BFS (Breadth First Search) to find augmenting paths. Since BFS traverses level by level, it is used to divide the graph in layers of matching and not matching edges. 
+        
+        A dummy vertex NIL is added that is connected to all vertices on left side and all vertices on right side. 
+        
+        Following arrays are used to find augmenting path. Distance to NIL is initialized as INF (infinite). 
+        
+        If we start from dummy vertex and come back to it using alternating path of distinct vertices, then there is an augmenting path.
+
+        pairU[]: An array of size m+1 where m is number of vertices on left side of Bipartite Graph. pairU[u] stores pair of u on right side if u is matched and NIL otherwise.
+        pairV[]: An array of size n+1 where n is number of vertices on right side of Bipartite Graph. pairU[v] stores pair of v on left side if v is matched and NIL otherwise.
+        dist[]: An array of size m+1 where m is number of vertices on left side of Bipartite Graph. dist[u] is initialized as 0 if u is not matching and INF (infinite) otherwise. dist[] of NIL is also initialized as INF
+        
+        Once an augmenting path is found, DFS (Depth First Search) is used to add augmenting paths to current matching. DFS simply follows the distance array setup by BFS. It fills values in pairU[u] and pairV[v] if v is next to u in BFS.
+        
+        
+        */
     
+        int[] pairU = new int[m+1];//To store the pair of U in matching where U vertex from left side to V right side
+        int[] pairV = new int[n+1];//To store the pair of V from right side to U left side
+        
+        //
+        int[] dist  = new int[m+1];//dist[]: An array of size m+1 where m is number of vertices on left side of Bipartite Graph. dist[u] is initialized as 0 if u is not matching and INF (infinite) otherwise. dist[] of NIL is also initialized as INF
+        
+        //initialize all the pair of vertices from u as nil
+        for(int u=0;u<m;u++){
+            pairU[u] = NIL;//if u doesn't have any pair, then pairU[u] is NIL
+            //initialize everything to be a free vertex
+        }
+        
+        for(int v=0;v<n;v++){
+            pairV[v] = NIL;
+        }
+        
+        int result = 0;//to store the number of maximum matching
+        
+        while(biPartitieBFS(g,m, pairU, pairV, dist)){//find augmenting path
+            for(int u=1;u<=m;u++){
+                //find a free vertex
+                // If current vertex is free and there is
+                // an augmenting path from current vertex
+                if(pairU[u]==NIL && biPartiteDFS(g,u,pairU, pairV, dist)){
+                    System.out.println("Vertex "+u+" contains augmenting path..");
+                    result++;
+                }
+            }
+        }
+        System.out.println("End..");
+        for(int u=1;u<=m;u++){
+            System.out.println(u+" "+pairU[u]);
+        }
+        return result;
+    }
+    
+    boolean biPartitieBFS(Graph g,int m,int pairU[], int pairV[],int dist[]){
+        
+        
+        Queue<Integer> queue = new LinkedList<Integer>();
+        //Queue will store only the vertices from left side of bipartite graph
+        
+        //First layer of vertices (set distance as 0)
+        
+        for(int u=1;u<=m;u++){
+            //If this is a free vertex, add it to queue
+            /*
+                Free vertex: Given a matching M, a node that is not part of matching is called free node. Initially all vertices as free (See first graph of below diagram). In second graph, u2 and v2 are free. In third graph, no vertex is free.
+            
+            */
+            if(pairU[u]==NIL){//If this node is not visited in BFS traversal (free node), add it to the queue, set the distance as zero
+                dist[u] = 0;
+                queue.add(u);
+            }else{
+                dist[u] = INF;//else, set the distance of u as infinite, so that this vertex is considered next time
+            }
+        }
+        dist[NIL] = INF;//NIL node will be connected to all the vertices on left side.
+        System.out.println("-----------Start of BFS----------");
+        while(!queue.isEmpty()){
+            int u = queue.poll();
+            //If this node is not NIL and can provide a shorter path to NIL (dummy node)
+            if(dist[u]<dist[NIL]){
+                System.out.println("Vertex u "+u+" dist["+u+"] = "+dist[u]);
+                for(Integer edge:g.arr[u]){
+                    //get all adjacent vertices of the dequeued vertex u
+                    int v = edge;
+//                    System.out.print("\t edge "+v+" dist[pairV["+v+"]] = "+dist[pairV[v]]);
+                    //if pair of v is not considered so far, (v,pairV[v]) is not yet explored edge..
+                    if(dist[pairV[v]]==INF){
+                        dist[pairV[v]] = dist[u]+1;
+                        System.out.print("\t"+u+"-->"+v+" : pair "+pairV[v]);
+                        System.out.print("\t dist["+u+"]"+dist[pairV[v]]);
+                        queue.add(pairV[v]);
+                    }
+                }
+            }
+        }
+        System.out.println("--------Completion of BFS----------dist[NIL]"+dist[NIL]);
+        return dist[NIL]!=INF;//If we could come back to NIL using alternating path of distinct vertices then there is an augmenting path
+                
+    
+    }
+    
+    private boolean biPartiteDFS(Graph g, int u,int pairU[], int pairV[],int dist[]) {
+       //returns true if there is an augmenting path beginning with free vertex u
+        
+        if(u!=NIL){//not a zero vertex
+            
+            System.out.println("DFS Node U -> "+u+" dist[u] is "+dist[u]);
+            for(Integer v:g.arr[u]){
+                
+                if(dist[pairV[v]]==dist[u]+1){//follow the distances set by BFS
+                    
+                    System.out.println(u+"->"+v+" pairV["+v+"] = "+pairV[v]+" dist[pairV[]]="+dist[pairV[v]]);
+                    //if dfs for a pair of v also returns true
+                    if(biPartiteDFS(g,pairV[v],pairU,pairV,dist)){
+                        System.out.println("Edge "+u+" -> "+v+" is in augment path.");
+                        pairV[v] = u;
+                        pairU[u] = v;
+                        return true;
+                    }
+                    
+                }
+            }
+            dist[u] = INF;//marks that the node u is not a free node
+            return false;
+        }
+        return true;
+        
+        
+    }
+    
+    int shortestChainLength(String start, String target,Set<String> words){
+        /*
+        Given a dictionary, and two words ‘start’ and ‘target’ (both of same length). Find length of the smallest chain from ‘start’ to ‘target’ if it exists, such that adjacent words in the chain only differ by one character and each word in the chain is a valid word i.e., it exists in the dictionary. It may be assumed that the ‘target’ word exists in dictionary and length of all dictionary words is same.
+
+         Example:
+
+         Input:  Dictionary = {POON, PLEE, SAME, POIE, PLEA, PLIE, POIN}
+         start = TOON
+         target = PLEA
+         Output: 7
+         Explanation: TOON - POON - POIN - POIE - PLIE - PLEE - PLEA
+        
+        */
+        //Use BFS traversal to find the shortest chain length to reach the target word
+        
+        //given a source, do the breadth first traversal
+        boolean visited[] = new boolean[words.size()];
+        
+        for(int i=0;i<words.size();i++){
+            visited[i] = false;
+        }
+        
+        class QItem{
+            String word;//to store the word for queue.
+            int length;//shortest chain length to reach this word
+        }
+        
+        QItem item = new QItem();
+        item.word   = start;
+        item.length = 1;
+        LinkedList<QItem> queue = new LinkedList<QItem>();
+        queue.add(item);//adding start vertex
+        while(queue.size()!=0){
+            QItem currNode = queue.poll();
+            
+            Set<String> clonedSet = new HashSet<String>(words);
+            for(String word: clonedSet){
+                if(words.contains(word)&&isAdjacentWord(currNode.word, word)){//Adjacent means that word1 and word2 differs by only one character
+                    
+                    item.word   = word;
+                    item.length = currNode.length+1;
+                    queue.add(item);
+                    
+                    words.remove(word);
+                    
+                    if(target.equals(item.word)){
+                        return item.length;//Return the minimum length if the target is reached.
+                    }
+                    
+                }
+            }
+            
+        }
+        return 0;
+    
+    }
+    boolean isAdjacentWord(String word1, String word2){
+        
+        int count=0;
+        for(int i=0;i<Math.min(word1.length(),word2.length());i++){
+            if(word1.charAt(i)!=word2.charAt(i)){
+                count++;
+            }
+            if(count>1)return false;
+        }
+        //if differs by only one character then return true else return false.
+        return count==1?true:false;
+        
+    }
+
+    private void buildGraph(Contact[] arr, int[][] mat) {
+        
+        for(int i=0;i<arr.length;i++){
+            for(int j=0;j<arr.length;j++){
+                mat[i][j] = 0;//initialize
+            }
+        }
+        for(int i=0;i<arr.length;i++){
+            for(int j=i+1;j<arr.length;j++){
+                if(arr[i].field1.equals(arr[j].field1)||
+                     arr[i].field1.equals(arr[j].field2)||
+                        arr[i].field1.equals(arr[j].field3)||
+                        arr[i].field2.equals(arr[j].field1)||
+                        arr[i].field2.equals(arr[j].field2)||
+                        arr[i].field2.equals(arr[j].field3)||
+                        arr[i].field3.equals(arr[j].field1)||
+                        arr[i].field3.equals(arr[j].field2)||
+                        arr[i].field3.equals(arr[j].field3)
+                        )
+                {
+                    mat[i][j] = 1;
+                    mat[j][i] = 1;
+                    break;
+                }
+            }
+        }
+    }
+    void DFSVisit(int vertex, int[][] mat, boolean[] visited, Stack solution){
+        visited[vertex] = true;
+
+        for(int j=0;j<mat.length;j++){
+            if(!visited[j] && mat[vertex][j]==1){
+                DFSVisit(j, mat, visited, solution);
+            }
+        }
+            solution.push(vertex);
+
+    }
+    
+    class Contact{
+        String field1,field2,field3;
+    }
+    void findSameContacts(Contact[] arr,int n){
+        
+        // Finds similar contacrs in an array of contacts
+        Stack<Integer> solution = new Stack<Integer>();
+        
+        int mat[][] = new int[arr.length][arr.length];
+        
+        buildGraph(arr,mat);
+        
+        boolean[] visited = new boolean[mat.length];
+        
+        for(int i=0;i<visited.length;i++){
+            visited[i] = false;
+        }
+        // Since, we made a graph with contacts as nodes with fields as links.
+    // two nodes are linked if they represent the same person.
+    // so, total number of connected components and nodes in each component
+    // will be our answer.
+        for(int i=0;i<mat.length;i++){
+            if(!visited[i]){
+                DFSVisit(i, mat, visited, solution);
+                solution.push(-1);//A delimited for the connected components
+            }
+        }
+        
+        while(!solution.isEmpty()){
+            int elemt = solution.pop();
+            if(elemt==-1)System.out.println("");
+            else System.out.print(elemt+"\t");
+        }
+        
+    
+    }
+    
+    void findSameContactsTestData(){
+    
+        Contact arr[] = new Contact[6];
+        for(int i=0;i<arr.length;i++){
+            arr[i] = new Contact();
+        }
+        arr[0].field1 = "Gaurav";
+        arr[0].field2 = "gaurav@gmail.com";
+        arr[0].field3 = "gaurav@gfgQA.com";
+                
+        arr[1].field1 = "Lucky";
+        arr[1].field2 = "lucky@gmail.com";
+        arr[1].field3 = "+1234567";
+        
+        arr[2].field1 = "gaurav123";
+        arr[2].field2 = "+5412312";
+        arr[2].field3 = "gaurav123@skype.com";
+        
+        arr[3].field1 = "gaurav1993";
+        arr[3].field2 = "+5412312";
+        arr[3].field3 = "gaurav@gfgQA.com";
+        
+        arr[4].field1 = "raja";
+        arr[4].field2 = "+2231210";
+        arr[4].field3 = "raja@gfg.com";
+        
+        arr[5].field1 = "bahubali";
+        arr[5].field2 = "+878312";
+        arr[5].field3 = "raja";
+        
+        findSameContacts(arr, arr.length);
+    }
+   
+    
+    void shortestChainLengthTestData(){
+        
+        CopyOnWriteArraySet<String> D = new CopyOnWriteArraySet<String>();
+        D.add("poon");
+        D.add("plee");
+        D.add("same");
+        D.add("poie");
+        D.add("plie");
+        D.add("poin");
+        D.add("plea");
+        String start = "toon";
+        String target = "plea";
+        System.out.println("Shortest chain length for the given dictionary is "+shortestChainLength(start, target, D));
+    
+    }
+    
+    void hopCroftTestData(){
+        Graph g = new Graph(4+1,true);//1 is for dummy node
+        g.addEdge(1, 2);
+        g.addEdge(1, 3);
+//        g.addEdge(2, 1);
+        g.addEdge(3, 2);
+        g.addEdge(4, 2);
+        g.addEdge(4, 4);
+ 
+        System.out.println("Size of maximum matching is " +biPartiteGraphMaxMatchingHopcroftkarp(g,4, 4));
+    }
     void kargerMinCutTestData(){
 
         int V = 4;  // Number of vertices in graph
@@ -238,6 +588,11 @@ public class GraphMisc {
     void graphMiscTestData(){
 //        canBeChainedTestData();
 //        findOrderOfCharsInLangTestData();
-        kargerMinCutTestData();
+//        kargerMinCutTestData();
+//        hopCroftTestData();
+//        shortestChainLengthTestData();
+//        findSameContactsTestData();
     }
+
+    
 }
