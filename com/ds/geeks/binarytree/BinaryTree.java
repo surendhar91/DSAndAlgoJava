@@ -101,10 +101,54 @@ public class BinaryTree {
             System.out.println(currEntry.getValue().data+" ");
         }
     }
+    int LISS(BinaryNode root){
+        
+        /*Given a Binary Tree, find size of the Largest Independent Set(LIS) in it. A subset of all tree nodes is an independent set if there is no edge between any two nodes of the subset.
+         For example, consider the following binary tree. The largest independent set(LIS) is {10, 40, 60, 70, 80} and size of the LIS is 5.
+        
+         If a node is considered as part of LIS, then its children cannot be part of LIS, but its grandchildren can be. Following is optimal substructure property.
+
+         1) Optimal Substructure:
+         Let LISS(X) indicates size of largest independent set of a tree with root X.
+
+         LISS(X) = MAX { (1 + sum of LISS for all grandchildren of X),
+         (sum of LISS for all children of X) }
+         The idea is simple, there are two possibilities for every node X, either X is a member of the set or not a member.
+         If X is a member, then the value of LISS(X) is 1 plus LISS of all grandchildren.
+         If X is not a member, then the value is sum of LISS of all children.
+        */
+        if(root==null)
+            return 0;
+        
+        if(root.liss!=0){//memoization, no need to calculate already calculated value, hence stored in liss value..
+//if largest independent subset size is not zero then return as such
+            return root.liss;
+        }
+        
+        //for leaf node
+        if(root.left==null && root.right==null){
+            return (root.liss=1);//leaf node independent subset size is 1
+        }
+        
+        int liss_exclude = LISS(root.left) + LISS(root.right);//excluding the current node, calculating for the child
+        int liss_include = 1;//including the current node
+        if(root.left!=null){
+            liss_include += LISS(root.left.left)+LISS(root.left.right);//go for the grand children
+        }
+        if(root.right!=null){
+            liss_include += LISS(root.right.left)+LISS(root.right.right);
+        }
+        
+        root.liss = Math.max(liss_include, liss_exclude);//Get the maximum and set it to liss
+        
+        return root.liss;
+        
+    }
     
     public void BinaryTreeTestData(){
 //        printTopViewOfBinaryTreeTestData();
-          printBottonViewOfBinaryTreeTestData();
+//          printBottonViewOfBinaryTreeTestData();
+        LargestIndependentSubsetTestData();
     }
 
     private void printTopViewOfBinaryTreeTestData() {
@@ -145,14 +189,28 @@ public class BinaryTree {
         printBottomViewOfBinaryTree(root);
     }
     
+    private void LargestIndependentSubsetTestData(){
+        BinaryNode root = new BinaryNode(20);
+        root.left = new BinaryNode(8);
+        root.left.left = new BinaryNode(4);
+        root.left.right = new BinaryNode(12);
+        root.left.right.left = new BinaryNode(10);
+        root.left.right.right = new BinaryNode(14);
+        root.right = new BinaryNode(22);
+        root.right.right = new BinaryNode(25);
+        System.out.println("Largest independent subset size of binary tree is "+LISS(root));
+    }
+    
 }
 class BinaryNode{
     int data;
+    int liss;
     BinaryNode left,right;
     BinaryNode(int data){
         this.data = data;
         left = null;
         right = null;
+        this.liss = 0;
     }
 }
 class QBinaryItem{

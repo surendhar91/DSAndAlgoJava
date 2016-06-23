@@ -5,6 +5,7 @@
  */
 package com.ds.geeks;
 
+import com.ds.geek.dynamicpgm.DynamicProgramming;
 import com.ds.geeks.greedy.GreedyAlgorithms;
 
 /**
@@ -313,6 +314,7 @@ public class GraphTester {
 //    new GraphHardProblems().hardProblemsTestData();
 //      new MaxFlowGraph().maxFlowTestData();
 //      new GraphMisc().graphMiscTestData();
-      new GreedyAlgorithms().greedyAlgorithmsTestData();
+//      new GreedyAlgorithms().greedyAlgorithmsTestData();
+      new DynamicProgramming().dynamicProgrammingTestData();
     }
 }
