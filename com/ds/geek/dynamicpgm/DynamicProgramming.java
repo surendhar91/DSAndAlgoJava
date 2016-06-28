@@ -1562,6 +1562,460 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
                                  ")(" + right + ", " + bottom + ")]");
               
     }
+    int countNoOfBinaryStringsWithoutConsecutive1s(int n){
+        /*
+        Given a positive integer N, count all possible distinct binary strings of length N such that there are no consecutive 1’s.
+
+         Examples:
+
+         Input:  N = 2
+         Output: 3
+         // The 3 strings are 00, 01, 10
+
+         Input: N = 3
+         Output: 5
+         // The 5 strings are 000, 001, 010, 100, 101
+        
+        This problem can be solved using Dynamic Programming. Let a[i] be the number of binary strings of length i which do not contain any two consecutive 1’s and which end in 0.
+        
+        Similarly, let b[i] be the number of such strings which end in 1. 
+        
+        We can append either 0 or 1 to a string ending in 0, but we can only append 0 to a string ending in 1. This yields the recurrence relation:
+                
+                a[i] = a[i - 1] + b[i - 1]
+                b[i] = a[i - 1] 
+            
+        */
+        int a[] = new int[n+1];
+        int b[] = new int[n+1];
+        a[0] = 1;
+        b[0] = 1;
+        for(int i=1;i<n;i++){
+            //Note that a[i] would always ends with 0..
+            a[i] = a[i-1]+b[i-1]; //a[i-1] provides the number of binary string of length i-1 ending in 0
+                        //b[i-1] provides number of binary string of length i-1 ending in 1
+            b[i] = a[i-1];//appending 0 to a string ending in 1
+        }
+        return a[n-1]+b[n-1];
+        //If we look at the pattern, this is related to fibonacci series.
+        
+    }
+    void countBinaryStringTestData(){
+        System.out.println("Number of binary strings without consecutive 1s formed with 3 chars is "+countNoOfBinaryStringsWithoutConsecutive1s(3));
+    }
+    
+    int countBooleanParenthesization(char symb[], char oper[], int n){
+        // Returns count of all possible parenthesizations that lead to
+// result true for a boolean expression with symbols like true
+// and false and operators like &, | and ^ filled between symbols
+        /*
+         Given a boolean expression with following symbols.
+
+         Symbols
+         'T' ---> true 
+         'F' ---> false 
+         And following operators filled between symbols
+
+         Operators
+         &   ---> boolean AND
+         |   ---> boolean OR
+         ^   ---> boolean XOR 
+         Count the number of ways we can parenthesize the expression so that the value of expression evaluates to true.
+
+         Let the input be in form of two arrays one contains the symbols (T and F) in order and other contains operators (&, | and ^}
+
+         Examples:
+
+         Input: symbol[]    = {T, F, T}
+         operator[]  = {^, &}
+         Output: 2
+         The given expression is "T ^ F & T", it evaluates true
+         in two ways "((T ^ F) & T)" and "(T ^ (F & T))"
+        
+         */
+        /*
+            Let T(i, j) represents the number of ways to parenthesize the symbols 
+            between i and j (both inclusive) such that the subexpression between i and j evaluates to true.
+        */
+        int T[][] = new int[n][n];
+        /*
+            Let F(i, j) represents the number of ways to parenthesize the symbols between i and j 
+            (both inclusive) such that the subexpression between i and j evaluates to false.
+        */
+        int F[][] = new int[n][n];
+        
+        /*
+        // Fill diaginal entries first
+    // All diagonal entries in T[i][i] are 1 if symbol[i]
+    // is T (true).  Similarly, all F[i][i] entries are 1 if
+        Base Case:
+        
+            T(i,i) = 1 if symbol[i] = 'T'
+            T(i,i) = 0 if symbol[i] = 'F'
+        
+            F(i,i) = 1, if symbol[i] = 'F'
+            F(i,i) = 0, if symbol[i] = 'T'
+        */
+        for(int i=0;i<n;i++){
+            T[i][i] = (symb[i]=='T')?1:0;
+            F[i][i] = (symb[i]=='F')?1:0;
+        }
+        
+        //Optimal substructure
+         // Now fill T[i][i+1], T[i][i+2], T[i][i+3]... in order
+    // And F[i][i+1], F[i][i+2], F[i][i+3]... in order
+        for(int L=2;L<=n;L++){//chain length
+            for(int i=0;i<n-L+1;i++){
+                int j = i+L-1;
+                T[i][j]=0;F[i][j]=0;
+                for(int k=i;k<j;k++){//K has to range from i to j-1
+                    // Find place of parenthesization using current value
+                    // of gap
+                    //Find the total 
+                    int tik = T[i][k] + F[i][k];
+                    int tkj = T[k+1][j] + F[k+1][j];
+                    
+                    if(oper[k]=='&'){
+                        T[i][j]+=T[i][k]*T[k+1][j];//for the and operator to be true, both subexpressions should be true
+                        F[i][j]+= (tik*tkj -T[i][k]*T[k+1][j]); //For the and operator to be false, 1. either of the expression has to be false 2. both has to be false
+                                //This can be achieved by calculating the total ways to parenthesize - number of ways in both subexpressions to be true.
+                    }
+                    if(oper[k]=='|'){
+                        F[i][j]+= F[i][k]*F[k+1][j];//For the or operator to be false, both subexpressions has to be false
+                        T[i][j]+=(tik*tkj-F[i][k]*F[k+1][j]);//for the or operator to be true, 1. either of the expression has to be true 2. both has to be true
+                            //Total ways ot parenthesize - number of ways in both subexpressions is false
+                    }
+                    if(oper[k]=='^'){
+                        T[i][j]+=F[i][k]*T[k+1][j]+T[i][k]*F[k+1][j];//Xor operator to be true, o 1 1 0
+                        F[i][j]+=T[i][k]*T[k+1][j]+F[i][k]*F[k+1][j];//X or operator to be false 1 1 0 0
+                    }
+                }
+            }
+        }
+        return T[0][n-1];//Returns count of all possible parenthesization that returns true with the given symbols and operators.
+        
+    }
+    
+    int countWaysToReachNthStair(int n, int m){
+        /*
+         There are n stairs, a person standing at the bottom wants to reach the top. 
+         The person can climb either 1 stair or 2 stairs at a time.
+         Count the number of ways, the person can reach the top.
+        
+         Input: n = 1
+Output: 1
+There is only one way to climb 1 stair
+
+Input: n = 2
+Output: 2
+There are two ways: (1, 1) and (2)
+
+Input: n = 4
+Output: 5
+(1, 1, 1, 1), (1, 1, 2), (2, 1, 1), (1, 2, 1), (2, 2)
+        
+        We can easily find recursive nature in above problem. 
+        
+        
+        The person can reach n’th stair from either (n-1)’th stair or from (n-2)’th stair. 
+        
+        Let the total number of ways to reach n’t stair be ‘ways(n)’. The value of ‘ways(n)’ can be written as following.
+
+         ways(n) = ways(n-1) + ways(n-2)
+         The above expression is actually the expression for Fibonacci numbers, but there is one thing to notice, the value of ways(n) is equal to fibonacci(n+1).
+
+         ways(1) = fib(2) = 1
+         ways(2) = fib(3) = 2
+         ways(3) = fib(4) = 3
+        
+        How to count number of ways if the person can climb up to m stairs for a given value m? For example if m is 4, the person can climb 1 stair or 2 stairs or 3 stairs or 4 stairs at a time.
+
+         We can write the recurrence as following.
+
+         ways(n, m) = ways(n-1, m) + ways(n-2, m) + ... ways(n-m, m) 
+*/
+        int res[] = new int[n];
+        //Base case: reaching 0th or 1th stair takes only one step..
+        res[0] =1;res[1]=1;
+        for(int i=2;i<n;i++){
+            res[i]=0;
+            for(int j=1;j<=m&&j<=i;j++){
+                res[i]+=res[i-j];//number of ways taking j step, j iterated within m
+                //j should be less than or equal to i, why equal to i, if reaching 2 stair can be achieved by taking 2 steps, then j is equal to i
+            }
+        }
+        return res[n-1];//callee has s+1
+    }
+    class Point{
+        int x,y;
+        Point(int x,int y){
+            this.x = x;
+            this.y = y;
+        }
+    }
+    //to find distance between two points in a plane
+    double dist(Point p1,Point p2){
+        return Math.sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
+    }
+    //To calculate the cost of a triangle with three vertices i,j,k
+    //it's sum of length of all edges in the triangle.(perimeter of the triangle)
+    double cost(Point points[],int i,int j,int k){
+        Point p1 = points[i];
+        Point p2 = points[j];
+        Point p3 = points[k];
+        return dist(p1,p2)+dist(p2,p3)+dist(p3,p1);//length of all edges in the triangle and it's sum
+    }
+    double minCostTriangulation(Point points[],int n){
+        
+        if (n < 3) {
+            //There must be 3 vertices to form a triangle, if not return 0
+            return 0.0;
+        }
+        //The idea is to divide the polygon into three parts: a single triangle, the sub-polygon to the left, and the sub-polygon to the right. 
+
+        //Refer http://www.geeksforgeeks.org/minimum-cost-polygon-triangulation/
+        //We try all possible divisions like this and find the one that minimizes the cost of the triangle plus the cost of the triangulation of the two sub-polygons.
+        /*
+         Formula:-
+        
+         Let Minimum Cost of triangulation of vertices from i to j be minCost(i, j)
+         If j <= i + 2 Then
+         minCost(i, j) = 0
+         Else
+         minCost(i, j) = Min { minCost(i, k) + minCost(k, j) + cost(i, k, j) }
+         cost(i,k,j) is the triangle formed,
+         minCost(i,k) is the cost of the triangle formed in the sub polygon to the left
+         minCost(k,j) is the cost of the triangle formed in the sub polyon to the right.
+         Here k varies from 'i+1' to 'j-1'
+
+         Cost of a triangle formed by edges (i, j), (j, k) and (k, j) is 
+         cost(i, j, k)  = dist(i, j) + dist(j, k) + dist(k, j)
+        
+        */
+         // table to store results of subproblems.  table[i][j] stores cost of
+        // triangulation of points from i to j.  The entry table[0][n-1] stores
+        // the final result.
+        double table[][] = new double[n][n];
+
+        //We are going to achieve the above recursion through dynamic programming in bottom up manner.
+        // Fill table using above recursive formula. Note that the table
+        // is filled in diagonal fashion i.e., from diagonal elements to
+        // table[0][n-1] which is the result.
+        for(int L=3;L<=n;L++){//Process the chain length from 3 onwards, as 3 vertices are required for triangulation..
+            for(int i=0;i<n-L+1;i++){
+                int j = i+L-1;
+                if(j<i+2){//atleast 3 vertices is needed for processing.
+                    //for example i - 1 j - 4 we can process k as 2, 3
+                    //if i- 2 j-3 there is no k in between, and we can't triangulate the polygon with the vertices 2 and 3, hence set the table[i][j] to 0
+                    table[i][j] = 0.0;
+                }else{
+                    table[i][j] = Integer.MAX_VALUE;//set the value to max..
+                    for (int k = i + 1; k < j; k++) {//i+1 to j-1
+                          //why iterating from i+1 to j-1, say if given 3 vertices , and formulate a triangle with these vertices (given i and j), then we need to iterate k from i+1 to j-1
+                        double val = table[i][k]+table[k][j]+cost(points,i,j,k);
+                        if(val<table[i][j]){
+                            table[i][j] = val;//minimum cost to triangulate the polygon..
+                        }
+                    }
+                }
+            }
+        }
+        return table[0][n-1];
+        
+    }
+    
+    int getMobileKeyPadPossibleNumbersOfLength(char[][] keypad, int n){
+        /*
+        Given the mobile numeric keypad. You can only press buttons that are up, left, right or down to the current button. You are not allowed to press bottom row corner buttons (i.e. * and # ).
+         Given a number N, find out the number of possible numbers of given length.
+
+         Examples:
+         For N=1, number of possible numbers would be 10 (0, 1, 2, 3, …., 9)
+         For N=2, number of possible numbers would be 36
+         Possible numbers: 00,08 11,12,14 22,21,23,25 and so on.
+         If we start with 0, valid numbers will be 00, 08 (count: 2)
+         If we start with 1, valid numbers will be 11, 12, 14 (count: 3)
+         If we start with 2, valid numbers will be 22, 21, 23,25 (count: 4)
+         If we start with 3, valid numbers will be 33, 32, 36 (count: 3)
+         If we start with 4, valid numbers will be 44,41,45,47 (count: 4)
+         If we start with 5, valid numbers will be 55,54,52,56,58 (count: 5)
+        */
+        
+        if(n==0){
+            return 0;
+        }
+        //Base case: if the n is 1, then number of possible numbers would be 10
+        if(n==1){
+            return 10;
+        }
+        /*
+        For N > 1, we need to start from some button, then move to any of the four direction (up, left, right or down) which takes to a valid button (should not go to *, #). 
+        
+        Keep doing this until N length number is obtained (depth first traversal).
+        
+        Mobile Keypad is a rectangular grid of 4X3 (4 rows and 3 columns)
+         
+        Lets say Count(i, j, N) represents the count of N length numbers starting from position (i, j)
+
+         If N = 1
+         Count(i, j, N) = 10  
+         Else
+         Count(i, j, N) = Sum of all Count(r, c, N-1) where (r, c) is new 
+         position after valid move of length 1 from current 
+         position (i, j)
+        */
+        
+        //current, left, up, right, down move from current location..
+        int row[] = new int[]{0,0,-1,0,1};
+        int col[] = new int[]{0,-1,0,1,0};
+        
+        int[][] count = new int[10][n+1];//we are having 10 numbers only and of length n
+        
+        //We are going to populate this matrix
+        for(int i=0;i<=9;i++){
+            count[i][0] = 0;//length zero for all numbers is 0
+            count[i][1] = 1;//length 1 for all numbers is 1
+        }
+        int num,nextNum;
+        for(int k=2;k<=n;k++){
+            //for length n, solve sub problems from 2 to n..
+            for(int i=0;i<4;i++){//only 4 rows in key pad
+                
+                for(int j=0;j<3;j++)//only 3 cols 
+                {
+                    if(keypad[i][j]!='*'&&keypad[i][j]!='#'){
+                        //Except for * and # do the processing..
+                        
+                         // Here we are counting the numbers starting with
+                        // digit keypad[i][j] and of length k keypad[i][j]
+                        // will become 1st digit, and we need to look for
+                        // (k-1) more digits
+                        num = keypad[i][j]-'0';//current number
+                        count[num][k] = 0;
+                        
+                        // move left, up, right, down from current location
+                        // and if new location is valid, then get number
+                        // count of length (k-1) from that new digit and
+                        // add in count we found so far
+                        for(int move=0;move<5;move++){
+                            int r = i+row[move];
+                            int c = j+col[move];
+                            if(r>=0&&r<=3&&c>=0&&c<=2
+                                    && keypad[r][c] !='*' && keypad[r][c]!='#'
+                                    )
+                            {
+                                //calculate the cost 
+                                nextNum = keypad[r][c]-'0';//get the next number on move
+                                count[num][k]+=count[nextNum][k-1];//add the count of next number with length k-1
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //Now that we have calculated the count of all digits of length k
+        //Add them to the toal count..
+        int totalCount = 0;
+        for(int i=0;i<=9;i++){
+            totalCount+=count[i][n];
+        }
+        return totalCount;
+    }
+    double sumDigitLookup[][]= new double[101][50001];
+    double countOfNDigitSumRec(int n,int sum){
+        
+        if(n==0){
+            return sum==0?1.0:0.0;//if the sum is zero, then 1 element is found..
+        }
+        
+        if(sumDigitLookup[n][sum]!=-1){
+            return sumDigitLookup[n][sum];//if the n digits whose sum is already calculated then return as such
+        }
+        
+        double ans = 0;
+        for(int i=0;i<=9;i++){
+            if(sum-i>=0){//only there is still sum left, recurse down..
+                ans+=countOfNDigitSumRec(n-1, sum-i);
+            }
+        }
+        sumDigitLookup[n][sum]=ans;
+        return sumDigitLookup[n][sum];
+    }
+    
+    double countOfNDigitEqualToSum(int n, int sum){
+        /*
+        Count of n digit numbers whose sum of digits equals to given sum
+         Given two integers ‘n’ and ‘sum’, find count of all n digit numbers with sum of digits as ‘sum’. Leading 0’s are not counted as digits.
+         1 <= n <= 100 and 1 <= sum <= 50000
+
+         Example:
+
+         Input:  n = 2, sum = 2
+         Output: 2
+         Explanation: Numbers are 11 and 20
+
+         Input:  n = 2, sum = 5
+         Output: 5
+         Explanation: Numbers are 14, 23, 32, 41 and 50
+
+         Input:  n = 3, sum = 6
+         Output: 21
+        */
+        
+        
+//        if(n==0||sum==0){
+//            return 0.0;
+//        }
+        
+        for(int i=0;i<sumDigitLookup.length;i++){
+            for(int j=0;j<sumDigitLookup[0].length;j++){
+                sumDigitLookup[i][j] = -1;
+            }
+        }
+        
+        double ans = 0;
+        for(int i=1;i<=9;i++){//Leading zeros are avoided here..
+            if(sum-i>=0){//this is required for example, if the sum is 7, going for 8 and 9 in i is useless
+                ans+=countOfNDigitSumRec(n-1,sum-i);
+            }
+        }
+        return ans;
+    }
+    
+    void countOfNDigitEqualToSumTestData(){
+        int n = 3, sum = 5;
+        System.out.println("Count of 3 digit equal to sum 5 is "+countOfNDigitEqualToSum(n,sum));
+    }
+    
+    void keyPadNumberTestData(){
+        char keypad[][] = new char[][]{{'1','2','3'},
+                        {'4','5','6'},
+                        {'7','8','9'},
+                        {'*','0','#'}};
+        System.out.println("Count for numbers of length 5 is "+getMobileKeyPadPossibleNumbersOfLength(keypad, 5));
+    }
+    void minCostTriangulationTestData(){
+        Point points[] = new Point[5];
+        points[0] = new Point(0,0);
+        points[1] = new Point(1,0);
+        points[2] = new Point(2,1);
+        points[3] = new Point(1,2);
+        points[4] = new Point(0,2);
+        System.out.println("Minimum cost to triangulate the polygon of given vertices is "+minCostTriangulation(points, points.length));
+        
+    }
+    void countStairsTestData(){
+    
+        int s = 4, m = 2;
+        System.out.println("Nuber of ways to reach 4 stair is "+ countWaysToReachNthStair(s+1, m));
+    }
+    
+    void booleanParenthesizationTestData(){
+         char symbols[] = new char[]{'T','T','F','T'};
+         char operators[] = new char[]{'|','&','^'};
+         System.out.println("Parenthesization count is "+countBooleanParenthesization(symbols, operators, symbols.length));
+    }
+
     void findMaxSuMInRectangle2DMatrixTestData(){
         findMaxSuMInRectangle2DMatrix(new int[][] {
                             {1, 2, -1, -4, -20},
@@ -1775,7 +2229,13 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
 //        longestPalindromicTestData();
 //        optimalBSTTestData();
 //        isSubSetSumTestData();
-        findMaxSuMInRectangle2DMatrixTestData();
+//        findMaxSuMInRectangle2DMatrixTestData();
+//        countBinaryStringTestData();
+//        booleanParenthesizationTestData();
+//        countStairsTestData();
+//        minCostTriangulationTestData();
+//        keyPadNumberTestData();
+        countOfNDigitEqualToSumTestData();
     }
    /*
     For example the shortest path problem has following optimal substructure property: 
