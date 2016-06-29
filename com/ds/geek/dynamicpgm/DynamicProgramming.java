@@ -1982,6 +1982,270 @@ Output: 5
         return ans;
     }
     
+    int minPositivePointsToReachDestination(int points[][]){
+    
+        /*
+         Given a grid with each cell consisting of positive, negative or no points i.e, zero points. We can move across a cell only if we have positive points ( > 0 ). Whenever we pass through a cell, points in that cell are added to our overall points. We need to find minimum initial points to reach cell (m-1, n-1) from (0, 0).
+
+         Constraints :
+
+         From a cell (i, j) we can move to (i+1, j) or (i, j+1).
+         We cannot move from (i, j) if your overall points at (i, j) is <= 0.
+         We have to reach at (n-1, m-1) with minimum positive points i.e., > 0.
+         Example:
+
+         Input: points[m][n] = { {-2, -3,   3}, 
+         {-5, -10,  1}, 
+         {10,  30, -5} 
+         };
+         Output: 7
+        
+         Explanation: 
+         7 is the minimum value to reach destination with 
+         positive throughout the path. Below is the path.
+
+         (0,0) -> (0,1) -> (0,2) -> (1, 2) -> (2, 2)
+
+         We start from (0, 0) with 7, we reach(0, 1) 
+         with 5, (0, 2) with 2, (1, 2) with 5, (2, 2)
+         with and finally we have 1 point (we needed 
+         greater than 0 points at the end). 
+        
+        
+         Now, let us decide minimum points needed to leave cell (i, j) (remember we are moving from bottom to up). 
+        
+         There are only two paths to choose: (i+1, j) and (i, j+1). Of course we will choose the cell that the player can finish the rest of his journey with a smaller initial points. Therefore we have: min_Points_on_exit = min(dp[i+1][j], dp[i][j+1])
+        
+         Now we know how to compute min_Points_on_exit, but we need to fill the table dp[][] to get the solution in dp[0][0].
+
+         How to compute dp[i][j]?
+         The value of dp[i][j] can be written as below.
+
+         dp[i][j] = max(min_Points_on_exit – points[i][j], 1)
+        
+         Let us see how above expression covers all cases.
+
+         If points[i][j] == 0, then nothing is gained in this cell; the player can leave the cell with the same points as he enters the room with, i.e. dp[i][j] = min_Points_on_exit.
+        
+         If dp[i][j] < 0, then the player must have points greater than min_Points_on_exit before entering (i, j) in order to compensate for the points lost in this cell. 
+         The minimum amount of compensation is " - points[i][j] ", so we have dp[i][j] = min_Points_on_exit - points[i][j].
+         
+        If dp[i][j] > 0, then the player could enter (i, j) with points as little as min_Points_on_exit – points[i][j]. since he could gain “points[i][j]” points in this cell. 
+        However, the value of min_Points_on_exit – points[i][j] might drop to 0 or below in this situation. When this happens, we must clip the value to 1 in order to make sure dp[i][j] stays positive:
+         
+        
+                     
+        */
+        int m = points.length;
+        int n = points[0].length;
+        // dp[i][j] represents the minimum initial points player
+        // should have so that when starts with cell(i, j) successfully
+        // reaches the destination cell(m-1, n-1)
+        int dp[][] = new int[m][n];
+        
+        //Base case
+        dp[m-1][n-1] = points[m-1][n-1]>0?1:(Math.abs(points[m-1][n-1])+1);//even if the last cell is negative, we are making it poisitve and dding 1, this is because to reach destination one would require 
+        //negative points + 1, if the cell is negativ
+        //1 itself is enough, if the cell is postive
+        
+        //Fill the last row and last column for constructing solution in bottom up manner.
+        //note that, we are going from bottom to up
+        
+        for(int i=m-2;i>=0;i--){//filling the last column
+            dp[i][n-1] = Math.max(dp[i+1][n-1]-points[i][n-1],1);
+        }
+        
+        for(int j=n-2;j>=0;j--){//Filing the last row..
+            dp[m-1][j] = Math.max(dp[m-1][j+1]-points[m-1][j], 1);//last column
+        }
+        
+        for(int i=m-2;i>=0;i--){
+            for(int j=n-2;j>=0;j--){
+                int min_count_on_exit = Math.min(dp[i][j+1], dp[i+1][j]);//allowed to traverse right and down, get the minimum of the two, as we were to find the minimum initial points required to reach destination, stated in the given expression
+                dp[i][j]              = Math.max(min_count_on_exit-points[i][j],1); 
+                
+                /*
+                example:
+                
+                    for all positive points which are greater than min_count_on_exit
+                
+                    we will obtain min_count_on_exit as negative, 
+                
+                    dp[i][j] should be 1, because reaching the cell i,j would require cost of 1, and thereafter moving from i,j to somewhere else, they would gain this positive max point..
+                
+                */
+            }
+        }
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+                System.out.print(dp[i][j]+"\t");
+            }
+            System.out.println("");
+        }
+        
+        return dp[0][0];
+        
+    }
+    
+    double findTotalNonDecreasingNumbersWithNDigits(int n){
+        /*
+        A number is non-decreasing if every digit (except the first one) is greater than or equal to previous digit. For example, 223, 4455567, 899, are non-decreasing numbers.
+
+         So, given the number of digits n, you are required to find the count of total non-decreasing numbers with n digits.
+
+         Examples:
+
+         Input:  n = 1
+         Output: count  = 10
+
+         Input:  n = 2
+         Output: count  = 55
+
+         Input:  n = 3
+         Output: count  = 220
+        
+        Let count ending with digit ‘d’ and length n be count(n, d)
+
+            count(n, d) = ∑ (count(n-1, i)) where i varies from 0 to d
+        
+        say d is 5
+        
+            to maintain non decreasing order i should vary from 0 to 5
+            and calculate the count on n-1 length recursively
+        
+        */
+        double dp[][] = new double[10][n+1];//10 digits of length n
+        
+        for(int i=0;i<10;i++){
+            for(int j=0;j<n;j++){
+                dp[i][j] = 0;
+            }
+        }
+        //Base case 0 1 2 3 4 5 6 7 8 9
+        for(int i=0;i<10;i++){
+            dp[i][1] = 1;//fill table for non decreasing numbers of length 1
+        }
+        
+        for(int digit=0;digit<=9;digit++){
+            
+            for(int len=2;len<=n;len++){//len 1 is already covered
+                
+                //Need to ensure that non decreasing order is maintained
+                
+                //sum of all numbers of length of len-1 in which last digit x is <=digit
+                for(int x=0;x<=digit;x++){
+                    //say digit is 5, iterate from 0 to 5
+                    dp[digit][len]+=dp[x][len-1]; 
+                    //for this digit 5, get all the count of numbers of len-1 iterating from 0 to 5
+                
+                    //for length 2, digit 3
+                    // number of digits of length 1 is 0,1,2 - 3 numbers are possible
+                    //hence 03, 13, 23 are the non decreasing numbers..
+                }
+            }
+        }
+        double totalCount = 0;
+        for(int digit=0;digit<=9;digit++){
+            totalCount+=dp[digit][n];//get count of numbers of length n ending with all digits, in non decreasing order..
+        }
+        
+        return totalCount;
+        
+        
+    }
+    
+    boolean isAdjacent(char prev,char cur){
+        return (cur-prev)==1;
+    }
+    boolean isValid(int i,int j,char mat[][]){
+        int R = mat.length;
+        int C = mat[0].length;
+        if(i<0||j<0||i>=R||j>=C){
+            return false;
+        }
+        return true;
+    }
+    int getLongestConsecutiveCharMatrixUtil(char mat[][],int i,int j,char prev,int dp[][]){
+        //prev - previous character visited
+        //mat[i][j] is the current character we are in
+        if(!isValid(i, j, mat)||!isAdjacent(prev, mat[i][j])){
+            return 0;//not valid or adjacent to each other, return as such
+        }
+        if(dp[i][j]!=-1){
+            return dp[i][j];//if the length is already calculated then return it
+        }
+        // tool matrices to recur for adjacent cells.
+        int x[] = {0, 1, 1, -1, 1, 0, -1, -1};
+        int y[] = {1, 0, 1, 1, -1, -1, 0, -1};
+        
+        int ans = 0;
+        for(int k=0;k<x.length;k++){
+            ans = Math.max(ans, 1+getLongestConsecutiveCharMatrixUtil(mat, i+x[k], j+y[k], mat[i][j], dp));
+        }
+        return ans;
+    }
+    
+    void getLongestConsecutivePathCharMatrix(char mat[][], char start){
+        
+        int R = mat.length;
+        int C = mat[0].length;
+        int dp[][] = new int[R][C];
+        for(int i=0;i<R;i++){
+            for(int j=0;j<C;j++){
+                dp[i][j] = -1;
+            }
+        }
+        
+        int ans = 0;
+        for(int i=0;i<R;i++){
+            for(int j=0;j<C;j++){
+                if(mat[i][j]==start){
+                    //as we encounter the starting character calculate the longest consecutive character length
+                    int x[] = {0, 1, 1, -1, 1, 0, -1, -1};
+                    int y[] = {1, 0, 1, 1, -1, -1, 0, -1};
+                    for (int k = 0; k < x.length; k++) {
+                        ans = Math.max(ans, 1 + getLongestConsecutiveCharMatrixUtil(mat, i + x[k], j + y[k], mat[i][j], dp));
+                    }
+                }
+            }
+        }
+        System.out.println("Longest consecutive path length from start character "+start+" is "+ans);
+        
+    }
+    
+    void getLongestConsecutivePathCharTestData(){
+         char mat[][] = new char[][]{ {'a','c','d'},
+                     { 'h','b','a'},
+                     { 'i','g','f'}};
+         getLongestConsecutivePathCharMatrix(mat, 'a');
+        getLongestConsecutivePathCharMatrix(mat, 'e');
+        getLongestConsecutivePathCharMatrix(mat, 'b');
+        getLongestConsecutivePathCharMatrix(mat, 'f');
+
+    }
+    
+    
+    void countNonDecreasingNumbersTestData(){
+        System.out.println("Total number of non decreasing numbers with 3 digits is "+findTotalNonDecreasingNumbersWithNDigits(3));
+    }
+    
+    void minPositivePointsToReachDestinationTestData(){
+         int points[][] = new int[][]{ {-2,-3,3},
+                      {-5,-10,1},
+                      {10,30,-5}
+                    };
+         
+         /*
+         output
+         
+         7	5	2	
+         6	11	5	
+         1	1	6	
+         Minimum initial points required to reach destination is 7
+         */
+         System.out.println("Minimum initial points required to reach destination is "+minPositivePointsToReachDestination(points));
+    }
+    
     void countOfNDigitEqualToSumTestData(){
         int n = 3, sum = 5;
         System.out.println("Count of 3 digit equal to sum 5 is "+countOfNDigitEqualToSum(n,sum));
@@ -2235,7 +2499,10 @@ Output: 5
 //        countStairsTestData();
 //        minCostTriangulationTestData();
 //        keyPadNumberTestData();
-        countOfNDigitEqualToSumTestData();
+//        countOfNDigitEqualToSumTestData();
+//        minPositivePointsToReachDestinationTestData();
+//        countNonDecreasingNumbersTestData();
+        getLongestConsecutivePathCharTestData();
     }
    /*
     For example the shortest path problem has following optimal substructure property: 
