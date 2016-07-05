@@ -145,10 +145,70 @@ public class BinaryTree {
         
     }
     
+    int smallestVertexCoverTree(BinaryNode root){
+        // A memoization based function that returns size of the minimum vertex cover.
+        
+        //we are going to make use of liss property to store the vertex cover of element.
+        
+        //If vertex cover is already calculated it will be stored in liss of that node, we simply return the liss
+        
+        if(root==null)
+            return 0;
+        
+        if(root.left==null&&root.right==null){
+            return 0;
+        }
+        
+        if(root.liss!=0){
+            return root.liss;//If vertex is already calculated simply return that value.
+        }
+        /*
+        Refer: http://www.geeksforgeeks.org/vertex-cover-problem-set-2-dynamic-programming-solution-tree/
+        
+        The idea is to consider following two possibilities for root and recursively for all nodes down the root.
+           
+            1) Root is part of vertex cover: In this case root covers all children edges. 
+            We recursively calculate size of vertex covers for left and right subtrees and add 1 to the result (for root).
+
+            2) Root is not part of vertex cover: In this case, both children of root must be included in vertex cover to cover all root to children edges.
+            We recursively calculate size of vertex covers of all grandchildren and number of children to the result (for two children of root).
+        */
+        
+        // Calculate size of vertex cover when root is part of it, add root to the vertex cover
+        int size_include = 1 + smallestVertexCoverTree(root.left) + smallestVertexCoverTree(root.right);
+        
+        int size_exclude = 0;
+        //calculate size of vertex cover when root is not a part of it, add the childrens to the vertex cover
+        if(root.left!=null){
+            size_exclude += 1 + smallestVertexCoverTree(root.left.left)+smallestVertexCoverTree(root.left.right);
+        }
+        if(root.right!=null){
+            size_exclude += 1 + smallestVertexCoverTree(root.right.left) + smallestVertexCoverTree(root.right.right);
+        }
+        //find the smallest vertex cover
+        root.liss = Math.min(size_include, size_exclude);
+        
+        return root.liss;
+        
+    }
+    
+    void smallestVertexCoverTestData(){
+        BinaryNode root = new BinaryNode(20);
+        root.left = new BinaryNode(8);
+        root.left.left = new BinaryNode(4);
+        root.left.right = new BinaryNode(12);
+        root.left.right.left = new BinaryNode(10);
+        root.left.right.right = new BinaryNode(14);
+        root.right = new BinaryNode(22);
+        root.right.right = new BinaryNode(25);
+        System.out.println("Size of the smallest vertex cover is "+smallestVertexCoverTree(root));
+    }
+    
     public void BinaryTreeTestData(){
 //        printTopViewOfBinaryTreeTestData();
 //          printBottonViewOfBinaryTreeTestData();
-        LargestIndependentSubsetTestData();
+//        LargestIndependentSubsetTestData();
+        smallestVertexCoverTestData();
     }
 
     private void printTopViewOfBinaryTreeTestData() {

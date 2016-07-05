@@ -75,7 +75,7 @@ public class DynamicProgramming {
         return max;
         
     }
-    void lcs(char[] X, char[] Y,int m,int n){
+    int lcs(char[] X, char[] Y,int m,int n){
     /*
         Examples:
             1) Consider the input strings “AGGTAB” and “GXTXAYB”. Last characters match for the strings. So length of LCS can be written as:
@@ -119,6 +119,7 @@ public class DynamicProgramming {
             }
         }
         System.out.println("Lcs of X "+new String(X)+" and Y "+new String(Y)+" is "+new String(result));
+        return L[m][n];
     }
     int editDistanceDP(String str1, String str2, int m,int n){
     /*
@@ -268,7 +269,8 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
                     coin - 2 (S[i])
                 
                     Matrix:  0  1  2  3  4  
-                             1  1  1  1  1
+                
+                    j = 1    1  1  1  1  1
                     j = 2    1  1  2  1  1
                     j = 3    1  1  2  2  1
                     j = 4    1  1  2  2  3(table[4-2]) - including 2 coins for 4 cents, inturn includes the already calculated solutions for 2 coins.
@@ -2213,6 +2215,786 @@ Output: 5
         
     }
     
+    void tilingProblem(){
+        /*
+            Given a “2 x n” board and tiles of size “2 x 1″, count the number of ways to tile the given board using the 2 x 1 tiles. A tile can either be placed horizontally i.e., as a 1 x 2 tile or vertically i.e., as 2 x 1 tile.
+
+         Examples:
+
+         Input n = 3
+         Output: 3
+         Explanation:
+         We need 3 tiles to tile the board of size  2 x 3. 
+         We can tile the board using following ways
+         1) Place all 3 tiles vertically. 
+         2) Place first tile vertically and remaining 2 tiles horizontally.
+         3) Place first 2 tiles horizontally and remaining tiles vertically
+
+         Input n = 4
+         Output: 5
+         Explanation:
+         For a 2 x 4 board, there are 5 ways
+         1) All 4 vertical
+         2) All 4 horizontal
+         3) First 2 vertical, remaining 2 horizontal
+         4) First 2 horizontal, remaining 2 vertical
+         5) Corner 2 vertical, middle 2 horizontal
+        
+        
+        Let “count(n)” be the count of ways to place tiles on a “2 x n” grid, we have following two ways to place first tile.
+             1) If we place first tile vertically, the problem reduces to “count(n-1)”
+             2) If we place first tile horizontally, we have to place second tile also horizontally. So the problem reduces to “count(n-2)”
+
+         Therefore, count(n) can be written as below.
+
+         count(n) = n if n = 1 or n = 2
+         count(n) = count(n-1) + count(n-2) 
+        
+        The above recurrence is noting but Fibonacci Number expression.
+        */
+    }
+    int getMinSquaresSuM(int n){
+        //Returns count of minimum squares that sum to n
+        /*
+            A number can always be represented as a sum of squares of other numbers. Note that 1 is a square and we can always break a number as (1*1 + 1*1 + 1*1 + …). Given a number n, find the minimum number of squares that sum to X.
+
+         Examples:
+
+         Input:  n = 100
+         Output: 1
+         100 can be written as 102. Note that 100 can also be 
+         written as 52 + 52 + 52 + 52, but this
+         representation requires 4 squares.
+
+         Input:  n = 6
+         Output: 3
+        
+         The idea is simple, we start from 1 and go till a number whose square is smaller than or equals to n. For every number x, we recur for n-x. Below is the recursive formula.
+
+         If n <= 3, then return n 
+         Else
+         minSquares(n) = min {1 + minSquares(n - x*x)} 
+         where x >= 1 and x*x <= n 
+        */
+        int dp[] = new int[n+1];//dp stores the count of minimum squares that sum to i
+        dp[0] = 0;
+        dp[1] = 1;
+        dp[2] = 2;
+        dp[3] = 3;
+        
+        for(int i=4;i<=n;i++){//calculate the sub problem, dp[n] would contain the minimum number of squares summing to n.
+             // max value is i as i can always be represented
+            // as 1*1 + 1*1 + ...
+            dp[i] = i;
+            for(int x=1;x<=i;x++){
+                int temp = x*x;
+                if(temp>i){//if the sum is greater than i, then break out of the loop
+                    break;
+                }
+                //otherwise, we need to consider adding this temp to count
+                else{dp[i] = Math.min(dp[i]//already calculated count
+                            , 1 + dp[i - temp]);//adding 1 to the count
+                    //example, for i -> 6 2*2 => 4 dp[6-4] = dp[2] + 2*2
+                }
+            }
+        }
+        
+        return dp[n];
+        
+        
+    }
+    
+    int getMinNumberOfCoinsToMakeAChange(int coins[], int V){
+        /*
+            Given a value V, if we want to make change for V cents, and we have infinite supply of each of C = { C1, C2, .. , Cm} valued coins, what is the minimum number of coins to make the change?
+
+            Examples:
+
+                Input: coins[] = {25, 10, 5}, V = 30
+                Output: Minimum 2 coins required
+                We can use one coin of 25 cents and one of 5 cents 
+
+                Input: coins[] = {9, 6, 5, 1}, V = 11
+                Output: Minimum 2 coins required
+                We can use one coin of 6 cents and 1 coin of 5 cents
+        
+         This problem is a variation of the problem discussed Coin Change Problem. Here instead of finding total number of possible solutions, we need to find the solution with minimum number of coins.
+
+         The minimum number of coins for a value V can be computed using below recursive formula.
+
+         If V == 0, then 0 coins required.
+         If V > 0
+         minCoin(coins[0..m-1], V) = min {1 + minCoins(V-coin[i])} 
+         where i varies from 0 to m-1 
+         and coin[i] <= V 
+        */
+        int m   = coins.length;
+        int table[] = new int[V+1];//table[i] will represent the minimum number of coins required to make a change for i
+        
+        for(int i=1;i<=V;i++){//must start from 1
+            table[i] = Integer.MAX_VALUE;//Initialize the value to infinity
+        }
+        
+        for(int i=1;i<=V;i++){
+            //calculate the minimum number of coins for sub problems
+            for(int j=0;j<m;j++){
+                if(coins[j]<=i){//coin value must be less than V
+                    int sub_res = table[i-coins[j]];//get the minimum number of coins required for i-coins[j] value
+                    if(sub_res!=Integer.MAX_VALUE && sub_res+1<table[i]){//adding this coin to the result guaranteees the minimum
+                        table[i] = sub_res+1;
+                    }
+                }
+            }
+        }
+        return table[V];
+    }
+    boolean isValid(int x,int y1,int y2, int arr[][]){
+        int R = arr.length;
+        int C = arr[0].length;
+        return (x>=0&&x<R&&y1>=0&&y2<C&&y2>=0&&y2<C);
+                
+    }
+    
+    int collectMaxPointsInGridUsingTwoTraversal(int arr[][], int mem[][][],int x,int y1,int y2){
+    
+       /*
+        
+        Given a matrix where every cell represents points. How to collect maximum points using two traversals under following conditions?
+
+         Let the dimensions of given grid be R x C.
+
+         1) The first traversal starts from top left corner, i.e., (0, 0) and should reach left bottom corner, i.e., (R-1, 0). The second traversal starts from top right corner, i.e., (0, C-1) and should reach bottom right corner, i.e., (R-1, C-1)/
+
+         2) From a point (i, j), we can move to (i+1, j+1) or (i+1, j-1) or (i+1, j)
+
+         3) A traversal gets all points of a particular cell through which it passes. If one traversal has already collected points of a cell, then the other traversal gets no points if goes through that cell again.
+
+         Input :
+         int arr[R][C] = {{3, 6, 8, 2},
+         {5, 2, 4, 3},
+         {1, 1, 20, 10},
+         {1, 1, 20, 10},
+         {1, 1, 20, 10},
+         };
+
+         Output: 73
+         First traversal collects total points of value 3 + 2 + 20 + 1 + 1 = 27
+
+         Second traversal collects total points of value 2 + 4 + 10 + 20 + 10 = 46.
+         Total Points collected = 27 + 46 = 73.
+        
+        */
+        
+        //Idea here is to do the traversal simulatenously, We start first from (0, 0) and second traversal from (0, C-1) simultaneously. 
+        //The important thing to note is, at any particular step both traversals will be in same row as in all possible three moves, row number is increased. Let (x1, y1) and (x2, y2) denote current positions of first and second traversals respectively. 
+        //Thus at any time x1 will be equal to x2 as both of them move forward but variation is possible along y
+        
+        if(!isValid(x, y1, y2, arr)){
+            return Integer.MIN_VALUE; //return the min value if the data is invalid.
+        }
+        int R = arr.length;
+        int C = arr[0].length;
+        if(x==R-1 && y1==0 && y2==C-1)//destination is reached, return the sum
+        {
+            return arr[x][y1]+arr[x][y2];
+        }
+        
+        if(x==R-1){
+            //destination is not reached
+            return Integer.MIN_VALUE;
+        }
+        
+        if(mem[x][y1][y2]!=-1){//If the data is alreayd calculated, then return as such.
+            return mem[x][y1][y2];
+        }
+        
+        int temp = (y1==y2)?arr[x][y1]:arr[x][y1]+arr[x][y2];
+        //if two traversal meeting at the same location, then only that cell's value shall be added only once.
+        
+        int ans = Integer.MIN_VALUE; //We are going to get the maximum value
+        
+         /* Recur for all possible cases, then store and return the
+       one with max value */
+        //As per the constraint traversing as given
+        ans = Math.max(ans, temp + collectMaxPointsInGridUsingTwoTraversal(arr, mem, x + 1, y1, y2));
+        ans = Math.max(ans, temp + collectMaxPointsInGridUsingTwoTraversal(arr, mem, x + 1, y1, y2+1));
+        ans = Math.max(ans, temp + collectMaxPointsInGridUsingTwoTraversal(arr, mem, x + 1, y1, y2-1));
+        
+        ans = Math.max(ans, temp + collectMaxPointsInGridUsingTwoTraversal(arr, mem, x + 1, y1+1, y2));
+        ans = Math.max(ans, temp + collectMaxPointsInGridUsingTwoTraversal(arr, mem, x + 1, y1+1, y2+1));
+        ans = Math.max(ans, temp + collectMaxPointsInGridUsingTwoTraversal(arr, mem, x + 1, y1+1, y2-1));
+
+        ans = Math.max(ans, temp + collectMaxPointsInGridUsingTwoTraversal(arr, mem, x + 1, y1-1, y2));
+        ans = Math.max(ans, temp + collectMaxPointsInGridUsingTwoTraversal(arr, mem, x + 1, y1-1, y2+1));
+        ans = Math.max(ans, temp + collectMaxPointsInGridUsingTwoTraversal(arr, mem, x + 1, y1-1, y2-1));
+
+        mem[x][y1][y2] = ans;
+        
+        return ans;
+    }
+    void collectMaxPointsInGridUsingTwoTraversalTestData(){
+        int arr[][] = new int[][]{{3, 6, 8, 2},
+                     {5, 2, 4, 3},
+                     {1, 1, 20, 10},
+                     {1, 1, 20, 10},
+                     {1, 1, 20, 10},
+                    };
+        int R = arr.length;
+        int C = arr[0].length;
+        int mem[][][] = new int[R][C][C];
+        for(int i=0;i<R;i++){
+            for(int j=0;j<C;j++){
+                for(int k=0;k<C;k++){
+                    mem[i][j][k] = -1;
+                }
+            }
+        }
+        System.out.println("Maximum points collected is "+collectMaxPointsInGridUsingTwoTraversal(arr, mem, 0, 0, C-1));
+    }
+    
+    int shortestSuperSequence(String x,String y){
+        /*
+        Given two strings str1 and str2, find the shortest string that has both str1 and str2 as subsequences.
+
+         Examples:
+
+         Input:   str1 = "geek",  str2 = "eke"
+         Output: "geeke"
+
+         Input:   str1 = "AGGTAB",  str2 = "GXTXAYB"
+         Output:  "AGXGTXAYB"
+        
+         1) Find Longest Common Subsequence (lcs) of two given strings. For example, lcs of “geek” and “eke” is “ek”.
+
+         2) Insert non-lcs characters (in their original order in strings) to the lcs found above, and return the result. So “ek” becomes “geeke” which is shortest common supersequence.
+
+         Let us consider another example, str1 = “AGGTAB” and str2 = “GXTXAYB”. LCS of str1 and str2 is “GTAB”. Once we find LCS, we insert characters of both strings in order and we get “AGXGTXAYB”
+
+         How does this work?
+            
+            We need to find a string that has both strings as subsequences and is shortest such string. If both strings have all characters different, then result is sum of lengths of two given strings. If there are common characters, then we don’t want them multiple times as the task is to minimize length. Therefore, we fist find the longest common subsequence, take one occurrence of this subsequence and add extra characters.
+
+
+         Length of the shortest supersequence  = (Sum of lengths of given two strings) - (Length of LCS of two given strings) 
+            
+        */
+        int m = x.length();
+        int n = y.length();
+        int l = lcs(x.toCharArray(), y.toCharArray(), m, n);
+        return m+n-l;//If there is a common sequence, we need not count that twice, only once that should be considered.
+    }
+    
+    int sumOfDigitsFrom1ToN(int n){
+    
+        /*
+            Let us take few examples.
+
+         sum(9) = 1 + 2 + 3 + 4 ........... + 9
+         = 9*10/2 
+         = 45
+
+         sum(99)  = 45 + (10 + 45) + (20 + 45) + ..... (90 + 45)
+         = 45*10 + (10 + 20 + 30 ... 90)
+         = 45*10 + 10(1 + 2 + ... 9)
+         = 45*10 + 45*10
+         = sum(9)*10 + 45*10 
+
+         sum(999) = sum(99)*10 + 45*100
+        
+        
+        Algorithm: sum(n)
+
+         1) Find number of digits minus one in n. Let this value be 'd'.  
+         For 328, d is 2.
+
+         2) Compute some of digits in numbers from 1 to 10d - 1.  
+         Let this sum be w. For 328, we compute sum of digits from 1 to 
+         99 using above formula.
+
+         3) Find Most significant digit (msd) in n. For 328, msd is 3.
+
+         4) Overall sum is sum of following terms
+
+         a) Sum of digits in 1 to "msd * 10d - 1".  For 328, sum of 
+         digits in numbers from 1 to 299.
+         For 328, we compute 3*sum(99) + (1 + 2)*100.  Note that sum of
+         sum(299) is sum(99) + sum of digits from 100 to 199 + sum of digits
+         from 200 to 299.  
+         Sum of 100 to 199 is sum(99) + 1*100 and sum of 299 is sum(99) + 2*100.
+         In general, this sum can be computed as w*msd + (msd*(msd-1)/2)*10d
+
+         b) Sum of digits in msd * 10d to n.  For 328, sum of digits in 
+         300 to 328.
+         For 328, this sum is computed as 3*29 + recursive call "sum(28)"
+         In general, this sum can be computed as  msd * (n % (msd*10d) + 1) 
+         + sum(n % (10d))
+        */
+        if(n<10){
+            return n*(n+1)/2;//if n is less than 10, then do calculating the sum of n natural numbers
+        }
+        
+        double digit = Math.log10(n);//provides the number of digits minus 1
+        int d = (int)digit;
+        
+        int a[] = new int[d+1];
+        a[0] = 0;
+        a[1] = 45;//sum(9)
+        for(int i=2;i<=d;i++){//if the digit is of length 2, then calculate a[d]
+            a[i] = a[i-1]*10 + 45 * ((int)Math.ceil(Math.pow(10, i-1)));//sum(999) = sum(99)*10 + 45*100 -> as per the formulae.
+        }
+        
+        int p = (int)Math.pow(10, d);
+        
+        int msd = n/p;//get the most siginificant digit..
+        System.out.println("Msd is "+msd+" "+n%p);
+        return msd * a[d] + (msd * (msd-1)/2)*p //This term calculates the step (a)
+                + msd * (1 + n%p) + //This calculates 3*29, we would be having 3 in terms from 300 to 328 (hence 29 times 3 occurs)
+                sumOfDigitsFrom1ToN(n%p);//calculate recursively for sum(28)
+         
+
+        // EXPLANATION FOR FIRST and SECOND TERMS IN BELOW LINE OF CODE
+        // First two terms compute sum of digits from 1 to 299
+        // (sum of digits in range 1-99 stored in a[d]) +
+        // (sum of digits in range 100-199, can be calculated as 1*100 + a[d]
+        // (sum of digits in range 200-299, can be calculated as 2*100 + a[d]
+        //  The above sum can be written as 3*a[d] + (1+2)*100
+
+    // EXPLANATION FOR THIRD AND FOURTH TERMS IN BELOW LINE OF CODE
+        // The last two terms compute sum of digits in number from 300 to 328
+        // The third term adds 3*29 to sum as digit 3 occurs in all numbers 
+        //                from 300 to 328
+        // The fourth term recursively calls for 28
+    }
+    
+    int countPossibleWaysToConstructBuildings(int n){
+        /*
+         Given an input number of sections and each section has 2 plots on either sides of the road. Find all possible ways to construct buildings in the plots such that there is a space between any 2 buildings.
+
+         Example:
+
+         N = 1
+         Output = 4
+            Place a building on one side.
+            Place a building on other side
+            Do not place any building.
+            Place a building on both sides.
+
+         N = 3 
+         Output = 25
+            3 sections, which means possible ways for one side are 
+            BSS, BSB, SSS, SBS, SSB where B represents a building 
+            and S represents an empty space
+        
+            if one side has BSS then there is 4 possible ways (BSB,SSS,SBS,SSB) on the other side 
+            For each pattern in one side, there will be 4 possible ways on the other side. (total - 5 in one section)
+            There is 5 pattern, hence (5*5) -> 25
+        
+             Total possible ways are 25, because a way to place on 
+            one side can correspond to any of 5 ways on other side.
+
+         N = 4 
+         Output = 64
+            We can simplify the problem to first calculate for one side only. If we know the result for one side, we can always do square of the result and get result for two sides.
+
+            A new building can be placed on a section if section just before it has space. A space can be placed anywhere (it doesn’t matter whether the previous section has a building or not).
+
+         Let countB(i) be count of possible ways with i sections
+                ending with a building.
+         countS(i) be count of possible ways with i sections
+                ending with a space.
+
+            // A space can be added after a building or after a space.
+            countS(N) = countB(N-1) + countS(N-1)
+
+            // A building can only be added after a space.
+            countB[N] = countS(N-1)
+
+            // Result for one side is sum of the above two counts.
+            result1(N) = countS(N) + countB(N)
+
+            // Result for two sides is square of result1(N)
+            result2(N) = result1(N) * result1(N) 
+        */
+        
+        if(n==1)
+            return 4;//two for one side, four for two sides
+        
+        int countS, countB, prev_count_S,prev_count_B;
+        countS=1;
+        countB=1;
+        for(int i=2;i<=n;i++){
+            
+            prev_count_S = countS;//get the previous count
+            prev_count_B = countB;
+            
+            countS = prev_count_B + prev_count_S;//A space can be added after a building or after a space.
+            countB = prev_count_S;//a building can be added after a space.
+            
+        }
+        int result1 = countB + countS;//result for one side is sum of the above two counts
+        int result2 = result1 * result1;
+        
+        return result2;
+    }
+    // Returns maximum profit with two transactions on a given
+// list of stock prices, price[0..n-1]
+    int getMaxProfitFromStockPrice(int price[]){
+        /*
+         In a daily share trading, a buyer buys shares in the morning and sells it on same day. If the trader is allowed to make at most 2 transactions in a day, where as second transaction can only start after first one is complete (Sell->buy->sell->buy). Given stock prices throughout day, find out maximum profit that a share trader could have made.
+
+         Examples:
+
+         Input:   price[] = {10, 22, 5, 75, 65, 80}
+         Output:  87
+         Trader earns 87 as sum of 12 and 75
+         Buy at price 10, sell at 22, buy at 5 and sell at 80
+
+         Input:   price[] = {2, 30, 15, 10, 8, 25, 80}
+         Output:  100
+         Trader earns 100 as sum of 28 and 72
+         Buy at price 2, sell at 30, buy at 8 and sell at 80
+
+         Input:   price[] = {100, 30, 15, 10, 8, 25, 80};
+         Output:  72
+         Buy at price 8 and sell at 80.
+
+         Input:   price[] = {90, 80, 70, 60, 50}
+         Output:  0
+         Not possible to earn.
+        
+        Formula:   Max profit with at most two transactions =
+         MAX {max profit with one transaction and subarray price[0..i] +
+         max profit with one transaction and aubarray price[i+1..n-1] }
+        
+        We can do this O(n) using following Efficient Solution. The idea is to store maximum possible profit of every subarray and solve the problem in following two phases.
+
+         1) Create a table profit[0..n-1] and initialize all values in it 0.
+
+         2) Traverse price[] from right to left and update profit[i] such that profit[i] stores maximum profit achievable from one transaction in subarray price[i..n-1]
+
+         3) Traverse price[] from left to right and update profit[i] such that profit[i] stores maximum profit such that profit[i] contains maximum achievable profit from two transactions in subarray price[0..i].
+
+         4) Return profit[n-1]
+
+         To do step 1, we need to keep track of maximum price from right to left side and to do step 2, we need to keep track of minimum price from left to right. 
+         Why we traverse in reverse directions? The idea is to save space, in second step, we use same array for both purposes, maximum with 1 transaction and maximum with 2 transactions. 
+         After an iteration i, the array profit[0..i] contains maximum profit with 2 transactions and profit[i+1..n-1] contains profit with two transactions.
+         */
+        
+        int n = price.length;
+        int profit[] = new int[n];
+        //profit[n-1] would return the result
+        
+        for(int i=0;i<n;i++){
+            profit[i] =0;//initialize the profit value to 0
+        }
+        
+        int max_price = price[n-1];
+        
+        /* Get the maximum profit with only one transaction
+       allowed. After this loop, profit[i] contains maximum
+       profit from price[i..n-1] using at most one trans. */
+        
+        //Traverse from right to left, update profit[i]
+        //This traversal will store only one transaction Buy->Sell
+        for(int i=n-2;i>=0;i--){
+             // max_price has maximum of price[i..n-1]
+            if(price[i]>max_price){
+                max_price = price[i];
+            }
+            
+            profit[i] = Math.max(profit[i+1], //already calculated profit from i+1..n
+                        max_price-price[i]);//Or buy selling at the price i
+            
+             // we can get profit[i] by taking maximum of:
+        // a) previous maximum, i.e., profit[i+1]
+        // b) profit by buying at price[i] and selling at
+        //    max_price
+        
+        }
+        
+        //Traverse from left to right, update profit[i] such that the already done transaction has to be maintained..
+        int min_price = price[0];
+        for(int i=1;i<n;i++){
+            /* Get the maximum profit with two transactions allowed
+       After this loop, profit[n-1] contains the result */
+            if(price[i]<min_price){
+                min_price = price[i];
+            }
+            // min_price is minimum price in price[0..i]
+            profit[i] = Math.max(profit[i-1],//already calculated profit from 0..i-1
+                    profit[i]+(price[i]-min_price));//the profit done in first transaction + buying at the minimum price and selling at the ith price
+        
+            // Maximum profit is maximum of:
+        // a) previous maximum, i.e., profit[i-1]
+        // b) (Buy, Sell) at (min_price, price[i]) and add
+        //    profit of other trans. stored in profit[i]
+        }
+        
+        System.out.println("Maximum profit obtained is "+profit[n-1]);
+        
+        return profit[n-1];
+    }
+    
+    int maxNoOfAsUsingFourKeys(int N){
+    
+        /*
+         Below is the problem statement.
+
+         Imagine you have a special keyboard with the following keys: 
+         Key 1:  Prints 'A' on screen
+         Key 2: (Ctrl-A): Select screen
+         Key 3: (Ctrl-C): Copy selection to buffer
+         Key 4: (Ctrl-V): Print buffer on screen appending it
+         after what has already been printed. 
+
+         If you can only press the keyboard for N times (with the above four
+         keys), write a program to produce maximum numbers of A's. That is to
+         say, the input parameter is N (No. of keys that you can press), the 
+         output is M (No. of As that you can produce).
+        
+         Examples:
+
+         Input:  N = 3
+         Output: 3
+         We can at most get 3 A's on screen by pressing 
+         following key sequence.
+         A, A, A
+
+         Input:  N = 7
+         Output: 9
+         We can at most get 9 A's on screen by pressing 
+         following key sequence.
+         A, A, A, Ctrl A, Ctrl C, Ctrl V, Ctrl V
+
+         Input:  N = 11
+         Output: 27
+         We can at most get 27 A's on screen by pressing 
+         following key sequence.
+         A, A, A, Ctrl A, Ctrl C, Ctrl V, Ctrl V, Ctrl A, 
+         Ctrl C, Ctrl V, Ctrl V
+        
+         */
+        
+        /*
+            Resolving the problem is to find a break point b after which there will be only Ctrl A, C, V.. obtaining the maximum length
+        
+            
+        */
+        if(N<=6)//why less than 6, N before 6 optimal length that can be obtained is 6 itself
+            return N;
+        
+        int b;// to pick a break point
+        
+        int screen[] = new int[N];
+        
+        for(int i=1;i<=6;i++){
+            screen[i-1] = i;//o will have 1. 1 will have 2
+        }
+        
+        for(int n=7;n<=N;n++){//bottom up manner, substructure
+            
+            screen[n-1] = 0;//initialize the optimal length
+            
+            // For any keystroke n, we need to loop from n-3 keystrokes
+            // back to 1 keystroke to find a breakpoint 'b' after which we
+            // will have ctrl-a, ctrl-c and then only ctrl-v all the way.
+            
+            for(b=n-3;b>=1;b--){//why n-3, we need 3 key strokes for ctrl a, ctrl c, ctrl v
+                // if the breakpoint is at b'th keystroke then
+                // the optimal string would have length
+                // (n-b-1)*screen[b-1];
+                int res = (n-b-1)*screen[b-1];
+                //screen[b-1] -> max result obtained at break point b
+                //n-b-1, number of places left for ctrl a, c, and followed by v's only
+                
+                //for example
+                /*
+                    N = 7
+                    b = 4
+                        screen[3] = 4 
+                        n-b-1 = 7-4-1 = 2
+                        If we had a break point at position 4, we can obtain max of 8 optimal length
+                    
+                    b= 3
+                        screen[2] = 3;
+                        n-b-1 = 7-3-1 = 3
+                        if we had a break point at position 3, we can obtain max of 9 optimal length
+                
+                */
+                
+                if(screen[n-1]<res){
+                    screen[n-1] = res;
+                }
+            }
+        }
+        
+        return screen[N-1];
+        
+        
+    }
+    
+    int minCostTrainReach(int cost[][]){
+        
+        /*
+        The minimum cost to reach N-1 from 0 can be recursively written as following:
+
+         minCost(0, N-1) = MIN { cost[0][n-1],  
+         cost[0][1] + minCost(1, N-1),  
+         minCost(0, 2) + minCost(2, N-1), 
+         ........, 
+         minCost(0, N-2) + cost[N-2][n-1] } 
+        
+            Time complexity of the above implementation is exponential as it tries every possible path from 0 to N-1. The above solution solves same subrpoblems multiple times (it can be seen by drawing recursion tree for minCostPathRec(0, 5).
+            
+            We can solve this problem using O(N) extra space and O(N2) time. 
+            The idea is based on the fact that given input matrix is a Directed Acyclic Graph (DAG).
+        
+        
+        The idea in below code is to first calculate min cost for station 1, then for station 2, and so on. These costs are stored in an array dist[0...N-1].
+
+1) The min cost for station 0 is 0, i.e., dist[0] = 0
+
+2) The min cost for station 1 is cost[0][1], i.e., dist[1] = cost[0][1]
+
+3) The min cost for station 2 is minimum of following two.
+     a) dist[0] + cost[0][2]
+     b) dist[1] + cost[1][2]
+
+3) The min cost for station 3 is minimum of following three.
+     a) dist[0] + cost[0][3]
+     b) dist[1] + cost[1][3]
+     c) dist[2] + cost[2][3]
+
+Similarly, dist[4], dist[5], ... dist[N-1] are calculated.
+        */
+        // This function returns the smallest possible cost to
+// reach station N-1 from station 0.
+        int N = cost.length;
+        
+        int dist[] = new int[N];//min cost to reach destination j from i
+        
+        for(int i=0;i<N;i++){
+            dist[i] = Integer.MAX_VALUE;
+        }
+        dist[0] = 0;
+        
+        //Go through every station, and check if using that as intermediate obtains the better path
+        for(int i=0;i<N;i++){
+            for(int j=i+1;j<N;j++){
+                if(dist[j]>dist[i]+cost[i][j]){//obtain minimum cost to reach destination, from i to j
+                    dist[j] = dist[i]+cost[i][j];//update the min cost to reach j, through i
+                }
+            }
+        }
+        return dist[N-1];//min cost to reach the destination N-1
+        
+    }
+    
+    int countNumberOfWaysToReachTotalScore(int n){
+        /*
+        Consider a game where a player can score 3 or 5 or 10 points in a move. Given a total score n, find number of ways to reach the given score.
+
+         Examples:
+
+         Input: n = 20
+         Output: 4
+         There are following 4 ways to reach 20
+         (10, 10)
+         (5, 5, 10)
+         (5, 5, 5, 5)
+         (3, 3, 3, 3, 3, 5)
+
+         Input: n = 13
+         Output: 2
+         There are following 2 ways to reach 13
+         (3, 5, 5)
+         (3, 10)
+        
+            similar to coin change problem
+        */
+        int table[] = new int[n+1];
+        
+        for(int i=0;i<=n;i++){
+            table[i] = 0;
+        }
+        table[0] = 1;//base case set to 0, hence score 3, 5 , 10 will be picked
+        
+        //pick score one by one
+        // One by one consider given 3 moves and update the table[]
+        // values after the index greater than or equal to the
+        // value of the picked move
+        
+        //After the index value
+        for(int i=3;i<=n;i++){
+            table[i] += table[i-3];
+            //why i-3, for 6 score, get the optimal solution obtained at 3 (i.e. number of ways one can reach score 3)
+        }
+        for(int i=5;i<=n;i++){
+            table[i] += table[i-5];
+        }
+        
+        for(int i=10;i<=n;i++){
+            table[i] += table[i-10];
+            
+            //why i-10, for 15 score, get the optimal solution obtained at 5, which would inturn have been calculated using 3 / 5 as subset..
+        }
+        
+        return table[n];
+    }
+    
+    void countNumberOfWaysToReachTotalScoreTestData(){
+        System.out.println("Number of ways to get total score of 20 is " + countNumberOfWaysToReachTotalScore(20));
+        System.out.println("Number of ways to get total score of 13 is " + countNumberOfWaysToReachTotalScore(13));
+
+    }
+    
+    void minCostTrainReachTestData(){
+        int INF = Integer.MAX_VALUE;
+         int cost[][] = new int[][] { {0, 15, 80, 90},
+                      {INF, 0, 40, 50},
+                      {INF, INF, 0, 70},
+                      {INF, INF, INF, 0}};
+         System.out.println("Minimum cost to reach station "+cost.length+" is "+minCostTrainReach(cost));
+                      
+    }
+    
+    void maxNoOfAsUsingFourKeyTestData(){
+        // for the rest of the array we will rely on the previous
+        // entries to compute new ones
+        int N;
+        for (N = 1; N <= 20; N++) {
+            System.out.println("Maximum Number of A's with "+N+" keystrokes is "+maxNoOfAsUsingFourKeys(N));
+        }
+    }
+    
+    void getMaxProfitFromStockPriceTestData(){
+        int price[] = new int[]{2, 30, 15, 10, 8, 25, 80};
+        getMaxProfitFromStockPrice(price);
+    }
+    
+    void countPossibleWaysToConstructBuildingsTestData(){
+        int N = 3;
+        System.out.println("Number of ways to construct building is "+countPossibleWaysToConstructBuildings(2));
+    }
+    void sumOfDigitsFrom1ToNTestData(){
+        int n = 328;
+        System.out.println("Sum of digits in numbers from 1 to "+n+" is "+sumOfDigitsFrom1ToN(n));
+    }
+    void shortestSuperSequenceTestData(){
+        String x = "AGGTAB";
+        String y= "GXTXAYB";
+        System.out.println("Length of the shortest supersequence is "+ shortestSuperSequence(x, y));
+    }
+    void getMinNumberOfCoinsToMakeAChangeTestData(){
+        int coins[] =  new int[]{9, 6, 5, 1};
+        int V = 11;
+        System.out.println("Minimum number of coins required to make change for 11 is "+getMinNumberOfCoinsToMakeAChange(coins, V));
+    }
+    
+    void getMinSquaresTestData(){
+        System.out.println("Minimum square required for 6 is "+getMinSquaresSuM(6));
+    }
     void getLongestConsecutivePathCharTestData(){
          char mat[][] = new char[][]{ {'a','c','d'},
                      { 'h','b','a'},
@@ -2502,7 +3284,17 @@ Output: 5
 //        countOfNDigitEqualToSumTestData();
 //        minPositivePointsToReachDestinationTestData();
 //        countNonDecreasingNumbersTestData();
-        getLongestConsecutivePathCharTestData();
+//        getLongestConsecutivePathCharTestData();
+//        getMinSquaresTestData();
+//        getMinNumberOfCoinsToMakeAChangeTestData();
+//        collectMaxPointsInGridUsingTwoTraversalTestData();
+//        shortestSuperSequenceTestData();
+//        sumOfDigitsFrom1ToNTestData();
+//        countPossibleWaysToConstructBuildingsTestData();
+//        getMaxProfitFromStockPriceTestData();
+//        maxNoOfAsUsingFourKeyTestData();
+//        minCostTrainReachTestData();
+        countNumberOfWaysToReachTotalScoreTestData();
     }
    /*
     For example the shortest path problem has following optimal substructure property: 
