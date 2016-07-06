@@ -2942,7 +2942,123 @@ Similarly, dist[4], dist[5], ... dist[N-1] are calculated.
         
         return table[n];
     }
+    class Job{
+        int start, finish, profit;
+        Job(int start, int finish, int profit){
+            this.start  = start;
+            this.finish = finish;
+            this.profit = profit;
+        }
+    }
+
+    // Find the latest job (in sorted array) that doesn't
+    // conflict with the job[i]
+    int latestNonConflict(Job arr[], int i) {
+        for (int j = i - 1; j >= 0; j--) {
+            if (arr[j].finish <= arr[i - 1].start) {//jth finish time is less than the start time of i-1
+                return j;
+            }
+        }
+        return -1;
+    }
+    int findMaxProfitWeightedJobScheduling(Job arr[],int n){
+        //arr array should be sorted according to finish time
     
+        Comparator<Job> finishTimeComp = new Comparator<Job>(){
+
+            @Override
+            public int compare(Job o1, Job o2) {
+                return o1.finish - o2.finish;
+            }
+            
+        };
+        Arrays.sort(arr, finishTimeComp);
+        
+        int table[] = new int[n];
+        // Create an array to store solutions of subproblems.  table[i]
+        // stores the profit for jobs till arr[i] (including arr[i])
+        table[0] = arr[0].profit;
+        // Fill entries in M[] using recursive property
+        for(int i=1;i<n;i++){
+            int incl = arr[i].profit;//including the current job
+            int l = latestNonConflict(arr, i);//finding a job such that finish time of the job is less than start time of the current job
+            if(l!=-1){
+                incl += table[l];
+            }
+            // Store maximum of including and excluding
+            table[i] = Math.max(incl, table[i-1]);//find the maximum profit obtained either through including / excluding the current job
+        }
+        return table[n-1];//returns the max profit obtained
+        
+    }
+    
+    void findMaxProfitWeightedJobSchedulingTestData(){
+        Job arr[] = new Job[4];
+        arr[0] = new Job(3,10,20);
+        arr[1] = new Job(1,2,50);
+        arr[2] = new Job(6,19,100);
+        arr[3] = new Job(2,100,200);
+        System.out.println("Maximum profit obtained through weighted job scheduling is "+findMaxProfitWeightedJobScheduling(arr, arr.length));
+    }
+    
+    int findLengthOfLongestSubstringTwoHalvesEqual(char[] str){
+        /*
+            Given a string ‘str’ of digits, find length of the longest substring of ‘str’, such that the length of the substring is 2k digits and sum of left k digits is equal to the sum of right k digits.
+
+         Examples:
+
+         Input: str = "123123"
+         Output: 6
+         The complete string is of even length and sum of first and second
+         half digits is same
+
+         Input: str = "1538023"
+         Output: 4
+         The longest substring with same first and second half sum is "5380"
+        */
+        int n = str.length;
+        int maxlength = 0;
+         // A 2D table where sum[i][j] stores sum of digits
+    // from str[i] to str[j].  Only filled entries are
+    // the entries where j >= i
+        int sum[][] = new int[n][n];
+        //sum will store the sum of digits from i to j in the string str.
+        
+        //Diagonally fill the matrix
+        for(int i=0;i<n;i++){
+            sum[i][i] = str[i] - '0';//strings of length 1 will have the digit as such
+        }
+        
+        for(int L=2;L<=n;L++){
+            for(int i=0;i<n-L+1;i++){
+                
+                int j = i+L-1;
+                
+                int k = L/2;//halving the length
+                 // Calculate value of sum[i][j]
+                sum[i][j] = sum[i][j-k]//first half
+                            + sum[j-k+1][j];//second half
+                 // Update result if 'len' is even, left and right
+            // sums are same and len is more than maxlen
+                if(L%2==0 //length of the longest substring has to be even
+                        && sum[i][j-k]==sum[j-k+1][j]//length of left and right substring is equal
+                        && maxlength<L
+                        ){
+                    maxlength = L;
+                }
+            }
+        }
+        
+        return maxlength;
+        
+        
+    }
+    
+    void findLengthOfLongestSubstringTwoHalvesEqualTestData(){
+        
+        String str = "153803";
+        System.out.println("Length of the substring such that two halves sum are equal "+findLengthOfLongestSubstringTwoHalvesEqual(str.toCharArray()));
+    }
     void countNumberOfWaysToReachTotalScoreTestData(){
         System.out.println("Number of ways to get total score of 20 is " + countNumberOfWaysToReachTotalScore(20));
         System.out.println("Number of ways to get total score of 13 is " + countNumberOfWaysToReachTotalScore(13));
@@ -3294,7 +3410,9 @@ Similarly, dist[4], dist[5], ... dist[N-1] are calculated.
 //        getMaxProfitFromStockPriceTestData();
 //        maxNoOfAsUsingFourKeyTestData();
 //        minCostTrainReachTestData();
-        countNumberOfWaysToReachTotalScoreTestData();
+//        countNumberOfWaysToReachTotalScoreTestData();
+//        findMaxProfitWeightedJobSchedulingTestData();
+//        findLengthOfLongestSubstringTwoHalvesEqualTestData();
     }
    /*
     For example the shortest path problem has following optimal substructure property: 

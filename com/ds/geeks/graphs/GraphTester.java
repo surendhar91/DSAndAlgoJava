@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ds.geeks;
+package com.ds.geeks.graphs;
 
 import com.ds.geek.dynamicpgm.DynamicProgramming;
+import com.ds.geeks.backtracking.BackTracking;
 import com.ds.geeks.greedy.GreedyAlgorithms;
 
 /**
@@ -315,6 +316,7 @@ public class GraphTester {
 //      new MaxFlowGraph().maxFlowTestData();
 //      new GraphMisc().graphMiscTestData();
 //      new GreedyAlgorithms().greedyAlgorithmsTestData();
-      new DynamicProgramming().dynamicProgrammingTestData();
+//      new DynamicProgramming().dynamicProgrammingTestData();
+    new BackTracking().backTrackingTestData();
     }
 }
