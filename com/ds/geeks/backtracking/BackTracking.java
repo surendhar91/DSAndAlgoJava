@@ -536,6 +536,61 @@ public class BackTracking {
             
             
         }
+        
+        class Puzzle{
+        
+        }
+        
+        boolean solveCrypArithmeticPuzzle(Puzzle puzzle, String lettersToAssign){
+            /*
+            Newspapers and magazines often have crypt-arithmetic puzzles of the form:
+
+             SEND
+             + MORE
+             --------
+             MONEY
+             -------- 
+
+             The goal here is to assign each letter a digit from 0 to 9 so that the arithmetic works out correctly. The rules are that all occurrences of a letter must be assigned the same digit, and no digit can be assigned to more than one letter.
+
+             First, create a list of all the characters that need assigning to pass to Solve
+             If all characters are assigned, return true if puzzle is solved, false otherwise
+             Otherwise, consider the first unassigned character
+             for (every possible choice among the digits not in use)
+             make that choice and then recursively try to assign the rest of the characters
+             if recursion sucessful, return true
+             if !successful, unmake assignment and try another digit
+
+             If all digits have been tried and nothing worked, return false to trigger backtracking
+            
+            */
+            if(lettersToAssign.isEmpty()){
+                //no more choices to make.
+                return puzzleSolved(puzzle);//check arithmetic to see if works
+            }
+            
+            for(int digit=0;digit<=9;digit++){//try all digits
+                if(assignLetterToDigit(lettersToAssign.charAt(0),digit)){//check if we can assign the digit to this letter
+                   if(solveCrypArithmeticPuzzle(puzzle, lettersToAssign.substring(1))){//recursively check if we obtain solution for the rest of the strings, with the digit 
+                       return true;
+                   } 
+                   //if we were not able to obtain the solution, then unassign letter from digit, back tracking, do for the other digits
+                   unAssignLetterFromDigit(lettersToAssign.charAt(0),digit);
+                }
+            }
+            return false;// If we were not able to obtain solution, then return false.
+            
+        }
+        boolean unAssignLetterFromDigit(char letter, int digit){
+            return true;
+        }
+        
+        boolean assignLetterToDigit(char letter,int digit){
+            return true;
+        }
+        boolean puzzleSolved(Puzzle puzzle){
+            return true;
+        }
          
         void mGraphColoringTestData(){
         /* Create following graph and test whether it is
