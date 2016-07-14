@@ -6,6 +6,7 @@
 package com.ds.geeks.divandconquer;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  *
@@ -220,6 +221,129 @@ public class DivideAndConquer {
             
         }
         
+        class Point{
+            int x,y;
+            Point(int x,int y){
+                this.x = x;
+                this.y = y;
+            }
+            @Override
+            public String toString(){
+                return "x-> "+this.x+" y-> "+this.y;
+            }
+        }
+        
+        double distPoint(Point p1,Point p2){
+            double doubleValue = Math.sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
+            return Math.sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
+            
+        }
+        
+        double burteForceSoln(Point P[],int n){
+            
+            double min = Double.MAX_VALUE;
+            
+            for(int i=0;i<n;i++){
+                for(int j=i+1;j<n;j++){
+//                    System.out.println("Distance vector obtained is "+distPoint(P[i], P[j]));
+                    if(distPoint(P[i], P[j])<min){
+                        min = distPoint(P[i],P[j]);
+                    }
+                }
+            }
+//            System.out.println("Min value returning "+min);
+            return min;
+        }
+        
+        double stripClosest(Point P[],int size, double d){
+        
+            double min = d;
+            
+            P = Arrays.copyOfRange(P, 0, size);
+            
+            Arrays.sort(P, new Comparator<Point>(){
+
+                @Override
+                public int compare(Point o1, Point o2) {
+                    return o1.y - o2.y;
+                }
+                
+            });
+            
+            for(int i=0;i<size;i++){
+//                System.out.println(""+P[i]);
+                for(int j=i+1;j<size&&((P[i].y-P[j].y)<d);j++){//points that are at the closest distance d of y co ordinates
+                    if(distPoint(P[i], P[j])<min){//if the distance is less than the already calculated value d, then update it as the minimum and return to the caller
+                        min = distPoint(P[i], P[j]);
+                    }
+                }
+            }
+//            System.out.println("Min valure returning.. "+min);
+            return min;//the minimum distance obtained
+            
+        }
+        
+        double closestPairOfPointsInAPlane(Point P[], int n){
+            //  --> http://www.geeksforgeeks.org/closest-pair-of-points/   -> Closest pair of points in a plane
+            
+            //if there are 2 or three points, use brute force
+            if(n<=3){
+//                System.out.println("Array size is "+P.length+" n values is "+n);
+                return burteForceSoln(P, n);
+            }
+            
+            //Divide the problem into sub problems
+            int mid = n/2;
+            Point midPoint = P[mid];
+//            System.out.println("Mid point is "+midPoint);
+            // Consider the vertical line passing through the middle point
+            // calculate the smallest distance dl on left of middle point and
+            // dr on right side
+            double dl = closestPairOfPointsInAPlane(P, mid);
+            double dr = closestPairOfPointsInAPlane(Arrays.copyOfRange(P, mid, n), n-mid);//starting from mid+1 to n, the number of elements in the obtained array will be n-mid
+            
+            // Find the smaller of two distances
+            double d = Math.min(dl, dr);
+            
+//            System.out.println("DL "+dl+" DR "+dr);
+             // Build an array strip[] that contains points close (closer than d)
+             // to the line passing through the middle point
+             int j=0;
+             Point[] strip = new Point[n];
+             for(int i=0;i<n;i++){
+                 if(Math.abs(P[i].x - midPoint.x)<d){//find the points that are closer to the middle point within the distance d
+                   strip[j++] = P[i];   //Finds all the points in a plane that are at the closest distance d..
+//                   System.out.println("Strip "+j+" "+P[i]);
+                 }
+             }
+             //j is the size of strip point array
+             return Math.min(d, stripClosest(strip,j,d));
+            
+        }
+        
+        double findClosestPairsInPlance(Point P[], int n){
+            Arrays.sort(P, new Comparator<Point>(){
+
+                @Override
+                public int compare(Point o1, Point o2) {
+                    return o1.x - o2.x;
+                }
+                
+            });
+            return closestPairOfPointsInAPlane(P, n);
+        }
+        
+        void findClosestPairsInPlaneTestData(){
+             Point P[] = new Point[6];
+             P[0] = new Point(2,3);
+             P[1] = new Point(12,30);
+             P[2] = new Point(40,50);
+             P[3] = new Point(5,1);
+             P[4] = new Point(12,10);
+             P[5] = new Point(3,4);
+             System.out.println("Distance obtained between the closest pair is "+findClosestPairsInPlance(P, 6));
+        }
+        
         void inversionsTestData(){
             //O(nlogn) approach
             int arr[] = {1, 20, 6, 4, 5};
@@ -249,7 +373,8 @@ public class DivideAndConquer {
             public void divideAndConquerTestData(){
 //                powerTestData();
 //                getMedianTestData();
-                inversionsTestData();
+//                inversionsTestData();
+                findClosestPairsInPlaneTestData();
             
             }
 }
