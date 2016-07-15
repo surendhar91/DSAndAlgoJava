@@ -192,6 +192,40 @@ public class BinaryTree {
         
     }
     
+    boolean isBST(BinaryNode root){
+        //return true if the binary node is a binary search tree node
+        
+        return isBSTUtil(root,Integer.MIN_VALUE,Integer.MAX_VALUE);
+    }
+    
+    boolean isBSTUtil(BinaryNode root, int min,int max){
+        //an empty tree is a bst
+        if(root==null){
+            return true;//we reached the end of the tree
+        }
+        
+        if(root.data<min || root.data>max){
+            //root has to lie between min and max, if the constraints fails
+            return false;
+        }else{
+            return isBSTUtil(root.left,min,root.data-1) //left subtree has to lie between min and root.data
+                    && isBSTUtil(root.right,root.data+1,max);
+        }
+    }
+    
+    void isBinarySearchTreeTestData(){
+        BinaryNode root = new BinaryNode(4);
+        root.left = new BinaryNode(2);
+        root.right = new BinaryNode(5);
+        root.left.left = new BinaryNode(1);
+        root.left.right = new BinaryNode(3);
+        if(isBST(root)){
+            System.out.println("Given tree is a binary search tree");
+        }else{
+            System.out.println("Not a binary search tree");
+        }
+        
+    }
     void smallestVertexCoverTestData(){
         BinaryNode root = new BinaryNode(20);
         root.left = new BinaryNode(8);
@@ -208,7 +242,8 @@ public class BinaryTree {
 //        printTopViewOfBinaryTreeTestData();
 //          printBottonViewOfBinaryTreeTestData();
 //        LargestIndependentSubsetTestData();
-        smallestVertexCoverTestData();
+//        smallestVertexCoverTestData();
+        isBinarySearchTreeTestData();
     }
 
     private void printTopViewOfBinaryTreeTestData() {

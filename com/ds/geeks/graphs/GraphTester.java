@@ -7,6 +7,7 @@ package com.ds.geeks.graphs;
 
 import com.ds.geek.dynamicpgm.DynamicProgramming;
 import com.ds.geeks.backtracking.BackTracking;
+import com.ds.geeks.binarysearchtree.BinarySearchTree;
 import com.ds.geeks.divandconquer.DivideAndConquer;
 import com.ds.geeks.greedy.GreedyAlgorithms;
 
@@ -319,6 +320,7 @@ public class GraphTester {
 //      new GreedyAlgorithms().greedyAlgorithmsTestData();
 //      new DynamicProgramming().dynamicProgrammingTestData();
 //    new BackTracking().backTrackingTestData();
-    new DivideAndConquer().divideAndConquerTestData();
+//    new DivideAndConquer().divideAndConquerTestData();
+        BinarySearchTree.binarySearchTreeTestData();
     }
 }
