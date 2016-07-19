@@ -5,6 +5,8 @@
  */
 package com.ds.geeks.binarysearchtree;
 
+import java.util.Stack;
+
 /**
  *
  * @author surendhar-2481
@@ -13,9 +15,11 @@ public class BinarySearchTree {
     class Node{
         int data;
         Node left,right;
+        int lcount;
         Node(int data){
             this.data = data;
             this.left = this.right = null;
+            this.lcount = 0;//number of elements in the left subtree
         }
     }
     Node root = null;
@@ -142,6 +146,153 @@ public class BinarySearchTree {
         inorderRecur(root.right);
     }
     
+    Node insertIterative(Node root, Node node){
+    
+        Node traverseNode, currentParent;
+        traverseNode = currentParent = root;
+        while(traverseNode!=null){
+            currentParent = traverseNode;
+            if(node.data<traverseNode.data){
+                traverseNode.lcount++;//increment the left subtree count of the traverseNode
+                traverseNode = traverseNode.left;
+            }else{
+                traverseNode = traverseNode.right;
+            }
+        }
+        if(root==null){
+            root = node;
+        }else if(node.data<currentParent.data){//find the last element where we had to insert the given node
+            currentParent.left = node;
+        }else{
+            currentParent.right = node;
+        }
+        return root;
+    }
+    
+    int findKthSmallestElementInBST(Node root, int k){
+    
+            int res = -1;
+            if(root!=null){
+                //lcount represent the number of elements in the left subtree
+                if((root.lcount+1)==k){//left subtree count + 1(current node)
+                    return root.data;
+                }else if(k<=root.lcount){
+                    return findKthSmallestElementInBST(root.left, k);
+                }else if(k>root.lcount){
+                    return findKthSmallestElementInBST(root.right, k-(root.lcount+1));//traverse right subtree for finding the kth smallest element
+                }
+            }
+            return res;
+    }
+    void mergeBST(Node root1, Node root2){
+        //O(m+n) -> O(height of the first tree + height of the second tree)
+        Node currentNode1, currentNode2;
+        // s1 is stack to hold nodes of first BST
+        Stack<Node> stack1 = new Stack<Node>();
+        // s2 is stack to hold nodes of second BST
+        Stack<Node> stack2 = new Stack<Node>();
+        
+        currentNode1 = root1;
+        currentNode2 = root2;
+        
+        //if either of the tree is null, then print the other tree
+        if(root1==null){
+            inorderRecur(root1);
+            return ;
+        }
+        if(root2==null){
+            inorderRecur(root2);
+            return ;
+        }
+        
+        while((currentNode1!=null || currentNode2!=null || !stack1.isEmpty() || !stack2.isEmpty())){
+            
+            if(currentNode1!=null || currentNode2!=null ){
+                //push all the left elements to the stack
+                if(currentNode1!=null){
+                    stack1.push(currentNode1);
+                    currentNode1 = currentNode1.left;
+                }
+                if(currentNode2!=null){
+                    stack2.push(currentNode2);
+                    currentNode2 = currentNode2.left;
+                }
+            }else{
+                
+                 // If we reach a NULL node and either of the stacks is empty,
+            // then one tree is exhausted, ptint the other tree
+                if(stack1.isEmpty()){
+                    //print the stack 2 elements
+                    while(!stack2.isEmpty()){
+                        currentNode2 = stack2.pop();
+                        currentNode2.left = null;//if we didn't set left to null, then Left tree elements are traversed again
+                        inorderRecur(currentNode2);
+                    }
+                    return ;
+                }
+                
+                if(stack2.isEmpty()){
+                    //print the stack 2 elements
+                    while(!stack1.isEmpty()){
+                        currentNode1 = stack1.pop();
+                        currentNode1.left = null;//Left tree elements are already traversed.
+                        inorderRecur(currentNode1);
+                    }
+                    return ;
+                }
+                
+                currentNode1 = stack1.pop();
+                currentNode2 = stack2.pop();
+                
+                //Add the larger element to the corresponding stack again, pop the smallest element and print as such.. Traverse the right subtree of the smallest element.
+                if(currentNode1.data<currentNode2.data){
+                    System.out.print(" "+currentNode1.data);
+                    currentNode1 = currentNode1.right;//traverse the right subtree of the current node and add all those elements to the stack, for next comparison.
+                    //readd the currentNode2 element to stack 2
+                    stack2.push(currentNode2);
+                    currentNode2 = null;//Because, we don't want to readd them in the loop.
+                }else{
+                    System.out.print(" "+currentNode2.data);
+                    currentNode2 = currentNode2.right;//we popped the currentNode 2 element from stack 2..
+                    stack1.push(currentNode1);
+                    currentNode1 = null;
+                }
+                
+                
+            }
+            
+        }
+        
+    }
+    
+    static void mergeBSTTestData(){
+        BinarySearchTree bst1 = new BinarySearchTree();
+        bst1.insert(3);
+        bst1.insert(1);
+        bst1.insert(5);
+        
+        BinarySearchTree bst2 = new BinarySearchTree();
+        bst2.insert(4);
+        bst2.insert(2);
+        bst2.insert(6);
+        
+        bst1.mergeBST(bst1.root,bst2.root);
+        return;
+    }
+    
+    static void findKthSmallestElementInBSTTestData(){
+        int ele[] = { 20, 8, 22, 4, 12, 10, 14 };
+        BinarySearchTree bstTree = new BinarySearchTree();
+        for(int i=0;i<ele.length;i++){
+//            tree.root = tree.insertIterative(tree.root, new Node(ele[i]));
+            bstTree.root = bstTree.insertIterative(bstTree.root, new BinarySearchTree().new Node(ele[i]));
+        }
+        bstTree.inorder();
+        for(int i=1;i<ele.length;i++){
+            System.out.println("Kth smallest element for k "+i+" is "+bstTree.findKthSmallestElementInBST(bstTree.root,i));
+        }
+    }
+    
     static void lowestCommonAncestorTestData(){
           // Let us construct the BST shown in the above figure
         BinarySearchTree tree = new BinarySearchTree();
@@ -263,6 +414,8 @@ public class BinarySearchTree {
 //        insertBSTTestData();
 //        deleteBSTTestData();
 //        findInOrderPredecessorAndSuccessorTestData();
-        lowestCommonAncestorTestData();
+//        lowestCommonAncestorTestData();
+//        findKthSmallestElementInBSTTestData();
+        mergeBSTTestData();
     }
 }
