@@ -265,6 +265,338 @@ public class BinarySearchTree {
         
     }
     
+    void correctBSTUtil(Node root, Node[] nodeArr){
+        //O(n) complexity to correct the binary search tree where two nodes were swapped.
+        Node first = nodeArr[0];
+        Node middle = nodeArr[1];
+        Node last = nodeArr[2];
+        Node prev = nodeArr[3];
+        if(root!=null){
+            //do the inorder traversal
+            correctBSTUtil(root.left,nodeArr);
+            
+            if(nodeArr[3]!=null && root.data<nodeArr[3].data){//prev
+                
+                if(first!=null){
+                    //already one element is found with the violation
+                    nodeArr[2]   = root;//last = root
+                }else{
+                    nodeArr[0]  = nodeArr[3];//first = prev
+                    nodeArr[1] = root;//middle = current node
+                }
+                
+            }
+            nodeArr[3] = root;//mark this node as prev for the next traversal..
+            
+            correctBSTUtil(root.right, nodeArr);
+        }
+    }
+    
+    void correctBSTOfSwappedNodes(Node root){
+        /*Two of the nodes of a Binary Search Tree (BST) are swapped. Fix (or correct) the BST.
+
+         Input Tree:
+         10
+         /  \
+         5    8
+         / \
+         2   20
+
+         In the above tree, nodes 20 and 8 must be swapped to fix the tree.  
+         Following is the output tree
+         10
+         /  \
+         5    20
+         / \
+         2   8
+         We can solve this in O(n) time and with a single traversal of the given BST. Since inorder traversal of BST is always a sorted array, the problem can be reduced to a problem where two elements of a sorted array are swapped. There are two cases that we need to handle:
+
+         1. The swapped nodes are not adjacent in the inorder traversal of the BST.
+
+         For example, Nodes 5 and 25 are swapped in {3 5 7 8 10 15 20 25}. 
+         The inorder traversal of the given tree is 3 25 7 8 10 15 20 5 
+         If we observe carefully, during inorder traversal, we find node 7 is smaller than the previous visited node 25. Here save the context of node 25 (previous node). Again, we find that node 5 is smaller than the previous node 20. This time, we save the context of node 5 ( current node ). Finally swap the two node’s values.
+
+         2. The swapped nodes are adjacent in the inorder traversal of BST.
+
+         For example, Nodes 7 and 8 are swapped in {3 5 7 8 10 15 20 25}. 
+         The inorder traversal of the given tree is 3 5 8 7 10 15 20 25 
+         Unlike case #1, here only one point exists where a node value is smaller than previous node value. e.g. node 7 is smaller than node 8.
+
+         How to Solve? We will maintain three pointers, first, middle and last. 
+         When we find the first point where current node value is smaller than previous node value, we update the first with the previous node & middle with the current node. When we find the second point where current node value is smaller than previous node value, we update the last with the current node. In case #2, we will never find the second point. So, last pointer will not be updated. 
+         After processing, if the last node value is null, then two swapped nodes of BST are adjacent.
+        
+        */
+        
+        Node first, middle, last, prev;
+        
+        first = middle = last = prev = null;
+        
+        Node nodeArr[] = new Node[4];
+        
+        for(int i=0;i<nodeArr.length;i++){
+            nodeArr[i] = null;
+        }
+        
+        correctBSTUtil(root,nodeArr);
+        
+        first = nodeArr[0];
+        middle = nodeArr[1];
+        last = nodeArr[2];
+        prev = nodeArr[3];
+        
+        if(first!=null && last!=null){
+            //Case 1: Not adjacenet 
+            //copy on the data
+            int temp = last.data;
+            last.data = first.data;
+            first.data =temp;
+            
+            
+        }else if(first!=null && middle!=null){
+            int temp = middle.data;
+            middle.data = first.data;
+            first.data =temp;
+        }
+        inorderRecur(root);
+    }
+    
+    int ceilValueBST(Node root, int key){
+        
+        //For example, consider designing memory management system in which free nodes are arranged in BST. Find best fit for the input request.
+        
+        /* 
+        
+         Ceil Value Node: Node with smallest data larger than or equal to key value.
+
+         Imagine we are moving down the tree, and assume we are root node. The comparison yields three possibilities,
+
+         A) Root data is equal to key. We are done, root data is ceil value.
+
+         B) Root data < key value, certainly the ceil value can’t be in left subtree. Proceed to search on right subtree as reduced problem instance.
+
+         C) Root data > key value, the ceil value may be in left subtree. We may find a node with is larger data than key value in left subtree, if not the root itself will be ceil node.
+        
+        */
+        if(root==null){
+            return -1;
+        }
+        
+        if(root.data==key){
+            return root.data;
+        }
+        
+        if(root.data<key){
+            //key value is higher, hence the key value must reside in right subtree.
+            return ceilValueBST(root.right, key);
+        }else{
+            int ceil = ceilValueBST(root.left, key);
+            ceil     = (ceil>=key)//if we find a node whose value is larger than the key value in left subtree, then it's valid
+                        ?ceil:root.data;//if not, then we shall return the current node's data
+            return ceil;
+        }
+        
+    }
+    
+    boolean isPairPresentInBSTTree(Node root, int sum){
+        // Returns true if a pair with target sum exists in BST, otherwise false
+
+        //applicable for Binary tree also, given that the elements are in sorted order..
+        /*
+         The solution discussed below takes O(n) time, O(Logn) space and doesn’t modify BST. 
+         The idea is same as finding the pair in sorted array (See method 1 of this for details).
+        
+         We traverse BST in Normal Inorder and Reverse Inorder simultaneously. In reverse inorder, we start from the rightmost node which is the maximum value node. 
+        
+         In normal inorder, we start from the left most node which is minimum value node. We add sum of current nodes in both traversals and compare this sum with given target sum.
+        
+        
+         If the sum is same as target sum, we return true. If the sum is more than target sum, we move to next node in reverse inorder traversal, 
+         otherwise we move to next node in normal inorder traversal.
+        
+        
+         If any of the traversals is finished without finding a pair, we return false.
+         */
+         Stack<Node> inorderStack = new Stack<Node>();
+         Stack<Node> reverseInStack = new Stack<Node>();
+         
+         Node current1 = root;
+         Node current2 = root;
+         
+         int val1=0, val2=0;
+         
+         boolean done1 = false, done2 = false;
+         while(true){
+         
+             while(!done1){
+                  // Find next node in normal Inorder traversal. See following post
+                  // http://www.geeksforgeeks.org/inorder-tree-traversal-without-recursion/
+                 if(current1!=null){//push all the left tree elements to the stack..
+                     inorderStack.push(current1);
+                     current1 = current1.left;
+                 }else{
+                     if(inorderStack.isEmpty()){
+                         done1 = true;//if the stack is empty, then we are done..
+                     }else{
+                         current1 = inorderStack.pop();
+                         val1          = current1.data;
+                         current1      = current1.right;
+                         done1 = true;//next node is found
+                     }
+                 }
+                 
+                 
+             }
+             
+             while(!done2){
+             
+                    if(current2!=null){
+                        reverseInStack.push(current2);
+                        current2 = current2.right;
+                    }else{
+                        if(reverseInStack.isEmpty()){
+                            done2 = true;
+                        }else{
+                            current2 = reverseInStack.pop();
+                            val2 = current2.data;
+                            current2 = current2.left;
+                            done2 = true;//next node in reverse inorder traversal is found..
+                        }
+                    }
+                 
+             }
+             
+             if(val1+val2==sum){
+                 System.out.println("Pair found "+val1+" and "+val2+" = sum "+sum);
+                 return true;
+             }else if(val1+val2<sum){
+                 done1 = false;//traverse higher in the left array
+             }else if(val1+val2>sum){
+                 done2 = false;//traverse lower in the right array.
+             }
+             
+            // If any of the inorder traversals is over, then there is no pair
+            // so return false
+             if(val1>=val2){//if we crossed the traversal..
+                 return false;
+             }
+             
+         }
+        
+    }
+ 
+    long binomialCoeff(int n, int k) {
+        //nCk = n!/(n-k)!*(k)! = [n*(n-1)*---*(n-k+1)]/k!
+        //5C3 = 5!/(5-3)!*(3)! = (5*4*3)*2(n-k)! / 2(n-k)! * 3(k)!
+        long res = 1;
+
+        // Since C(n, k) = C(n, n-k)
+        if (k > n - k) {
+            k = n - k;
+        }
+
+        // Calculate value of [n*(n-1)*---*(n-k+1)] / [k*(k-1)*---*1]
+        for (int i = 0; i < k; ++i) {
+            res *= (n - i);
+            res /= (i + 1);
+        }
+
+        return res;
+    }
+
+// A Binomial coefficient based function to find nth catalan
+// number in O(n) time
+    long catalan(int n) {
+    //        
+    //        Total number of possible Binary Search Trees with n different keys = Catalan number Cn = (2n)!/(n+1)!*n!
+    //
+    //For n = 0, 1, 2, 3, … values of Catalan numbers are 1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862, …. So are numbers of Binary Search Trees.
+        
+        /*
+        Consider all possible binary search trees with each element at the root. 
+        
+        If there are n nodes, then for each choice of root node, there are n – 1 non-root nodes and these non-root nodes must be partitioned into those that are less than a chosen root 
+        and those that are greater than the chosen root.
+
+         Let’s say node i is chosen to be the root. Then there are i – 1 nodes smaller than i and n – i nodes bigger than i. 
+         For each of these two sets of nodes, there is a certain number of possible subtrees.
+
+         Let t(n) be the total number of BSTs with n nodes. 
+        
+         The total number of BSTs with i at the root is t(i – 1) t(n – i). The two terms are multiplied together because the arrangements in the left and right subtrees are independent.
+         That is, for each arrangement in the left tree and for each arrangement in the right tree, you get one BST with i at the root.
+
+         Summing over i gives the total number of binary search trees with n nodes.
+        */
+        // Calculate value of 2nCn  = 2n! / n! * n! = 2n! / n+1 * n! * n! = binomialCoeff(2n , n)/(n+1);
+        long c = binomialCoeff(2 * n, n);
+
+        // return 2nCn/(n+1)
+        return c / (n + 1);
+    }
+    
+    static void totalBSTOfNodeNTestData(){
+        System.out.println("Number of binary search tree with 4 nodes is "+new BinarySearchTree().catalan(4));
+    }
+    
+    static void isPairPresentInTreeOfSumTestData(){
+    
+        /*
+         15
+         /     \
+         10      20
+         / \     /  \
+         8  12   16  25    */
+        BinarySearchTree bst1 = new BinarySearchTree();
+        bst1.insert(15);
+        Node root = bst1.root;
+        root.left = bst1.new Node(10);
+        root.right = bst1.new Node(20);
+        root.left.left = bst1.new Node(8);
+        root.left.right = bst1.new Node(12);
+        root.right.left = bst1.new Node(16);
+        root.right.right = bst1.new Node(25);
+
+        int target = 33;
+        if (bst1.isPairPresentInBSTTree(root, target) == false) {
+            System.out.println("\n No such values are found\n");
+        }
+    }
+    
+    static void correctBSTNodesSwapTestData(){
+        
+        BinarySearchTree bst1 = new BinarySearchTree();
+
+        bst1.insert(6);
+        Node root = bst1.root;
+        root.left = bst1.new Node(10);
+        root.right = bst1.new Node(2);
+        root.left.left = bst1.new Node(1);
+        root.left.right = bst1.new Node(3);
+        root.right.right = bst1.new Node(12);
+        root.right.left = bst1.new Node(7);
+        
+        bst1.inorderRecur(root);
+        
+        bst1.correctBSTOfSwappedNodes(root);
+        
+    }
+    
+    static void ceilBSTTestData(){
+        BinarySearchTree bst1 = new BinarySearchTree();
+        bst1.insert(8);
+        bst1.insert(4);
+        bst1.insert(12);
+         bst1.insert(2);
+        bst1.insert(6);
+        bst1.insert(10);
+        bst1.insert(14);
+        for(int i=0;i<16;i++){
+            System.out.println("Ceil value of i "+i+" is "+bst1.ceilValueBST(bst1.root, i));
+        }
+    }
+    
     static void mergeBSTTestData(){
         BinarySearchTree bst1 = new BinarySearchTree();
         bst1.insert(3);
@@ -416,6 +748,10 @@ public class BinarySearchTree {
 //        findInOrderPredecessorAndSuccessorTestData();
 //        lowestCommonAncestorTestData();
 //        findKthSmallestElementInBSTTestData();
-        mergeBSTTestData();
+//        mergeBSTTestData();
+//        correctBSTNodesSwapTestData();
+//        ceilBSTTestData();
+//        isPairPresentInTreeOfSumTestData();
+        totalBSTOfNodeNTestData();
     }
 }
