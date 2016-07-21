@@ -5,6 +5,7 @@
  */
 package com.ds.geeks.binarysearchtree;
 
+import java.util.Arrays;
 import java.util.Stack;
 
 /**
@@ -535,6 +536,202 @@ public class BinarySearchTree {
         // return 2nCn/(n+1)
         return c / (n + 1);
     }
+    int[] merge(int arr1[], int arr2[], int m,int n){
+        
+        int i,j,k;
+        i=0;j=0;k=0;
+        int[] mergeArr = new int[m+n];
+        while(i<m&&j<n){
+            if(arr1[i]<arr2[j]){
+                // Pick the smaler element and put it in mergedArr
+                mergeArr[k++]=arr1[i];
+                i++;
+            }else{
+                mergeArr[k++]=arr2[j];
+                j++;
+            }
+            
+        }
+        while(i<m){
+            mergeArr[k++]=arr1[i];
+            i++;
+        }
+        while(j<n){
+            mergeArr[k++]=arr2[j];
+            j++;
+        }
+        return mergeArr;
+    }
+    Node sortedArrayToBST(int[] arr, int start, int end){
+        //O(m+n) time
+        
+        //Base case
+        if(start>end){
+            return null;
+        }
+        //Get the mid element
+        int mid = (start+end)/2;
+        
+        Node root = new Node(arr[mid]);
+         /* Recursively construct the left subtree and make it
+       left child of root */
+        root.left = sortedArrayToBST(arr, start, mid-1);
+         /* Recursively construct the right subtree and make it
+       right child of root */
+        root.right = sortedArrayToBST(arr, mid+1, end);
+        
+        return root;
+        
+    }
+    Node mergeTrees(Node root1, Node root2, int m, int n){
+        
+        /*
+        You are given two balanced binary search trees e.g., AVL or Red Black Tree. Write a function that merges the two given balanced BSTs into a balanced binary search tree. Let there be m elements in first tree and n elements in the other tree. Your merge function should take O(m+n) time.
+
+         In the following solutions, it is assumed that sizes of trees are also given as input. If the size is not given, then we can get the size by traversing the tree (See this).
+         1) Do inorder traversal of first tree and store the traversal in one temp array arr1[]. This step takes O(m) time.
+         2) Do inorder traversal of second tree and store the traversal in another temp array arr2[]. This step takes O(n) time.
+         3) The arrays created in step 1 and 2 are sorted arrays. Merge the two sorted arrays into one array of size m + n. This step takes O(m+n) time.
+         4) Construct a balanced tree from the merged array using the technique discussed in this post. This step takes O(m+n) time.
+        
+        Method 2:
+        
+        We can use a Doubly Linked List to merge trees in place. Following are the steps.
+
+         1) Convert the given two Binary Search Trees into doubly linked list in place (Refer http://www.geeksforgeeks.org/the-great-tree-list-recursion-problem/ post for this step).
+         2) Merge the two sorted Linked Lists (Refer http://www.geeksforgeeks.org/merge-two-sorted-linked-lists/ post for this step).
+         3) Build a Balanced Binary Search Tree from the merged list created in step 2. (Refer http://www.geeksforgeeks.org/in-place-conversion-of-sorted-dll-to-balanced-bst/ post for this step)
+        */
+        int inorder1[] = new int[m];
+        int index1[] = new int[1];
+        index1[0] = 0;
+        storeInOrder(root1,inorder1,index1);
+        
+        int inorder2[] = new int[n];
+        int index2[] = new int[1];
+        index2[0] = 0;
+        storeInOrder(root2,inorder2,index2);
+        
+        int mergedArr[] = merge(inorder1, inorder2, m, n);//now that we have obtained sorted array, construct the tree using that.
+        
+        return sortedArrayToBST(mergedArr, 0, m+n-1);
+        
+        
+    }
+    
+    void storeInOrder(Node root, int[] inorder, int[] index){//using index array, as this shall be incremented..
+        if(root==null){
+            return ;
+        }
+        storeInOrder(root.left,inorder,index);
+        inorder[index[0]] = root.data;
+        index[0]++;
+        storeInOrder(root.right,inorder,index);
+    }
+    
+    int countNodes(Node root){
+        if(root==null){
+            return 0;
+        }else{
+            return countNodes(root.left)+countNodes(root.right)+1;
+        }
+        
+    }
+    
+    void arrayToBST(Node root, int[] arr, int[] index){
+        if(root==null){
+            return ;
+        }
+        arrayToBST(root.left, arr, index);
+        
+        root.data = arr[index[0]];
+        index[0]++;
+        
+        arrayToBST(root.right, arr, index);
+    }
+    
+    void binaryToBST(Node root){
+//        Following is a 3 step solution for converting Binary tree to Binary Search Tree.
+//1) Create a temp array arr[] that stores inorder traversal of the tree. This step takes O(n) time.
+//2) Sort the temp array arr[]. Time complexity of this step depends upon the sorting algorithm. In the following implementation, Quick Sort is used which takes (n^2) time. This can be done in O(nLogn) time using Heap Sort or Merge Sort.
+//3) Again do inorder traversal of tree and copy array elements to tree nodes one by one. This step takes O(n) time.
+        
+        if(root==null){
+            return ;
+        }
+        int n = countNodes(root);
+        
+        int arr[] = new int[n];
+        
+        int index[] = new int[1];
+        index[0] = 0;
+        
+        storeInOrder(root, arr, index);
+        
+        Arrays.sort(arr);//will have sorted elements.
+        
+        //now copy the sorted array elements to binary search tree (maintaining the structure of binary tree)
+        int[] arrIndex = new int[1];
+        arrIndex[0]=0;
+        arrayToBST(root, arr,arrIndex);
+        
+        return ;
+        
+    }
+    
+    static void mergeTreeTestData(){
+        /* Create following tree as first balanced BST
+         100
+         /  \
+         50    300
+         / \
+         20  70
+         */
+        BinarySearchTree bst1 = new BinarySearchTree();
+        bst1.insert(100);
+        Node root1 = bst1.root;
+        root1.left = bst1.new Node(50);
+        root1.right = bst1.new Node(300);
+        root1.left.left = bst1.new Node(20);
+        root1.left.right = bst1.new Node(70);
+
+        /* Create following tree as second balanced BST
+         80
+         /  \
+         40   120
+         */
+        BinarySearchTree bst2 = new BinarySearchTree();
+        bst2.insert(80);
+        Node root2 = bst2.root;
+        root2.left = bst2.new Node(40);
+        root2.right = bst2.new Node(120);
+        
+        Node mergedTree = bst2.mergeTrees(root1, root2, 5, 3);
+        
+        System.out.println("Following is the inorder traversal of merged tree");
+        bst2.inorderRecur(mergedTree);
+    }
+    
+    static void binaryToBSTTestData(){
+        /* Constructing tree given in the above figure
+         10
+         /  \
+         30   15
+         /      \
+         20       5   */
+        BinarySearchTree bst = new BinarySearchTree();
+        bst.insert(10);
+        Node root = bst.root;
+        root.left = bst.new Node(30);
+        root.right = bst.new Node(15);
+        root.left.left = bst.new Node(20);
+        root.right.right = bst.new Node(5);
+        
+        bst.binaryToBST(root);
+        
+        System.out.println("Following is the inorder traversal of converted binary search tree");
+        bst.inorderRecur(root);
+    }
     
     static void totalBSTOfNodeNTestData(){
         System.out.println("Number of binary search tree with 4 nodes is "+new BinarySearchTree().catalan(4));
@@ -752,6 +949,8 @@ public class BinarySearchTree {
 //        correctBSTNodesSwapTestData();
 //        ceilBSTTestData();
 //        isPairPresentInTreeOfSumTestData();
-        totalBSTOfNodeNTestData();
+//        totalBSTOfNodeNTestData();
+//        mergeTreeTestData();
+        binaryToBSTTestData();
     }
 }
