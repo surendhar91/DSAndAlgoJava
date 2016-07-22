@@ -10,6 +10,7 @@ import com.ds.geeks.backtracking.BackTracking;
 import com.ds.geeks.binarysearchtree.BinarySearchTree;
 import com.ds.geeks.divandconquer.DivideAndConquer;
 import com.ds.geeks.greedy.GreedyAlgorithms;
+import com.ds.geeks.heap.Heap;
 
 /**
  *
@@ -321,6 +322,7 @@ public class GraphTester {
 //      new DynamicProgramming().dynamicProgrammingTestData();
 //    new BackTracking().backTrackingTestData();
 //    new DivideAndConquer().divideAndConquerTestData();
-        BinarySearchTree.binarySearchTreeTestData();
+//        BinarySearchTree.binarySearchTreeTestData();
+         Heap.heapTestData();
     }
 }
