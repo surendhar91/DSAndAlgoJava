@@ -5,10 +5,12 @@
  */
 package com.ds.geeks.binarytree;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
@@ -145,6 +147,23 @@ public class BinaryTree {
         
     }
     
+    void getVerticalOrder(BinaryNode root, HashMap<Integer,List> vMap, int key){
+        if(root==null){
+            return ;
+        }
+        List nodesList = vMap.get(key);
+        if(nodesList==null){
+            nodesList  = new ArrayList();
+            vMap.put(key, nodesList);
+        }
+        nodesList.add(root.data);
+        
+        getVerticalOrder(root.left, vMap, key-1);//as we travese left, subtract the key-1
+        
+        getVerticalOrder(root.right, vMap, key+1);
+        
+    }
+    
     int smallestVertexCoverTree(BinaryNode root){
         // A memoization based function that returns size of the minimum vertex cover.
         
@@ -213,6 +232,29 @@ public class BinaryTree {
         }
     }
     
+    void printVerticalOrderTestData(){
+        BinaryNode root = new BinaryNode(1);
+        root.left = new BinaryNode(2);
+        root.right = new BinaryNode(3);
+        root.left.left = new BinaryNode(4);
+        root.left.right = new BinaryNode(5);
+        root.right.left = new BinaryNode(6);
+        root.right.right = new BinaryNode(7);
+        root.right.left.right = new BinaryNode(8);
+        root.right.right.right = new BinaryNode(9);
+        HashMap<Integer,List> vMap = new HashMap<Integer,List>();
+        getVerticalOrder(root, vMap, 0);
+        
+        Set<Map.Entry<Integer,List>> entrySet = vMap.entrySet();
+        
+        for(Map.Entry<Integer,List> entry:entrySet){
+            System.out.print("Entry -> "+entry.getKey());
+            System.out.print("\t"+entry.getValue());
+            System.out.println("");
+        }
+        
+    }
+    
     void isBinarySearchTreeTestData(){
         BinaryNode root = new BinaryNode(4);
         root.left = new BinaryNode(2);
@@ -243,7 +285,8 @@ public class BinaryTree {
 //          printBottonViewOfBinaryTreeTestData();
 //        LargestIndependentSubsetTestData();
 //        smallestVertexCoverTestData();
-        isBinarySearchTreeTestData();
+//        isBinarySearchTreeTestData();
+        printVerticalOrderTestData();
     }
 
     private void printTopViewOfBinaryTreeTestData() {

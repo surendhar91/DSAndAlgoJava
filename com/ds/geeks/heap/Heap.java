@@ -13,7 +13,8 @@ public class Heap {
     
     public static void heapTestData(){
 //        minHeapTestData();
-        heapSortTestData();
+//        heapSortTestData();
+        sortKSortedArrayTestData();
     }
     
     static void minHeapTestData(){
@@ -37,6 +38,41 @@ public class Heap {
         new MaxHeap().heapSort(arr);
     }
     
+    static void sortKSortedArrayTestData(){
+        int k = 3;
+        int arr[] = {2, 6, 3, 12, 56, 8};
+        sortK(arr, arr.length, k);
+        System.out.println("Following is the sorted array");
+        for(int i=0;i<arr.length;i++){
+            System.out.print(arr[i]+"\t");
+        }
+    }
+       // Given an array of size n, where every element is k away from its target
+    // position, sorts the array in O(nLogk) time.
+    static void sortK(int arr[], int n, int k) {//The Min Heap based method takes O(nLogk) time and uses O(k) auxiliary space.
+        
+        //Take k+1 elements and construct a heap array
+        MinHeap h = new MinHeap(n);
+        for(int i=0;i<=k&&i<n;i++){
+            h.insertKey(arr[i]);
+        }
+        // i is index for remaining elements in arr[] and ti
+        // is target index of for cuurent minimum element in
+        // Min Heapm 'hp'.
+        for(int i=k+1,ti=0;ti<n;i++,ti++){
+            //Starting from k+1 elements
+            // If there are remaining elements, then place
+            // root of heap at target index and add arr[i]
+            // to Min Heap
+            if(i<n){//if the remaining elements exist, then call replaceMin() -> it will return the old minimum data (adjusts the k sorted elements in result arr) and adds arr[i] data to min heap..
+                arr[ti] = h.replaceMin(arr[i]);
+            }else{//if no remaining elements exist, then extract all the elements from heap.
+                // Otherwise place root at its target index and
+                // reduce heap size
+                arr[ti] = h.extractMin();
+            }
+        }
+    }
     
 }
 class MaxHeap{
@@ -207,6 +243,30 @@ class MinHeap{
             minHeapify(smallest);//Traverse down the tree..
         }
     }
+    
+    int replaceMin(int x){
+        //returns the old minimum element of the heap, and replaces the root with the given value x
+        int root = heap_arr[0];
+        heap_arr[0] = x;
+        if(root<x){//if x value is greater than x, then we need to call minheapify function
+            minHeapify(0);
+        }
+        return root;
+    }
+    
+    //Tournament Tree
+    /*
+        For more details, Refer http://www.geeksforgeeks.org/tournament-tree-and-binary-heap/
+    
+        Applications / Usages:-
+    
+        1. Second Best Player 
+        2. Median of Sorted Arrays
+        3. Select smallest one million elements from one billion unsorted elements
+    
+    */
+    
+    
     /*
         Binary heap vs Binary search tree
     
@@ -282,8 +342,6 @@ class MinHeap{
     
     Method 6 (Use Min Heap)
     This method is mainly an optimization of method 1. Instead of using temp[] array, use Min Heap.
-
-     Thanks to geek4u for suggesting this method.
 
      1) Build a Min Heap MH of the first k elements (arr[0] to arr[k-1]) of the given array. O(k)
 
