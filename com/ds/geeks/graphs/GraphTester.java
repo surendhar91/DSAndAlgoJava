@@ -12,6 +12,7 @@ import com.ds.geeks.divandconquer.DivideAndConquer;
 import com.ds.geeks.greedy.GreedyAlgorithms;
 import com.ds.geeks.hash.Hash;
 import com.ds.geeks.heap.Heap;
+import com.ds.geeks.searchandsort.SearchAndSort;
 
 /**
  *
@@ -325,6 +326,7 @@ public class GraphTester {
 //    new DivideAndConquer().divideAndConquerTestData();
 //        BinarySearchTree.binarySearchTreeTestData();
 //         Heap.heapTestData();
-    Hash.hashTestData();
+//    Hash.hashTestData();
+    SearchAndSort.searchAndSortTestData();
     }
 }
