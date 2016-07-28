@@ -5,7 +5,10 @@
  */
 package com.ds.geeks.searchandsort;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -16,11 +19,15 @@ import java.util.stream.Stream;
 public class SearchAndSort {
     public static void searchAndSortTestData(){
         SearchAndSort sh = new SearchAndSort();
-        sh.binarySearchTestData();
-        sh.selectionSortTestData();
-        sh.bubbleSortTestData();
-        sh.insertionSortTestData();
-        sh.mergeSortTestData();
+//        sh.binarySearchTestData();
+//        sh.selectionSortTestData();
+//        sh.bubbleSortTestData();
+//        sh.insertionSortTestData();
+//        sh.mergeSortTestData();
+//        sh.quickSortTestData();
+//        sh.countingSortTestData();
+//        sh.radixSortTestData();
+        sh.bucketSortTestData();
     }
 
     void binarySearchTestData(){
@@ -221,4 +228,246 @@ public class SearchAndSort {
             return inv_count;
             
         }
+        void quickSortTestData(){
+            int arr[] = {10, 7, 8, 9, 1, 5};
+            int n = arr.length;
+            quickSort(arr,0,n-1);
+            IntStream intstream = Arrays.stream(arr);
+            System.out.println("Quick sort..");
+            intstream.forEach(x -> System.out.println(x));
+    //            IntPredicate pred = e -> e<8;
+//            System.out.println("All match "+intstream.allMatch(pred));
+        }
+        
+        
+    /* This function takes last element as pivot,
+       places the pivot element at its correct
+       position in sorted array, and places all
+       smaller (smaller than pivot) to left of
+       pivot and all greater elements to right
+       of pivot */
+        int partition(int arr[],int low,int high){
+            //pick the last element as pivot
+            int pivot = arr[high];
+            int i =low-1;//index of first element in the array
+            for(int j=i+1;j<=high-1;j++){//high is the pivot element
+                if(arr[j]<=pivot){
+                    i++;
+                    //swap i and j
+                    int temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                }
+                //at the end of the loop, all the elements before i would be less than the pivot element
+            }
+            //now swap i and the pivot index
+            int temp = arr[i+1];
+            arr[i+1] = arr[high];//pivot element
+            arr[high] = temp;
+            
+            return i+1;//pivot index
+        
+        }
+        
+        void quickSort(int arr[], int low, int high){
+            if(low<high){
+                int pivot = partition(arr,low,high);
+                quickSort(arr,low,pivot-1);
+                quickSort(arr,pivot+1,high);
+            }
+        }
+        
+        void countingSortTestData(){
+            int arr[] = {1, 4, 1, 2, 7, 5, 2};
+            int n = arr.length;
+            countingSort(arr);
+            Arrays.stream(arr).forEach(System.out::println);
+        }
+        
+        void countingSort(int arr[]){
+            
+//            Time Complexity: O(n+k) where n is the number of elements in input array and k is the range of input.
+//Auxiliary Space: O(n+k)
+            /*
+                Counting sort is a sorting technique based on keys between a specific range
+            
+             Let us understand it with the help of an example.
+
+             For simplicity, consider the data in the range 0 to 9. 
+             Input data: 1, 4, 1, 2, 7, 5, 2
+             1) Take a count array to store the count of each unique object.
+             Index:     0  1  2  3  4  5  6  7  8  9
+             Count:     0  2  2  0   1  1  0  1  0  0
+
+             2) Modify the count array such that each element at each index 
+             stores the sum of previous counts. 
+             Index:     0  1  2  3  4  5  6  7  8  9
+             Count:     0  2  4  4  5  6  6  7  7  7
+
+             The modified count array indicates the position of each object in 
+             the output sequence.
+ 
+             3) Output each object from the input sequence followed by 
+             decreasing its count by 1.
+             Process the input data: 1, 4, 1, 2, 7, 5, 2. Position of 1 is 2.
+             Put data 1 at index 2 in output. Decrease count by 1 to place 
+             next data 1 at an index 1 smaller than this index.
+            */
+            
+            int[] output = new int[arr.length];
+            
+            int max      = Arrays.stream(arr).max().getAsInt();
+            System.out.println("Max value obtained is "+max);
+            int count[] = new int[max+1];
+            for(int i=0;i<max+1;i++){
+                count[i] = 0;
+            }
+            
+            for(int i=0;i<arr.length;i++){
+                count[arr[i]]++;//Store the count of object found in the given input
+            }
+            
+            //modify the count array such that each element at each index stores the sum of previous counts
+            for(int i=1;i<count.length;i++){
+                count[i]+=count[i-1];
+            }
+            
+            //output each object from the input sequence
+            for(int i=0;i<arr.length;i++){
+                output[count[arr[i]]-1] = arr[i];
+                --count[arr[i]];
+            }
+            
+            for(int i=0;i<arr.length;i++){
+                arr[i] = output[i];
+            }
+            
+        }
+        
+        void radixSortTestData(){
+            int arr[] = {170, 45, 75, 90, 802, 24, 2, 66};
+            int n = arr.length;
+            radixSort(arr);
+        }
+        
+        void radixSort(int arr[]){
+//             time complexity is O((n+b) * logb(k)). where b is 10 (decimal system)
+        /*  Counting sort is a linear time sorting algorithm that sort in O(n+k) time when elements are in range from 1 to k.
+
+             What if the elements are in range from 1 to n2? 
+             We can’t use counting sort because counting sort will take O(n2) which is worse than comparison based sorting algorithms. Can we sort such an array in linear time?
+             Radix Sort is the answer. The idea of Radix Sort is to do digit by digit sort starting from least significant digit to most significant digit. Radix sort uses counting sort as a subroutine to sort.
+
+             The Radix Sort Algorithm
+             1) Do following for each digit i where i varies from least significant digit to the most significant digit.
+             ………….a) Sort input array using counting sort (or any stable sort) according to the i’th digit.
+
+             Example:
+             Original, unsorted list:
+
+             170, 45, 75, 90, 802, 24, 2, 66
+             Sorting by least significant digit (1s place) gives: [*Notice that we keep 802 before 2, because 802 occurred before 2 in the original list, and similarly for pairs 170 & 90 and 45 & 75.]
+
+             170, 90, 802, 2, 24, 45, 75, 66
+             Sorting by next digit (10s place) gives: [*Notice that 802 again comes before 2 as 802 comes before 2 in the previous list.]
+
+             802, 2, 24, 45, 66, 170, 75, 90
+             Sorting by most significant digit (100s place) gives:
+
+             2, 24, 45, 66, 75, 90, 170, 802
+            
+         */
+            int m = Arrays.stream(arr).max().getAsInt();
+            //using the max, we need to find the number of digits
+            System.out.println("Max integer is "+m);
+            for(int exp=1;m/exp>0;exp*=10){
+                //1, 10, 100
+                radixCountSort(arr,exp);
+            }
+            Arrays.stream(arr).forEach(System.out::println);
+            
+        }
+         void radixCountSort(int arr[],int exp){
+         
+            int[] output = new int[arr.length];
+            
+            int count[] = new int[10];//digits has to fall under range 0-9
+            Arrays.fill(count, 0);
+            //Why? (arr[i]/exp)%10 -> (512 / 1) % 10 = 2 and (512 / 10)%10 = 51 %10 = 1 
+            for(int i=0;i<arr.length;i++){
+                count[(arr[i]/exp)%10]++;//Store the count of object found in the given input
+            }
+            
+            //modify the count array such that each element at each index stores the sum of previous counts
+            for(int i=1;i<count.length;i++){
+                count[i]+=count[i-1];
+            }
+            
+            //output each object from the input sequence
+            for(int i=arr.length-1;i>=0;i--){//Traversing from the end is mandatory, for arriving at the sorted solution
+                output[count[(arr[i]/exp)%10]-1] = arr[i];
+                --count[(arr[i]/exp)%10];
+            }
+            
+            for(int i=0;i<arr.length;i++){
+                arr[i] = output[i];
+            }
+            
+        }
+         void bucketSortTestData(){
+             double arr[] = {(0.897), (0.565), (0.656), (0.1234), (0.665), (0.3434)};
+             bucketSort(arr);
+         }
+         
+         void bucketSort(double arr[]){
+             /*
+             
+              Bucket sort is mainly useful when input is uniformly distributed over a range. For example, consider the following problem. 
+             
+              Sort a large set of floating point numbers which are in range from 0.0 to 1.0 and are uniformly distributed across the range. How do we sort the numbers efficiently?
+
+              A simple way is to apply a comparison based sorting algorithm. The lower bound for Comparison based sorting algorithm (Merge Sort, Heap Sort, Quick-Sort .. etc) is Ω(n Log n), i.e., 
+              they cannot do better than nLogn.
+              
+             Can we sort the array in linear time? Counting sort can not be applied here as we use keys as index in counting sort. 
+             
+              Here keys are floating point numbers. 
+              The idea is to use bucket sort. Following is bucket algorithm.
+
+              bucketSort(arr[], n)
+              1) Create n empty buckets (Or lists).
+              2) Do following for every array element arr[i].
+              .......a) Insert arr[i] into bucket[n*array[i]]
+              3) Sort individual buckets using insertion sort.
+              4) Concatenate all sorted buckets.
+             
+             */
+             int n = arr.length;
+             //Create n buckets
+             ArrayList buckets[] = new ArrayList[n];
+             for(int i=0;i<n;i++){
+                 buckets[i] = new ArrayList();
+             }
+             int bucketIndex;
+             for(int i=0;i<n;i++){
+                 bucketIndex = (int) (arr[i] * n);
+                 buckets[bucketIndex].add(arr[i]);
+             }
+             
+             for(int i=0;i<buckets.length;i++){
+                 //Sort individual buckets
+                 Collections.sort(buckets[i]);
+             }//sorted buckets..
+//             Arrays.stream(buckets).forEach(System.out::println);
+             
+             int index = 0;
+             for(int i=0;i<buckets.length;i++){
+                 for(int j=0;j<buckets[i].size();j++){
+                     arr[index++] = (double)buckets[i].get(j);
+                 }
+             }
+             System.out.println("Sorted elements - bucket sort..");
+             Arrays.stream(arr).forEach(System.out::println);
+             
+         }
 }
