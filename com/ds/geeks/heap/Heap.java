@@ -244,7 +244,7 @@ class MinHeap{
         }
     }
     
-    int replaceMin(int x){
+    int replaceMin(int x){// to remove min (or root), add a new value x, and return old root
         //returns the old minimum element of the heap, and replaces the root with the given value x
         int root = heap_arr[0];
         heap_arr[0] = x;

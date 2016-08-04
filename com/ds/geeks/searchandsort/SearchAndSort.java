@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import sun.security.x509.X500Name;
 
 /**
  *
@@ -27,7 +28,12 @@ public class SearchAndSort {
 //        sh.quickSortTestData();
 //        sh.countingSortTestData();
 //        sh.radixSortTestData();
-        sh.bucketSortTestData();
+//        sh.bucketSortTestData();
+//        sh.printUnsortedSubArrayTestData();
+//        sh.printKClosestElementTestData();
+//        sh.sort1ToN2TestData();
+//        sh.searchAlmostSortedArrayTestData();
+        sh.sortInWaveFormTestData();
     }
 
     void binarySearchTestData(){
@@ -53,7 +59,7 @@ public class SearchAndSort {
     int binarySearch(int arr[],int l,int r,int x){
         if(r>=l){
             
-            int mid = l+(r-l)/2;
+            int mid = l+(r-l)/2;//Best way to find the mid value for larger values of integer.
             
             if(arr[mid]==x){
                 return mid;
@@ -72,6 +78,8 @@ public class SearchAndSort {
         //The selection sort algorithm sorts an array by repeatedly finding the minimum element (considering ascending order) from unsorted part and putting it at the beginning. 
         //The algorithm maintains two subarrays in a given array.
         int min_idx;
+        
+        //  Selection Sort makes least number of writes (it makes O(n) swaps). Minimum number of memory writes
         
         for(int i=0;i<n;i++){
             min_idx = i;
@@ -122,7 +130,10 @@ public class SearchAndSort {
         stream.forEach(x -> System.out.println(x));
         
     }
-    
+    /*
+     A sorting algorithm is said to be stable if two objects with equal keys appear in the same order in sorted output as they appear in the input unsorted array. 
+     Some sorting algorithms are stable by nature like Insertion sort, Merge Sort, Bubble Sort, etc. And some sorting algorithms are not, like Heap Sort, Quick Sort, etc.
+     */
     void insertionSort(int arr[],int n){
         //Uses: Insertion sort is used when number of elements is small. It can also be useful when input array is almost sorted, only few elements are misplaced in complete big array.
         /*
@@ -231,7 +242,8 @@ public class SearchAndSort {
         void quickSortTestData(){
             int arr[] = {10, 7, 8, 9, 1, 5};
             int n = arr.length;
-            quickSort(arr,0,n-1);
+//            quickSort(arr,0,n-1);
+            iterativeQuickSort(arr, 0, n-1);
             IntStream intstream = Arrays.stream(arr);
             System.out.println("Quick sort..");
             intstream.forEach(x -> System.out.println(x));
@@ -270,12 +282,85 @@ public class SearchAndSort {
         }
         
         void quickSort(int arr[], int low, int high){
+            /*
+            In early versions of Quick Sort where leftmost (or rightmost) element is chosen as pivot, the worst occurs in following cases.
+
+             1) Array is already sorted in same order.
+             2) Array is already sorted in reverse order.
+             3) All elements are same (special case of case 1 and 2)
+
+             Since these cases are very common use cases, the problem was easily solved by choosing either a random index for the pivot, choosing the middle index of the partition or (especially for longer partitions) choosing the median of the first, middle and last element of the partition for the pivot. 
+             With these modifications, the worst case of Quick sort has less chances to occur, but worst case can still occur if the input array is such that the maximum (or minimum) element is always chosen as pivot.
+             */
             if(low<high){
                 int pivot = partition(arr,low,high);
                 quickSort(arr,low,pivot-1);
                 quickSort(arr,pivot+1,high);
             }
         }
+        
+        void iterativeQuickSort(int arr[], int low, int high){
+            //As you can see from the above, we are using recursive call for low - pivot and pivot - high sorting.
+            
+            //In this approach, we will be using auxillary stack
+            int[] stack = new int[high-low+1];//(h-l+1) size of the stack
+            
+            int top = -1;
+            stack[++top] = low;
+            stack[++top] = high;
+            
+            //In this approach, right subarray to pivot is sorted first, then comes to the left subarray.
+            while(top>=0){
+                //while there are elements left in the stack..
+                high = stack[top--];
+                low  = stack[top--];
+                
+                int pivot = partition(arr,low,high);
+                  // If there are elements on left side of pivot,
+            // then push left side to stack
+                if(pivot-1>low){
+                    //add the low - pivot -1 to the stack
+                    stack[++top] = low;
+                    stack[++top] = pivot - 1;
+                }
+                  // If there are elements on right side of pivot,
+            // then push right side to stack
+                if(pivot+1<high){
+                    stack[++top] = pivot+1;
+                    stack[++top] = high;
+                }
+            }
+        }
+        
+        /*
+        
+            Comparison based sorting algorithm: Lower bound
+        
+            A sorting algorithm is comparison based if it uses comparison operators to find the order between two numbers.  
+            Comparison sorts can be viewed abstractly in terms of decision trees. 
+        
+            A decision tree is a full binary tree that represents the comparisons between elements that are performed by a particular sorting algorithm operating on an input of a given size. 
+            The execution of the sorting algorithm corresponds to tracing a path from the root of the decision tree to a leaf. At each internal node, a comparison ai <= aj is made. 
+            The left subtree then dictates subsequent comparisons for ai <= aj, and the right subtree dictates subsequent comparisons for ai > aj. When we come to a leaf, the sorting algorithm has established the ordering. 
+            So we can say following about the decison tree.
+
+            1) Each of the n! permutations on n elements must appear as one of the leaves of the decision tree for the sorting algorithm to sort properly.
+
+            2) Let x be the maximum number of comparisons in a sorting algorithm. The maximum height of the decison tree would be x. A tree with maximum height x has at most 2^x leaves.
+
+            After combining the above two facts, we get following relation.
+
+  
+                n!  <= 2^x
+
+                Taking Log on both sides.
+                log2(n!)  <= x
+
+                Since log2(n!)  = Θ(nLogn),  we can say
+                x = Ω(nLog2n)
+            Therefore, any comparison based sorting algorithm must make at least nLog2n comparisons to sort the input array,
+        
+        */
         
         void countingSortTestData(){
             int arr[] = {1, 4, 1, 2, 7, 5, 2};
@@ -470,4 +555,299 @@ public class SearchAndSort {
              Arrays.stream(arr).forEach(System.out::println);
              
          }
+         
+         void printUnsortedSubArrayTestData(){
+             int arr[] = {10, 12, 20, 30, 25, 40, 32, 31, 35, 50, 60};
+             printUnsortedSubArray(arr);
+         }
+         
+         
+         //find unsorted subarray that when sorted, makes the whole array sorted
+         void printUnsortedSubArray(int arr[]){
+             int n = arr.length;
+             int s = 0, e = n-1;
+             
+             for(s=0;s<n;s++){
+                 if(arr[s]>arr[s+1]){
+                     break;
+                 }
+             }
+             if(s==n){
+                 System.out.println("All the elements are sorted ");
+                 return ;
+             }
+             
+             for(e=n-1;e>0;e--){
+                 if(arr[e-1]>arr[e]){
+                     break;
+                 }
+             }
+             /*
+                1) Find the candidate unsorted subarray 
+              a) Scan from left to right and find the first element which is greater than the next element. Let s be the index of such an element. In the above example 1, s is 3 (index of 30).
+              b) Scan from right to left and find the first element (first in right to left order) which is smaller than the next element (next in right to left order). Let e be the index of such an element. In the above example 1, e is 7 (index of 31).
+             */
+             int max, min;
+             max = arr[s];
+             min = arr[e];
+             
+             for(int i=s+1;i<=e;i++){
+                 //find the min and max element in the unsorted subarray
+                 if(arr[i]<min){
+                     min = arr[i];
+                 }
+                 if(arr[i]>max){
+                     max = arr[i];
+                 }
+             }
+//             2) Check whether sorting the candidate unsorted subarray makes the complete array sorted or not. If not, then include more elements in the subarray.
+//a) Find the minimum and maximum values in arr[s..e]. Let minimum and maximum values be min and max. min and max for [30, 25, 40, 32, 31] are 25 and 40 respectively.
+//b) Find the first element (if there is any) in arr[0..s-1] which is greater than min, change s to index of this element. There is no such element in above example 1.
+//c) Find the last element (if there is any) in arr[e+1..n-1] which is smaller than max, change e to index of this element. In the above example 1, e is changed to 8 (index of 35)
+             
+            //find the firt element which is greater than min, if found change s index
+             for(int i=0;i<=s-1;i++){
+                 if(arr[i]>min){
+                     s = i;
+                 }
+             }
+             
+             for(int i=e+1;i<=n-1;i++){
+                 if(arr[i]<max){
+                     e = i;
+                 }
+             }
+             
+             System.out.println("The unsorted subarray start index "+s+" End index "+e);
+             System.out.println("Elements that are unsorted in subarray is.. ");
+             Arrays.stream(Arrays.copyOfRange(arr, s, e+1)).forEach(System.out::println);
+         }
+         
+         int findCrossOver(int arr[], int low, int high, int x){
+             //Using binary search to find the cross over point,  .
+             /* Function to find the cross over point (the point before
+              which elements are smaller than or equal to x and after
+              which greater than x)*/
+             if(arr[high]<=x){
+                 return high;//If x is greater than high, then return high
+             }
+             if(arr[low]>x){
+                 return low; //if x is smaller, then return low index
+             }
+             int mid = (high+low)/2;
+             
+             //if x is same as middle element, then return x
+             if(arr[mid]<=x && arr[mid]+1>x){
+                 return mid;
+             }
+             
+              /* If x is greater than arr[mid], then either arr[mid + 1]
+          is ceiling of x or ceiling lies in arr[mid+1...high] */
+             if(arr[mid]<x){
+                 return findCrossOver(arr,mid+1,high,x);
+             }
+             return findCrossOver(arr,low,mid-1,x);
+         }
+         
+         void printKClosestElement(int arr[],int x, int k){
+             
+             System.out.println("Closest element to X "+x+" were ");
+             int count = 0;
+             //find the cross over for element x
+             int l = findCrossOver(arr,0,arr.length-1,x);
+             int r = l+1;
+             int n = arr.length;
+             
+             if(arr[l]==x)l--;//don't include x element in the result
+             
+             while(l>=0&&r<n&&count<k){
+                 if(x-arr[l]<arr[r]-x){
+                     System.out.println(arr[l--]);
+                 }else{
+                     System.out.println(arr[r++]);
+                 }
+                 count++;
+             }
+             
+             while(l>=0&&count<k){
+                 //if there are more elements on left side, print them
+                 System.out.println(arr[l--]);
+                 count++;
+             }
+             
+             while(r<n&&count<k){
+                 System.out.println(arr[r++]);
+                 count++;
+             }
+             
+         }
+         
+         void printKClosestElementTestData(){
+             int arr[] = {12, 16, 22, 30, 35, 39, 42,
+                 45, 48, 50, 53, 55, 56
+             };
+             int x = 35, k = 4;
+             printKClosestElement(arr, x, k);
+         }
+         
+         void sort1ToN2(int arr[]){
+             /*
+              Given an array of numbers of size n. It is also given that the array elements are in range from 0 to n2 – 1. Sort the given array in linear time.
+
+              Examples:
+              Since there are 5 elements, the elements can be from 0 to 24.
+              Input: arr[] = {0, 23, 14, 12, 9}
+              Output: arr[] = {0, 9, 12, 14, 23}
+
+              Since there are 3 elements, the elements can be from 0 to 8.
+              Input: arr[] = {7, 0, 2}
+              Output: arr[] = {0, 2, 7}
+             
+              Solution: If we use Counting Sort, it would take O(n^2) time as the given range is of size n^2. Using any comparison based sorting like Merge Sort, Heap Sort, .. etc would take O(nLogn) time.
+              Now question arises how to do this in 0(n)? Firstly, is it possible? Can we use data given in question? n numbers in range from 0 to n2 – 1?
+              The idea is to use Radix Sort. Following is standard Radix Sort algorithm.
+
+              1) Do following for each digit i where i varies from least 
+              significant digit to the most significant digit.
+              …………..a) Sort input array using counting sort (or any stable 
+              sort) according to the i’th digit
+             
+             arr[] = {0, 10, 13, 12, 7}
+
+              Let us consider the elements in base 5. For example 13 in
+              base 5 is 23, and 7 in base 5 is 12.
+              arr[] = {00(0), 20(10), 23(13), 22(12), 12(7)}
+
+              After first iteration (Sorting according to the last digit in 
+              base 5),  we get.
+              arr[] = {00(0), 20(10), 12(7), 22(12), 23(13)}
+
+              After second iteration, we get
+              arr[] = {00(0), 12(7), 20(10), 22(12), 23(13)}
+             */
+             
+             //sort the first digit 
+             radixCountSort(arr, 1);
+             
+             int base = arr.length;
+             
+             radixCountSort(arr, arr.length);
+             
+             //O(n) time sorting..
+         }
+         
+         void sort1ToN2TestData(){
+              // Since array size is 7, elements should be from 0 to 48
+             int arr[] = {40, 12, 45, 32, 33, 1, 22};
+             int n = arr.length;
+             System.out.println("Given array");
+             Arrays.stream(arr).forEach(System.out::println);
+             sort1ToN2(arr);
+
+             System.out.println("Sorted array");
+             Arrays.stream(arr).forEach(System.out::println);
+
+         }
+         
+         int binaryAlmostSortSearch(int arr[],int low,int high, int x){
+             
+             if(low<=high){
+                 
+                 int mid = (low + (high-low))/2;
+                 
+                 if(arr[mid]==x)return mid;
+                 
+                 if(mid<high && arr[mid+1]==x)return mid+1;
+                 
+                 if(mid>low && arr[mid-1]==x) return mid-1;
+                 
+                 if(arr[mid]<x){
+                     return binaryAlmostSortSearch(arr, mid+2, high, x);//skip by 2.
+                 }
+                 
+                 return binaryAlmostSortSearch(arr, low, mid-2, x);
+                 
+             }
+             //when we were not able to find the element, we will reach here..
+             return -1;
+         
+         }
+         
+         void searchAlmostSortedArrayTestData(){
+         
+             /* 
+              
+              Given an array which is sorted, but after sorting some elements are moved to either of the adjacent positions, i.e., arr[i] may be present at arr[i+1] or arr[i-1]. Write an efficient function to search an element in this array. Basically the element arr[i] can only be swapped with either arr[i+1] or arr[i-1].
+
+              For example consider the array {2, 3, 10, 4, 40}, 4 is moved to next position and 10 is moved to previous position.
+
+              Example:
+
+              Input: arr[] =  {10, 3, 40, 20, 50, 80, 70}, key = 40
+              Output: 2 
+              Output is index of 40 in given array
+
+              Input: arr[] =  {10, 3, 40, 20, 50, 80, 70}, key = 90
+              Output: -1
+              -1 is returned to indicate element is not present 
+             
+             */
+             int arr[] = {3, 2, 10, 4, 40};
+             int n = arr.length;
+             int x = 4;
+             int result = binaryAlmostSortSearch(arr, 0, n - 1, x);
+             if (result == -1) {
+                 System.out.println("Element is not present in array");
+             } else {
+                 System.out.println("Element is present at index "
+                         + result);
+             }
+             
+         }
+         
+         void swap(int arr[],int a, int b){
+             int temp = arr[a];
+             arr[a] =arr[b];
+             arr[b] = temp;
+         }
+         
+         void sortInWave(int arr[]){
+             //approach 1: sort the array and swap adjacenet elements.
+             
+//             System.out.println("Sorted in wave form..using sort approach");
+//             Arrays.sort(arr);
+//             
+//             for(int i=0;i<arr.length-1;i+=2){
+//                 swap(arr,i,i+1);
+//             }
+//             Arrays.stream(arr).forEach(System.out::println);
+             
+             //approach 2: O(n) time
+             
+             /*
+              This can be done in O(n) time by doing a single traversal of given array. The idea is based on the fact that if we make sure that all even positioned (at index 0, 2, 4, ..) elements are greater than their adjacent odd elements, we don’t need to worry about odd positioned element. Following are simple steps.
+              1) Traverse all even positioned elements of input array, and do following.
+              ….a) If current element is smaller than previous odd element, swap previous and current.
+              ….b) If current element is smaller than next odd element, swap next and current.
+             */
+             System.out.println("Sorted in wave form, using even traversal approach..");
+             int n = arr.length;
+             for(int i=0;i<arr.length;i+=2){
+                 if(i>0 && arr[i]<arr[i-1]){
+                     swap(arr,i,i-1);
+                 }
+                 if(i<n-1 && arr[i]<arr[i+1]){
+                     swap(arr,i,i+1);
+                 }
+             
+             }
+             Arrays.stream(arr).forEach(System.out::println);
+
+             
+         }
+         void sortInWaveFormTestData(){
+             int arr[] = {10, 90, 49, 2, 1, 5, 23};
+             sortInWave(arr);
+         }
+         
 }
