@@ -118,7 +118,7 @@ public class GraphTester {
  
     int s = 1;
     System.out.println("Following are longest distances from source vertex " +s +" \n");
-    graph.findLongestPath(s);
+    graph.findLongestPath(s);//applicable only for directed acyclic graph.
     
     graph = new Graph(6,true,false);
     graph.addEdge(5, 2, 0 );
@@ -176,7 +176,7 @@ public class GraphTester {
                         {0, 0, 0},};
  
     // Print the solution
-    Graph.minCashFlow(amount,3);
+    Graph.minCashFlow(amount,3);//calculate the net amount (credit-debit) for each person. find the maxdebitor and maxcreditor, then settle the amount.
         
     
         System.out.println("------------Following words of dictionary were present----");
@@ -321,12 +321,12 @@ public class GraphTester {
 //      new MaxFlowGraph().maxFlowTestData();
 //      new GraphMisc().graphMiscTestData();
 //      new GreedyAlgorithms().greedyAlgorithmsTestData();
-//      new DynamicProgramming().dynamicProgrammingTestData();
+      new DynamicProgramming().dynamicProgrammingTestData();
 //    new BackTracking().backTrackingTestData();
 //    new DivideAndConquer().divideAndConquerTestData();
 //        BinarySearchTree.binarySearchTreeTestData();
 //         Heap.heapTestData();
 //    Hash.hashTestData();
-    SearchAndSort.searchAndSortTestData();
+//    SearchAndSort.searchAndSortTestData();
     }
 }

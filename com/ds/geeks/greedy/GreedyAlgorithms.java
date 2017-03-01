@@ -267,7 +267,7 @@ Output: Following is maximum profit sequence of jobs
     }
     
     void findMinNoOfCoins(int V){
-        int[] deno = new int[]{1,2,5,10,20,50,100,500,1000};
+        int[] deno = new int[]{1,2,5,10,20,50,100,500,1000};//sort the denomination input in increasing order...
         int n = deno.length;
         Queue<Integer> result = new LinkedList<Integer>();
         //Denomination traverse from n (choose the best and settle if not found)

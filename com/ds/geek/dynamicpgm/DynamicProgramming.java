@@ -533,7 +533,7 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
                 if(i==n){
                     //Example
                     /*
-                     5-->0 4 11
+                     5-->0 4 11 cost of cutting rod of length 1 + cost of cutting rod of length 4
                      5-->1 3 13
                      5-->2 2 13
                      5-->3 1 10
@@ -783,7 +783,7 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
         
         
         
-        First we compute costs of all possible lines in a 2D table lc[][]. The value lc[i][j] indicates the cost to put words from i to j in a single line where i and j are indexes of words in the input sequences. 
+        First we compute costs of all possible lines in a 2D table lc[][]. The value lc[i][j] indicates the cost to put words from i to j(indeces of word in a sentence) in a single line where i and j are indexes of words in the input sequences. 
         If a sequence of words from i to j cannot fit in a single line, then lc[i][j] is considered infinite (to avoid it from being a part of the solution).
         Once we have the lc[][] table constructed, we can calculate total cost using following recursive formula. In the following formula, C[j] is the optimized total cost for arranging words from 1 to j.
         
@@ -800,6 +800,14 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
          l[] = {3, 2, 2, 5} is for a sentence like "aaa bb cc ddddd".
          n is size of l array.
          M is line width ( maximum number of characters that can be fit in a line.
+        
+        M is 6
+        
+        aaa
+        bb cc
+        ddddd
+        
+        Extra spaces in the above 3 lines are 3, 1 and 1 respectively. So total cost is 27 + 1 + 1 = 29.
          */
         
         //for simplicity, 1 extra space is used in all below arrays
@@ -812,8 +820,10 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
             extras[i][i] = M-l[i-1];//Number of extra spaces when putting word aaa will be M - l[i] -> 6-3 = 3
 //            System.out.println("For i.."+i);
             for(int j=i+1;j<=n;j++){
+                //aaa bb
+                //aaa - extra space is 3, l[j-1] is length of the word at jth location (which is 2 for bb) => 3-2-1 => 0
                 extras[i][j] = extras[i][j-1] //extras[i][j-1] - already calculated number of spaces excluding the previous word
-                               - l[j-1] - 1;//1 extra space is used in all the arrays.
+                               - l[j-1] - 1;//1 extra space is used in all the arrays (Because there has to be a space between each word)
                                //j-1 is the length of word at jth position of array l
 //                System.out.print(extras[i][j]+"\t");
             }
@@ -825,15 +835,22 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
                 System.out.print(extras[i][j]+"\t");
             }
             System.out.println("");
+            
+            Extra space matrix..
+3	0	-3	-9	
+0	4	1	-5	
+0	0	4	-2	
+0	0	0	1	
+            
         }*/
         
         //To calculate the line cost corresponding to the above calculated extra spaces. The value lc[i][j] indicates cost of putting words from word number i to j in a single line.
         for(int i=1;i<=n;i++){
             //iterating word 1 by 1
-            for(int j=i;j<=n;j++){//starting from i to j
-                if(extras[i][j]<0){
+            for(int j=i;j<=n;j++){//starting from i to j (note, that lc[i][i] should also be considered..
+                if(extras[i][j]<0){//if the extra space is max, then we cannot put the line 
                     lc[i][j] = INF;//line cost set to high, not possible to put the words from i to j in a single line..
-                }else if(j==n && extras[i][j] > 0){
+                }else if(j==n && extras[i][j] > 0){//if the last word, then set the line cost of words, to zero..
                     lc[i][j] = 0;
                     System.out.println(extras[i][j]+"Line cost of words from i "+i+" to j "+j+" is set to zero ");
                 }else{
@@ -842,7 +859,7 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
             }
         }
         //Now that we have calculated line cost from i to j, we need to find the minimum cost and it's arrangement of words
-        int c[] = new int[n+1];//will have total cost of optimal arrangement of words from 1 to i
+        int c[] = new int[n+1];//will have total cost of optimal arrangement of words from 1 to j
         
         int p[] = new int[n+1];//p[] is used to print the solution
         
@@ -858,7 +875,7 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
             c[j] = INF;
             for(int i=1;i<=j;i++){//bottom up manner,to fill the c value
                 //we should not iterate from i=j+1 to n, that would not fill the c value in bottom up manner
-                if(c[i-1]!=INF && lc[i][j] !=INF && (c[i-1] + lc[i][j])<c[j]){
+                if(c[i-1]!=INF && lc[i][j] !=INF && (c[i-1] + lc[i][j])<c[j]){//minimal cost of putting word from 1 to i and adding cost from i to j -> if less than calculated value from 1 to j
                     c[j] = c[i-1] + lc[i][j];
                     p[j] = i;//putting the word from i to j
                 }
@@ -878,9 +895,9 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
         /* Traversing backwards to print the solution
          i is p[n] to j is n - the order we stored the value as in wordwrap
         
-         Line number 1: From word no. 1 to 1
-         Line number 2: From word no. 2 to 3
-         Line number 3: From word no. 4 to 4 
+         Line number 1: From word no. 1 to 1 //p[1] = 1, k=1, print the solution
+         Line number 2: From word no. 2 to 3 // p[3] = 2, p[3]-1 = 2-1 = 1
+         Line number 3: From word no. 4 to 4 //p[n]-1 is 4 - 1 = 3
         */
         return k;
     }
@@ -1205,7 +1222,7 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
 //                    System.out.println("i-> "+i+"j-> "+j+" jumps[i]-> "+jumps[i]+" jumps[j]-> "+jumps[j]);
                     jumps[i] = Math.min(jumps[i], jumps[j]+1);//jumps[j]+1 is the important one, it denotes that 1 more step from jumps[j] is required for movement to reach i
 //                    System.out.println("Final jumps[i] "+jumps[i]);
-                    break;
+                    break;//If the first most element in the array, is found to reach the ith element, then what obtained is the minimum number of jumps to reach i.
                 }
             }
         }
@@ -1363,7 +1380,7 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
         
         
     }
-    void maxSubArraySum(int arr[],int n){
+    void maxSubArraySum(int arr[],int n){//given a list of positive and negative integers in an array, calculate the sum
         int max_ending_here = 0;
         int max_so_far = 0;
         for(int i=0;i<n;i++){
@@ -1465,7 +1482,8 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
                 
                 for(int r=i;r<=j;r++){//r as root
                     int c = ((r>i)?cost[i][r-1]:0)+((r<j)?cost[r+1][j]:0)+sum(freq,i,j);//r is considered as root.
-                   // We add sum of frequencies from i to j (see first term in the above formula), this is added because every search will go through root and one comparison will be done for every search.
+                    //When we make rth node as root, we recursively calculate optimal cost from i to r-1 and r+1 to j.
+               // We add sum of frequencies from i to j (see first term in the above formula), this is added because every search will go through root and one comparison will be done for every search.
                     cost[i][j] = Math.min(cost[i][j], c);
                 }
             }
@@ -1805,7 +1823,7 @@ Output: 5
         // table[0][n-1] which is the result.
         for(int L=3;L<=n;L++){//Process the chain length from 3 onwards, as 3 vertices are required for triangulation..
             for(int i=0;i<n-L+1;i++){
-                int j = i+L-1;
+                int j = i+L-1;//i - row 2, j - col 5, we can process 3 and 4 vertices..
                 if(j<i+2){//atleast 3 vertices is needed for processing.
                     //for example i - 1 j - 4 we can process k as 2, 3
                     //if i- 2 j-3 there is no k in between, and we can't triangulate the polygon with the vertices 2 and 3, hence set the table[i][j] to 0
@@ -2117,7 +2135,7 @@ Output: 5
         
         */
         double dp[][] = new double[10][n+1];//10 digits of length n
-        
+        //digits ending with d, of length n
         for(int i=0;i<10;i++){
             for(int j=0;j<n;j++){
                 dp[i][j] = 0;
@@ -2334,6 +2352,7 @@ Output: 5
         for(int i=1;i<=V;i++){//must start from 1
             table[i] = Integer.MAX_VALUE;//Initialize the value to infinity
         }
+        //table[0] is zero by default.
         
         for(int i=1;i<=V;i++){
             //calculate the minimum number of coins for sub problems
@@ -2516,7 +2535,7 @@ Output: 5
          4) Overall sum is sum of following terms
 
          a) Sum of digits in 1 to "msd * 10d - 1".  For 328, sum of 
-         digits in numbers from 1 to 299.
+         digits in numbers from 1 to 299. 10 to the power of d.
          For 328, we compute 3*sum(99) + (1 + 2)*100.  Note that sum of
          sum(299) is sum(99) + sum of digits from 100 to 199 + sum of digits
          from 200 to 299.  
@@ -2525,8 +2544,9 @@ Output: 5
 
          b) Sum of digits in msd * 10d to n.  For 328, sum of digits in 
          300 to 328.
+        29 times has 3 occurred -> from 300, 301,302.. to 328
          For 328, this sum is computed as 3*29 + recursive call "sum(28)"
-         In general, this sum can be computed as  msd * (n % (msd*10d) + 1) 
+         In general, this sum can be computed as  msd * (n % (10d) + 1) 
          + sum(n % (10d))
         */
         if(n<10){
@@ -3402,7 +3422,7 @@ Similarly, dist[4], dist[5], ... dist[N-1] are calculated.
 //        countNonDecreasingNumbersTestData();
 //        getLongestConsecutivePathCharTestData();
 //        getMinSquaresTestData();
-//        getMinNumberOfCoinsToMakeAChangeTestData();
+        getMinNumberOfCoinsToMakeAChangeTestData();
 //        collectMaxPointsInGridUsingTwoTraversalTestData();
 //        shortestSuperSequenceTestData();
 //        sumOfDigitsFrom1ToNTestData();

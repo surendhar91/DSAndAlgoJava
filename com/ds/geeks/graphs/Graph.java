@@ -167,7 +167,7 @@ public class Graph {
                 if (!visited[edge] && isCyclicUtil(edge, visited, recStack)) {
                     return true;
                 } else if (recStack[edge]) {//if already visited, could be a loop, hence find the element in recursive stack, if present true
-                    //for self loop
+                    //for self loop or edge to the ancestor
                     return true;
                 }
             }
