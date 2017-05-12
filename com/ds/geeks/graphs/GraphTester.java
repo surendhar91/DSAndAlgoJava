@@ -321,12 +321,12 @@ public class GraphTester {
 //      new MaxFlowGraph().maxFlowTestData();
 //      new GraphMisc().graphMiscTestData();
 //      new GreedyAlgorithms().greedyAlgorithmsTestData();
-      new DynamicProgramming().dynamicProgrammingTestData();
+//      new DynamicProgramming().dynamicProgrammingTestData();
 //    new BackTracking().backTrackingTestData();
 //    new DivideAndConquer().divideAndConquerTestData();
 //        BinarySearchTree.binarySearchTreeTestData();
 //         Heap.heapTestData();
 //    Hash.hashTestData();
-//    SearchAndSort.searchAndSortTestData();
+    SearchAndSort.searchAndSortTestData();
     }
 }

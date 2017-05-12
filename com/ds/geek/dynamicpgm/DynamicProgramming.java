@@ -5,8 +5,10 @@
  */
 package com.ds.geek.dynamicpgm;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  *
@@ -51,7 +53,7 @@ public class DynamicProgramming {
     }
     int lis(int arr[],int n){
         int[] lis = new int[n];
-        
+        int[] parent = new int[n];
         for(int i=0;i<n;i++){
             lis[i] = 1;
         }
@@ -62,19 +64,34 @@ public class DynamicProgramming {
             for(int j=0;j<i;j++){
                 if(arr[j]<arr[i] && lis[j]+1 > lis[i]){//should be in ascending order and adding this element should result to already existing lis
                     lis[i] = lis[j]+1;
+                    parent[i] = j;
                 }
             }
         }
         int max=0;
+        int maxIndex = 0;
         //pick maximum of all lis values
         for(int i=0;i<n;i++){
             if(max<lis[i]){
                 max = lis[i];
+                maxIndex = i;
             }
         }
+//        for(int i=0;i<n;i++){
+//            System.out.print("index "+i+" parent "+parent[i]);
+//        }
+        System.out.print(arr[maxIndex]);
+        printElement(parent,arr, maxIndex);
         return max;
         
     }
+    void printElement(int[] parent,int arr[], int maxIndex){
+        if(maxIndex>0){ 
+            System.out.print(" "+arr[parent[maxIndex]]);
+            printElement(parent, arr, parent[maxIndex]);
+        }
+    }   
+    
     int lcs(char[] X, char[] Y,int m,int n){
     /*
         Examples:
@@ -123,7 +140,8 @@ public class DynamicProgramming {
     }
     int editDistanceDP(String str1, String str2, int m,int n){
     /*
-        Given two strings str1 and str2 and below operations that can performed on str1. Find minimum number of edits (operations) required to convert ‘str1′ into ‘str2′.
+        Given two strings str1 and str2 and below operations that can performed on str1. 
+        Find minimum number of edits (operations) required to convert ‘str1′ into ‘str2′.
 
          Insert
          Remove
@@ -224,7 +242,8 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
         return tc[m][n];
         
     }
-    int countCoinChange(int S[],int m,int n){
+    int countCoinChange(int coins[],int m,int n){
+        //Number of permutations of a subset summing up to a value N (the subset element may repeat itself)
         /*
         Given a value N, if we want to make change for N cents, and we have infinite supply of each of S = { S1, S2, .. , Sm} valued coins, how many ways can we make the change? The order of coins doesn’t matter.
 
@@ -240,50 +259,33 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
 
          Therefore, the problem has optimal substructure property as the problem can be solved using solutions to subproblems.
         */
-        
-        
-        
-        // table[i] will be storing the number of solutions for
-        // value i. We need n+1 rows as the table is consturcted
-        // in bottom up manner using the base case (n = 0)
-        
-        //table[n] would store the number of solutions to make change with
-        int[] table = new int[n + 1];
-
-        // Initialize all table values as 0
-        for (int i = 0; i <= n; i++) {
-            table[i] = 0;
+        int T[][] = new int[m+1][n+1];
+        for(int i=0;i<=m;i++){
+            T[i][0] = 1;//if the amount is zero, then return empty set.
         }
-
-        // Base case (If given value is 0)
-        table[0] = 1;//base value 1 is required, so that when making a change for 3, the coin 3 itself should be included [i.e. a set containing only one element]
-
-    // Pick all coins one by one and update the table[] values
-        // after the index greater than or equal to the value of the
-        // picked coin
-        for (int i = 0; i < m; i++) {//pick a coin one by one {1,2,3,4}
-            for (int j = S[i]; j <= n; j++) {//from the coin index, to the n (need to make change for) why coin index? -> no need to go backwars in the result set, because there is no way that change for 1 cent would contain 2 coins.
-                table[j] += table[j - S[i]]; //Why j-S[i] ? 
-                // Count of solutions including S[i]
-                /*
-                    coin - 2 (S[i])
-                
-                    Matrix:  0  1  2  3  4  
-                
-                    j = 1    1  1  1  1  1
-                    j = 2    1  1  2  1  1
-                    j = 3    1  1  2  2  1
-                    j = 4    1  1  2  2  3(table[4-2]) - including 2 coins for 4 cents, inturn includes the already calculated solutions for 2 coins.
-                
-                */
-            }
-            for(int j=0;j<=n;j++){
-                System.out.print(table[j]+"\t");
-            }
-            System.out.println("");
+        for(int j=0;j<=n;j++){
+            T[0][j] = 0;//if no coins given, then there is zero solution.
         }
+        
+        for(int i=1;i<=m;i++){
+            int coinI = i-1;
+            for(int j=1;j<=n;j++){
+                if(j>=coins[coinI]){//coins[i-1] //i-1 is necessary, since the data will be stored in 0,1,2 index
+                    T[i][j] = T[i-1][j] //solution excluding this coin
+                             + T[i][j-coins[coinI]];//solution including this coin atleast once, reducing the amount by coin value, go to it's subproblem
+                }else{//extend from topmost..
+                    T[i][j] = T[i-1][j];
+                }
+            }
+        }
+//        for(int i=0;i<=m;i++){
+//            for(int j=0;j<=n;j++){
+//                System.out.print(T[i][j]+"\t");
+//            }
+//            System.out.println("");
+//        }
+        return T[m][n];
 
-        return table[n];//need to make change for n cents, whose value will be stored here.
     }
     int matrixChainOrder(int p[],int n){
         
@@ -293,32 +295,53 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
         to compute the matrix A[i]A[i+1]...A[j] = A[i..j] where
         dimension of A[i] is p[i-1] x p[i] */
         int[][] m =new int[n][n];//0th row and 0th column were not used for simplicity
-        
+        int[][] bracket = new int[n][n];
         //cost is zero when multiplying one matrix
-        for(int i=1;i<n;i++){
+        for(int i=0;i<n;i++){
             m[i][i] = 0;
         }
         int j,q;
         for(int L=2;L<n;L++){
             //Below loop for defining the placement of paranthesis
             //for example of chain length 3, with 4 matrix, there are exactly two ways we can place paranthesis
-            for(int i=1;i<=n-L+1;i++){
+            for(int i=1;i<n-L+1;i++){
               j = i+L-1;//within boundary of n
-              if(j==n)continue;//If j reaches n then it's not a valid placement
               m[i][j] = Integer.MAX_VALUE;//defining infinity cost for multiplication of matrix A[i..j]
-              for(int k=i;k<=j-1;k++){
+              for(int k=i;k<j;k++){
                   //k is the place wher paranthesis should be placed..
                   
                   //optimal solution will be obtained at the end of the loop
                   q = m[i][k] + m[k+1][j] + p[i-1]*p[k]*p[j];
                   if(q<m[i][j]){
                       m[i][j] = q;
+                      bracket[i][j]=k;
                   }
               
               }
             }
         }
+        printParanthesis(1,n-1,bracket,'A');
         return m[1][n-1];//return m[1][n] max
+    }
+    
+    void printParanthesis(int i,int j,int bracket[][], char name){
+        if(i>j)
+            return ;
+        if(i==j){
+//            int charInt = (int)name;
+            System.out.print(name);
+//            System.out.print(charInt++);
+            return ;
+            
+        }
+        System.out.print("(");
+        
+        printParanthesis(i,bracket[i][j], bracket,name);
+        
+        printParanthesis(bracket[i][j]+1, j, bracket, name);
+        
+        System.out.print(")");
+        
     }
     void binomialCoefficient(int n,int k){
         
@@ -858,6 +881,13 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
                 }
             }
         }
+//        System.out.println("Line cost matrix..");
+//        for(int i=1;i<=n;i++){
+//            for(int j=1;j<=n;j++){
+//                System.out.print(lc[i][j]+"\t");
+//            }
+//            System.out.println("");
+//        }
         //Now that we have calculated line cost from i to j, we need to find the minimum cost and it's arrangement of words
         int c[] = new int[n+1];//will have total cost of optimal arrangement of words from 1 to j
         
@@ -878,9 +908,18 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
                 if(c[i-1]!=INF && lc[i][j] !=INF && (c[i-1] + lc[i][j])<c[j]){//minimal cost of putting word from 1 to i and adding cost from i to j -> if less than calculated value from 1 to j
                     c[j] = c[i-1] + lc[i][j];
                     p[j] = i;//putting the word from i to j
+                    System.out.println("P["+j+"] is "+i);
                 }
             }
         }
+        System.out.println("cost matrix..");
+        for(int i=1;i<=n+1;i++){
+            System.out.print(c[i-1]+"\t");
+        }
+//        System.out.println("parent matrix..");
+//        for(int i=1;i<=n;i++){
+//            System.out.print(p[i]+"\t");
+//        }
         printSolution(p,p[n]);
     }
     
@@ -900,6 +939,34 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
          Line number 3: From word no. 4 to 4 //p[n]-1 is 4 - 1 = 3
         */
         return k;
+    }
+
+    private void printAllSubSetEqualSum(int[] arr, int i, int sum, boolean[][] dp, ArrayList<Integer> printList) {
+        //since n-1 is passed, i am letting it be i.
+          if(i==0&&sum==0){//if all the elements are traversed and sum is also zero..
+              System.out.println(printList);
+              return ;
+          }
+          if(i==0&&sum!=0&&dp[sum][0]){
+              //if sum is not equal to zero, but arr[0] is equal to the sum, add this element to printlist 
+              printList.add(arr[0]);
+              System.out.println(printList);
+              return ;
+          }
+          
+          //back track - ignore the element being traversed and include the element
+          if(dp[sum][i-1]){
+              ArrayList<Integer> ignorePrintList;
+              ignorePrintList = (ArrayList)printList.clone();
+              printAllSubSetEqualSum(arr, i-1, sum, dp, ignorePrintList);
+          }
+          
+          if(arr[i-1]<=sum && dp[sum-arr[i-1]][i-1])//including this element
+          {//since n is passed, we need to use arr[i-1] in order to get the appropriate element.
+              printList.add(arr[i-1]);
+              printAllSubSetEqualSum(arr, i-1, sum-arr[i-1], dp, printList);
+          }
+          
     }
     
     class Pair{
@@ -1518,6 +1585,8 @@ minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost
                 }
             }
         }
+        ArrayList<Integer> printList = new ArrayList<Integer>();
+        printAllSubSetEqualSum(set, n, sum, subset, printList); 
         return subset[sum][n];
     }
     int[] kadane(int a[]){
@@ -2005,7 +2074,10 @@ Output: 5
     int minPositivePointsToReachDestination(int points[][]){
     
         /*
-         Given a grid with each cell consisting of positive, negative or no points i.e, zero points. We can move across a cell only if we have positive points ( > 0 ). Whenever we pass through a cell, points in that cell are added to our overall points. We need to find minimum initial points to reach cell (m-1, n-1) from (0, 0).
+         Given a grid with each cell consisting of positive, negative or no points i.e, zero points. 
+         We can move across a cell only if we have positive points ( > 0 ). 
+         Whenever we pass through a cell, points in that cell are added to our overall points. 
+         We need to find minimum initial points to reach cell (m-1, n-1) from (0, 0).
 
          Constraints :
 
@@ -2109,7 +2181,8 @@ Output: 5
     
     double findTotalNonDecreasingNumbersWithNDigits(int n){
         /*
-        A number is non-decreasing if every digit (except the first one) is greater than or equal to previous digit. For example, 223, 4455567, 899, are non-decreasing numbers.
+        A number is non-decreasing if every digit (except the first one) is greater than or equal to previous digit. 
+        For example, 223, 4455567, 899, are non-decreasing numbers.
 
          So, given the number of digits n, you are required to find the count of total non-decreasing numbers with n digits.
 
@@ -3207,7 +3280,7 @@ Similarly, dist[4], dist[5], ... dist[N-1] are calculated.
                             });
     }
     void isSubSetSumTestData(){
-        int set[] = {3, 34, 4, 12, 5, 2};
+        int set[] = {3, 34, 4, 6, 5, 2};
         int sum = 9;
         if (isSubSetSum(set, set.length, sum) == true){
             System.out.println("Subset found to the sum "+sum);
@@ -3336,7 +3409,7 @@ Similarly, dist[4], dist[5], ... dist[N-1] are calculated.
         binomialCoefficient(n, k);
     }
     void matrixChainOrderTestData(){
-        int arr[] = new int[]{1, 2, 3, 4};
+        int arr[] = new int[]{10,20,30,40,30};
     int size = arr.length;
  
     System.out.println("Minimum number of multiplications is "+
@@ -3344,8 +3417,8 @@ Similarly, dist[4], dist[5], ... dist[N-1] are calculated.
     }
     void countCoinChangeTestData(){
          int arr[] = {1, 2, 3};
-         int n=4;
-         System.out.println("Number of solutions we can make change for n  "+n+" is "+countCoinChange(arr, 3, 4));
+         int n=5;
+         System.out.println("Number of solutions we can make change for n  "+n+" is "+countCoinChange(arr, arr.length, n));
     }
     void lisTestData(){
         int arr[] = { 10, 22, 9, 33, 21, 50, 41, 60 };
@@ -3422,7 +3495,7 @@ Similarly, dist[4], dist[5], ... dist[N-1] are calculated.
 //        countNonDecreasingNumbersTestData();
 //        getLongestConsecutivePathCharTestData();
 //        getMinSquaresTestData();
-        getMinNumberOfCoinsToMakeAChangeTestData();
+//        getMinNumberOfCoinsToMakeAChangeTestData();
 //        collectMaxPointsInGridUsingTwoTraversalTestData();
 //        shortestSuperSequenceTestData();
 //        sumOfDigitsFrom1ToNTestData();

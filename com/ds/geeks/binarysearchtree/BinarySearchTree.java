@@ -322,7 +322,7 @@ public class BinarySearchTree {
 
          For example, Nodes 7 and 8 are swapped in {3 5 7 8 10 15 20 25}. 
          The inorder traversal of the given tree is 3 5 8 7 10 15 20 25 
-         Unlike case #1, here only one point exists where a node value is smaller than previous node value. e.g. node 7 is smaller than node 8.
+         Unlike case #1, here only one point existzs where a node value is smaller than previous node value. e.g. node 7 is smaller than node 8.
 
          How to Solve? We will maintain three pointers, first, middle and last. 
          When we find the first point where current node value is smaller than previous node value, we update the first with the previous node & middle with the current node. When we find the second point where current node value is smaller than previous node value, we update the last with the current node. In case #2, we will never find the second point. So, last pointer will not be updated. 

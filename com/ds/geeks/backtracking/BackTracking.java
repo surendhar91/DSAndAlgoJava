@@ -414,7 +414,7 @@ public class BackTracking {
                 return true;//reached the end of matrix, and all the cells are assigned, then we found the solution return true;
             }
             
-            for(int num=1;num<=9;num++){
+            for(int num=1;num<=9;num++){//from the break statemnet.
                 //try 1 by 1 number from 0 to 9 and check if the sudoko is safe
                 if(isSudokuSafe(grid,row,col,num)){
                     

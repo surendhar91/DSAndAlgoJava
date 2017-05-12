@@ -200,7 +200,7 @@ public class Graph {
 
 GRAY : Vertex is being processed (DFS for this 
        vertex has started, but not finished which means
-       that all descendants (ind DFS tree) of this vertex
+       that all descendants (ind DFS tree)  of this vertex
        are not processed yet (or this vertex is in function
        call stack)
 
@@ -352,11 +352,11 @@ and hence there is a cycle.
         
     }
     
-    void topologicalSortUtil(int vertex,boolean visited[], Stack stack){
+    void topologicalSortUtil(int vertex,boolean visited[], Stack stack){//Applicable for directed acyclic graph
         //What is a topological sorting ? Ensures that element u is visited before v
         //Topological Sorting for a graph is not possible if the graph is not a DAG.
         /*
-        In DFS, we print a vertex and then recursively call DFS for its adjacent vertices. 
+        In DFS, we print a vertex and then recursively call DFS for its adjacent vertices.
         In topological sorting, we need to print a vertex before its adjacent vertices
         */
         visited[vertex] = true;
