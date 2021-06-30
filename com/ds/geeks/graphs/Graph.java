@@ -693,6 +693,22 @@ Output:  Following words of dictionary are present
             }
         }
     }
+
+    // 1. https://www.geeksforgeeks.org/count-number-trees-forest/
+    // 2. https://www.geeksforgeeks.org/minimum-initial-vertices-traverse-whole-matrix-given-conditions/
+    // 3. https://www.geeksforgeeks.org/water-jug-problem-using-bfs/
+    // 4. https://www.geeksforgeeks.org/path-rectangle-containing-circles/
+    // 5. https://www.geeksforgeeks.org/height-generic-tree-parent-array/
+    // 6. https://www.geeksforgeeks.org/minimum-number-of-edges-between-two-vertices-of-a-graph/
+    // 7. https://www.geeksforgeeks.org/count-nodes-within-k-distance-from-all-nodes-in-a-set/
+    // 8. https://www.geeksforgeeks.org/number-pair-positions-matrix-not-accessible/
+    // 9. https://www.geeksforgeeks.org/find-minimum-numbers-moves-needed-move-one-cell-matrix-another/
+    // 10. https://www.geeksforgeeks.org/minimum-steps-reach-target-knight/
+    // 11. https://www.geeksforgeeks.org/minimum-number-operation-required-convert-number-x-y/
+    // 12. https://www.geeksforgeeks.org/check-if-two-nodes-are-on-same-path-in-a-tree/
+    // 13. https://www.geeksforgeeks.org/find-shortest-distance-guard-bank/
+    // 14. https://www.geeksforgeeks.org/boggle-find-possible-words-board-characters/
+    // 15. https://www.geeksforgeeks.org/minimum-time-required-so-that-all-oranges-become-rotten/
     
     class AdjListNode{
         int v;

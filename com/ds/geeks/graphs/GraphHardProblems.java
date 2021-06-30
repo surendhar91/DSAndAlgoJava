@@ -26,7 +26,6 @@ public class GraphHardProblems {
         
         int[] result = new int[V];// To store if the vertex is colored with color number
         boolean[] colorAvailable = new boolean[V];//If the color n is available or not
-        
         for(int i=0;i<V;i++){
             result[i]      =   -1;
             colorAvailable[i] = false;

@@ -171,7 +171,7 @@ public class BinarySearchTree {
     }
     
     int findKthSmallestElementInBST(Node root, int k){
-    
+        // O(h) time complexity height of the BST, O(1) extra space.
             int res = -1;
             if(root!=null){
                 //lcount represent the number of elements in the left subtree
@@ -186,7 +186,11 @@ public class BinarySearchTree {
             return res;
     }
     void mergeBST(Node root1, Node root2){
-        //O(m+n) -> O(height of the first tree + height of the second tree)
+        // inserting tree2 nodes one by one to tree1 takes O(n~2) complexity in the worst case.
+        // Traversing in order traversal of both the trees. O(m), and O(n) time. Merge them in O(m+n) time. construct a BST with these nodes in O(m+n) time for a balanced BST with O(m+n) extra space. 
+        // space complexity however required is O(m+n).
+
+        //Time: O(m+n) -> Space: O(height of the first tree + height of the second tree)
         Node currentNode1, currentNode2;
         // s1 is stack to hold nodes of first BST
         Stack<Node> stack1 = new Stack<Node>();
@@ -233,7 +237,7 @@ public class BinarySearchTree {
                 }
                 
                 if(stack2.isEmpty()){
-                    //print the stack 2 elements
+                    //print the stack 1 elements
                     while(!stack1.isEmpty()){
                         currentNode1 = stack1.pop();
                         currentNode1.left = null;//Left tree elements are already traversed.
@@ -310,13 +314,16 @@ public class BinarySearchTree {
          5    20
          / \
          2   8
-         We can solve this in O(n) time and with a single traversal of the given BST. Since inorder traversal of BST is always a sorted array, the problem can be reduced to a problem where two elements of a sorted array are swapped. There are two cases that we need to handle:
+         We can solve this in O(n) time and with a single traversal of the given BST. 
+         Since inorder traversal of BST is always a sorted array, the problem can be reduced to a problem where two elements of a sorted array are swapped. 
+         There are two cases that we need to handle:
 
          1. The swapped nodes are not adjacent in the inorder traversal of the BST.
 
          For example, Nodes 5 and 25 are swapped in {3 5 7 8 10 15 20 25}. 
          The inorder traversal of the given tree is 3 25 7 8 10 15 20 5 
-         If we observe carefully, during inorder traversal, we find node 7 is smaller than the previous visited node 25. Here save the context of node 25 (previous node). Again, we find that node 5 is smaller than the previous node 20. This time, we save the context of node 5 ( current node ). Finally swap the two node’s values.
+         If we observe carefully, during inorder traversal, we find node 7 is smaller than the previous visited node 25. Here save the context of node 25 (previous node). 
+         Again, we find that node 5 is smaller than the previous node 20. This time, we save the context of node 5 ( current node ). Finally swap the two node’s values.
 
          2. The swapped nodes are adjacent in the inorder traversal of BST.
 
@@ -325,7 +332,9 @@ public class BinarySearchTree {
          Unlike case #1, here only one point existzs where a node value is smaller than previous node value. e.g. node 7 is smaller than node 8.
 
          How to Solve? We will maintain three pointers, first, middle and last. 
-         When we find the first point where current node value is smaller than previous node value, we update the first with the previous node & middle with the current node. When we find the second point where current node value is smaller than previous node value, we update the last with the current node. In case #2, we will never find the second point. So, last pointer will not be updated. 
+         When we find the first point where current node value is smaller than previous node value, we update the first with the previous node & middle with the current node. 
+         When we find the second point where current node value is smaller than previous node value, we update the last with the current node. 
+         In case #2, we will never find the second point. So, last pointer will not be updated. 
          After processing, if the last node value is null, then two swapped nodes of BST are adjacent.
         
         */
@@ -364,7 +373,19 @@ public class BinarySearchTree {
     }
     
     int ceilValueBST(Node root, int key){
+        /**
         
+                      8
+                    /   \    
+                  4      12
+                /  \    /  \
+               2    6  10   14
+
+            Key: 11  Floor: 10  Ceil: 12
+            Key: 1   Floor: -1  Ceil: 2
+            Key: 6   Floor: 6   Ceil: 6
+            Key: 15  Floor: 14  Ceil: -1
+         */
         //For example, consider designing memory management system in which free nodes are arranged in BST. Find best fit for the input request.
         
         /* 
