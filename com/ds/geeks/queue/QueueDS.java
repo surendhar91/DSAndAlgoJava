@@ -195,7 +195,7 @@ public class QueueDS {
           int adjIndex = aList[temp].get(i);
           if (visit[adjIndex] == false) {
             dist[adjIndex] = dist[temp] + 1;
-            //min(dist[adjIndex], dist[temp] + 1)
+            // min(dist[adjIndex], dist[temp] + 1)
             q.add(adjIndex);
             visit[adjIndex] = true;
           }
@@ -214,7 +214,68 @@ public class QueueDS {
     }
 
     // Find minimum distance
-    static void findMinDistance(int mat[][], int N, int M) {
+    static void findMinDistanceInMatrixUsingBFS(int mat[][], int N, int M) {
+      /**
+       * Given a binary matrix of N x M, containing at least a value 1. The task is to
+       * find the distance of nearest 1 in the matrix for each cell. The distance is
+       * calculated as |i1 – i2| + |j1 – j2|, where i1, j1 are the row number and
+       * column number of the current cell and i2, j2 are the row number and column
+       * number of the nearest cell having value 1.
+       * 
+       * Examples:
+       * 
+       * Input : N = 3, M = 4 mat[][] = { 0, 0, 0, 1,
+       * 
+       * 0, 0, 1, 1,
+       * 
+       * 0, 1, 1, 0 }
+       * 
+       * Output :
+       * 
+       * 3 2 1 0
+       * 
+       * 2 1 0 0
+       * 
+       * 1 0 0 1 Explanation: For cell at (0, 0), nearest 1 is at (0, 3), so distance
+       * = (0 - 0) + (3 - 0) = 3. Similarly, all the distance can be calculated.
+       * 
+       * Input : N = 3, M = 3 mat[][] = { 1, 0, 0,
+       * 
+       * 0, 0, 1,
+       * 
+       * 0, 1, 1 }
+       * 
+       * Output :
+       * 
+       * 0 1 1
+       * 
+       * 1 1 0
+       * 
+       * 1 0 0 Explanation: For cell at (0, 1), nearest 1 is at (0, 0), so distance is
+       * 1. Similarly, all the distance can be calculated.
+       */
+
+      /**
+       * Approach: The idea is to use multisource Breadth-First Search. Consider each
+       * cell as a node and each boundary between any two adjacent cells be an edge.
+       * Number each cell from 1 to N*M. Now, push all the node whose corresponding
+       * cell value is 1 in the matrix in the queue. Apply BFS using this queue to
+       * find the minimum distance of the adjacent node. Algorithm:
+       * 
+       * 1. Create a graph with values assigned from 1 to M*N to all vertices. The
+       * purpose is to store position and adjacent information.
+       *
+       * 2. Create an empty queue.
+       * 
+       * 3. Traverse all matrix elements and insert positions of all 1s in queue.
+       * 
+       * 4. Now do a BFS traversal of graph using above created queue.
+       * 
+       * 5. Run a loop till the size of the queue is greater than 0 then extract the
+       * front node of the queue and remove it and insert all its adjacent and
+       * unmarked elements. Update the minimum distance as distance of current node +1
+       * and insert the element in the queue.
+       */
       // Creating a graph with nodes values assigned
       // from 1 to N x M and matrix adjacent.
       MatrixGraphBFS g1 = new MatrixGraphBFS(N, M);
@@ -257,7 +318,7 @@ public class QueueDS {
 
   static class MatrixQueueOnlyBFS {
 
-    private static void minimumDistance(int[][] matrix) {
+    private static void minimumDistanceLevelWiseTraversal(int[][] matrix) {
       int n = matrix.length;
       int m = matrix[0].length;
       // create an array ans of size same as matrix array
@@ -518,16 +579,16 @@ public class QueueDS {
   public static void testDataFindDistanceOfNearestCellInBinaryMatrix() {
     int mat[][] = { { 0, 0, 0, 1 }, { 0, 0, 1, 0 }, { 0, 0, 0, 0 } };
 
-    MatrixGraphBFS.findMinDistance(mat, mat.length, mat[0].length);
+    MatrixGraphBFS.findMinDistanceInMatrixUsingBFS(mat, mat.length, mat[0].length);
   }
 
   static void testDataFindDistanceOfNearestCellQueueOnlyBFS() {
     // Example 1
     int matrix1[][] = new int[][] { { 0, 1, 0 }, { 0, 0, 0 }, { 1, 0, 0 } };
-    MatrixQueueOnlyBFS.minimumDistance(matrix1);
+    MatrixQueueOnlyBFS.minimumDistanceLevelWiseTraversal(matrix1);
     // Example 2
     int matrix2[][] = new int[][] { { 0, 0, 0 }, { 0, 0, 0 }, { 1, 0, 1 } };
-    MatrixQueueOnlyBFS.minimumDistance(matrix2);
+    MatrixQueueOnlyBFS.minimumDistanceLevelWiseTraversal(matrix2);
   }
 
   public static void testDataLRUCacheUsingDLLQueueAndHashSet() {

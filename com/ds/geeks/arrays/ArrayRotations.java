@@ -78,7 +78,7 @@ public class ArrayRotations {
   }
 
   static int searchAnElementInSortedAndRotatedArray(int arr[], int n, int key) {
-
+    //O(logn)
     /**
      * Suppose we rotate an ascending order sorted array at some pivot. So for
      * instance, 1 2 3 4 5 might become 3 4 5 1 2. Devise a way to find an element
@@ -274,7 +274,7 @@ public class ArrayRotations {
     // element. Consider the cases like
     // {3, 4, 5, 1, 2}
     if (mid < high && arr[mid + 1] < arr[mid])
-      return (mid + 1);
+      return (mid + 1);//gives the number of array elements rotated.
 
     // Check if mid itself is minimum element
     if (mid > low && arr[mid] < arr[mid - 1])

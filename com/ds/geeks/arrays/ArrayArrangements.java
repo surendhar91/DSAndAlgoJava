@@ -27,6 +27,8 @@ public class ArrayArrangements {
      * 
      * 6. Try using the right/left rotation to rearrange the data. for example.
      * alternative positive negative numbers in an array.
+     * 
+     * 4. Use two pointer algorithm. One in the first, and in the last. Or try two pointers in 0, and 1 position.
      */
     static void rearrangeArraySuchThatIndexIcontainsDataI(int[] arr) {
         // { -1, -1, 6, 1, 9, 3, 2, -1, 4, -1 }
@@ -272,7 +274,7 @@ public class ArrayArrangements {
         print(arr, n);
     }
 
-    static void alternatingPositiveNegativeNumbersWithQuickSortParition(int[] arr) {
+    static void alternatingPositiveNegativeNumbersWithQuickSortPartition(int[] arr) {
         // Time complexity: O(n)
         // This approach doesn't maintain the order of elements. Use quick sort
         // partition consider 0 as pivot. Negative elements are placed first and then
@@ -1367,7 +1369,7 @@ public class ArrayArrangements {
     static void testDataAlternatingPositiveNegativeNumbersWithQuickSortParition() {
         int arr[] = { -1, 2, -3, 4, 5, 6, -7, 8, 9 };
         int n = arr.length;
-        alternatingPositiveNegativeNumbersWithQuickSortParition(arr);
+        alternatingPositiveNegativeNumbersWithQuickSortPartition(arr);
         System.out.println("Array after rearranging: ");
         print(arr, n);
     }

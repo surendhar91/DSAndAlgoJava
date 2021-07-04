@@ -157,7 +157,8 @@ Third Pass:
      Some sorting algorithms are stable by nature like Insertion sort, Merge Sort, Bubble Sort, etc. And some sorting algorithms are not, like Heap Sort, Quick Sort, etc.
      */
     void insertionSort(int arr[],int n){
-        //Uses: Insertion sort is used when number of elements is small. It can also be useful when input array is almost sorted, only few elements are misplaced in complete big array.
+        //Uses: Insertion sort is used when number of elements is small. 
+        // It can also be useful when input array is almost sorted, only few elements are misplaced in complete big array.
         /*
          Algorithmic Paradigm: Incremental Approach
          Sorting In Place: Yes
