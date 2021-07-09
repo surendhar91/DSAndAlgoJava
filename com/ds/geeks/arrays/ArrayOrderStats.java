@@ -18,7 +18,8 @@ public class ArrayOrderStats {
      * Key points
      * 
      * 1. Use priority queue (min heap) to find kth element in k sorted lists, or
-     * row and column sorted matrix.
+     * row and column sorted matrix. In matrix, add the first row to queue, in
+     * lists, add heads to the queue
      * 
      * 2. Use quick sort's random pivot to find the kth element in O(N) time
      * 
@@ -47,11 +48,11 @@ public class ArrayOrderStats {
      * maxKSum[]. prefixSum[i] - minSum[i] = maxSum[i]
      * 
      * 11. Use binary search to find the kth absolute difference between two
-     * elements in an array upon sorting and finding the count of pairs is less or
+     * elements in an array on sorting it, and finding the count of pairs is less or
      * greater than k.
      * 
-     * 12. For finding missing in a sorted array, use binary search with comparison
-     * on the array element == index.
+     * 12. For finding missing in a sorted array of N elements, use binary search
+     * with comparison on the array element == index.
      * 
      * 13. For finding max sum such that no elements are adjacent, use two variable.
      * incl_prev, excl_prev. incl_curr = excl_prev+arr[i],
@@ -466,7 +467,7 @@ public class ArrayOrderStats {
         return hr.val;
     }
 
-    static void print3largest(int arr[], int arr_size) {
+    static void printThreelargestElement(int arr[], int arr_size) {
         // given an array of distinct integers, print 3 largest elements.
         int i, first, second, third;
 
@@ -1256,7 +1257,7 @@ public class ArrayOrderStats {
         while (low < high) {
             final int mid = (low + high) / 2;
             if (value >= a[mid])
-                low = mid + 1;
+                low = mid + 1;// value is mid, return mid+1
             else
                 high = mid;
         }
@@ -1844,7 +1845,7 @@ public class ArrayOrderStats {
     static void testDataPrint3largest() {
         int arr[] = { 12, 13, 1, 10, 34, 1 };
         int n = arr.length;
-        print3largest(arr, n);
+        printThreelargestElement(arr, n);
     }
 
     static void testDataSmallestLargestKElements() {
@@ -1981,7 +1982,7 @@ public class ArrayOrderStats {
     }
 
     static void testDataFindMaxSumSuchThatElementsAreNotAdjacent() {
-        int arr[] = new int[]{5, 5, 10, 100, 10, 5};
+        int arr[] = new int[] { 5, 5, 10, 100, 10, 5 };
         System.out.println(maxSumSuchThatElementsAreNotAdjacent(arr));
     }
 

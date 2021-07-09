@@ -107,17 +107,16 @@ public class Graph {
                 DFSUtil(edge, visited);
             }
         }
-
     }
 
     // A DFS based function to find all reachable vertices from s. The function
     // marks visited[i] as true if i is reachable from s. The initial values in
     // visited[] must be false. We can also use BFS to find reachable vertices
-    void dfs(int graph[][], int u, boolean visited[]) {
+    void DFSonMatrix(int graph[][], int u, boolean visited[]) {
         visited[u] = true;
         for (int v = 0; v < graph.length; v++)
             if (graph[u][v] > 0 && !visited[v])
-                dfs(graph, v, visited);
+                DFSonMatrix(graph, v, visited);
     }
 
     int DFSCount(int src, boolean[] visited) {
@@ -570,7 +569,7 @@ public class Graph {
      * Since all edges are of equal weight, we can efficiently find shortest path
      * using Breadth First Search of the graph.
      */
-    static int getMinDiceThrows(int move[], int N) {
+    static int getMinDiceThrowsInSnakeAndLadder(int move[], int N) {
         // Mininum dice needed to reach the destination of snake ladder problem from
         // source vertex.
         /**
@@ -624,7 +623,7 @@ public class Graph {
 
     }
 
-    static void minCashFlow(int graph[][], int N) {
+    static void minCashFlowBwnFriends(int graph[][], int N) {
         /**
          * // graph[i][j] indicates the amount that person i needs to // pay person j
          * int amount[][] = new int[][]{ {0, 1000, 2000},
@@ -752,7 +751,7 @@ public class Graph {
         visited[i][j] = false;// resetting the visited propery
     }
 
-    void findWords(char boggle[][], int m, int n) {
+    void findWordsFromBoggle(char boggle[][], int m, int n) {
         // from a boggle, find the words, check if it's present in dictionary
         /*
          * Given a dictionary, a method to do lookup in dictionary and a M x N board
@@ -806,7 +805,7 @@ public class Graph {
         return res;
     }
 
-    static class MinimumInitialVerticesToReachWholeMatrix {
+    static class MinimumInitialVerticesToReachWholeMatrixUsingDFS {
         // Key point: In a matrix, find the starting indexes (the larger...smaller
         // elements), and do DFS traversals to completely cover
         // the matrix
@@ -926,7 +925,7 @@ public class Graph {
         }
     }
 
-    static class WaterJugProblem {
+    static class WaterJugProblemUsingBFS {
         static boolean canMeasureWaterBFS(int x, int y, int z) {
             // add all the states to the queue
             // Time complexity of BFS is O(mx + ny) which can be treated as linear (Because
@@ -977,7 +976,7 @@ public class Graph {
         }
     }
 
-    static class PathInRectangeWithCircles {
+    static class PathInRectangeWithCirclesUsingBFS {
         /**
          * There is a m*n rectangular matrix whose top-left(start) location is (1, 1)
          * and bottom-right(end) location is (m*n). There are k circles each with radius
@@ -1085,7 +1084,7 @@ public class Graph {
         }
     }
 
-    static class HeightOfTreeFromParentArray {
+    static class HeightOfTreeFromParentArrayUsingDFS {
         // Recur For Ancestors of node and
         // store height of node at last
         static int fillHeightDFS(int p[], int node, int visited[], int height[]) {
@@ -1140,7 +1139,7 @@ public class Graph {
         }
     }
 
-    static class MinimumEdgesBwnVerticesBFS {
+    static class MinimumEdgesBwnVerticesOrSourceAndDestinationBFS {
         static int minEdgesBFS(Graph g, int u, int v, int n) {
             // BFS traversal will always find the shortest path, or the minimum edge to
             // reach a destination.
@@ -1164,7 +1163,7 @@ public class Graph {
         }
     }
 
-    static class NodesWithinKDistanceFromSetofNodes {
+    static class NodesWithinKDistanceFromSetofNodesUsingBFS {
         static int bfsWithDistance(Graph g, int source, boolean marked[], Vector<Integer> dist) {
             // returns the largest marked distance node from source.
             Queue<Integer> queue = new LinkedList<Integer>();
@@ -1501,7 +1500,7 @@ public class Graph {
         }
     }
 
-    static class MinimumStepsToReachTargetByKnight {
+    static class MinimumStepsToReachTargetByKnightUsingBFS {
         // Class for storing a cell's data
         static class cell {
             int x, y;
@@ -1955,7 +1954,7 @@ public class Graph {
          */
         // DFS function that visits all
         // connected nodes from a given node
-        static void dfs(int node, int a[], Graph g, int mini, boolean[] visited) {
+        static int dfs(int node, int a[], Graph g, int mini, boolean[] visited) {
             // Stores the minimum
             mini = Math.min(mini, a[node]);// get the node value from the node index.
 
@@ -1968,8 +1967,9 @@ public class Graph {
                 // passed in to the method comes from the array a, whose indexes start 0...9, so
                 // we will need to increment here, and decrement in dfs call
                 if (!visited[adjNode])
-                    dfs(adjNode - 1, a, g, mini, visited);
+                    mini = dfs(adjNode - 1, a, g, mini, visited);
             }
+            return mini;
         }
 
         // Function that returns the sum of all minimums
@@ -1983,8 +1983,7 @@ public class Graph {
             for (int i = 0; i < n; i++) {
                 if (!visited[i]) {
                     int mini = a[i];
-                    dfs(i, a, g, mini, visited);
-                    sum += mini;
+                    sum += dfs(i, a, g, mini, visited);
                 }
             }
             // Returns the answer
@@ -2059,6 +2058,9 @@ public class Graph {
                 }
             }
             // Mark the current node
+            // The below is required because you will want to print all paths from the
+            // source to destination
+            // We may have more than one path to destination.
             visited[u] = false; // This is must and it allows printing nodes which participate in more than one
                                 // path.
         }
@@ -2467,39 +2469,65 @@ public class Graph {
          */
         // This Method checks if an integer n
         // is a Stepping Number
-        public static boolean isStepNum(int n) {
-            // Initialize prevDigit with -1
-            int prevDigit = -1;
+        public static void bfs(int n, int m, int num) {
+            // Queue will contain all the stepping Numbers
+            Queue<Integer> q = new LinkedList<Integer>();
 
-            // Iterate through all digits of n and compare
-            // difference between value of previous and
-            // current digits
-            while (n > 0) {
-                // Get Current digit
-                int curDigit = n % 10;
+            q.add(num);
 
-                // Single digit is consider as a
-                // Stepping Number
-                if (prevDigit != -1) {
-                    // Check if absolute difference between
-                    // prev digit and current digit is 1
-                    if (Math.abs(curDigit - prevDigit) != 1)
-                        return false;
+            while (!q.isEmpty()) {
+                // Get the front element and pop from
+                // the queue
+                int stepNum = q.poll();
+
+                // If the Stepping Number is in
+                // the range [n,m] then display
+                if (stepNum <= m && stepNum >= n) {
+                    System.out.print(stepNum + " ");
                 }
-                n /= 10;
-                prevDigit = curDigit;
+
+                // If Stepping Number is 0 or greater
+                // then m, no need to explore the neighbors
+                if (stepNum == 0 || stepNum > m)
+                    continue;
+
+                // Get the last digit of the currently
+                // visited Stepping Number
+                int lastDigit = stepNum % 10;
+
+                // There can be 2 cases either digit
+                // to be appended is lastDigit + 1 or
+                // lastDigit - 1
+                int stepNumA = stepNum * 10 + (lastDigit - 1);
+                int stepNumB = stepNum * 10 + (lastDigit + 1);
+
+                // If lastDigit is 0 then only possible
+                // digit after 0 can be 1 for a Stepping
+                // Number
+                if (lastDigit == 0)
+                    q.add(stepNumB);
+
+                // If lastDigit is 9 then only possible
+                // digit after 9 can be 8 for a Stepping
+                // Number
+                else if (lastDigit == 9)
+                    q.add(stepNumA);
+
+                else {
+                    q.add(stepNumA);
+                    q.add(stepNumB);
+                }
             }
-            return true;
         }
 
         // A brute force approach based function to find all
         // stepping numbers.
         public static void displaySteppingNumbers(int n, int m) {
-            // Iterate through all the numbers from [N,M]
-            // and check if it is a stepping number.
-            for (int i = n; i <= m; i++)
-                if (isStepNum(i))
-                    System.out.print(i + " ");
+            // For every single digit Number 'i'
+            // find all the Stepping Numbers
+            // starting with i
+            for (int i = 0; i <= 9; i++)
+                bfs(n, m, i);
         }
     }
 
@@ -2776,7 +2804,7 @@ public class Graph {
          * Let weight array is [7, 11] and steps = 3 then 7, 11, 7 is the sequence in
          * which weights should be kept in order to move scale alternatively.
          * 
-         * Let another weight array is [2, 3, 5, 6] and steps = 10 then, 3, 2, 3, 5, 6,
+         * Let another weight array is [2, 3, 5, 6] and steps = 10 then, 2, 3, 2, 3, 5, 6,
          * 5, 3, 2, 3 is the sequence in which weights should be kept in order to move
          * scale alternatively.
          * 
@@ -2972,7 +3000,7 @@ public class Graph {
         int Jug1 = 4, Jug2 = 3, target = 2;
 
         System.out.println("Path from initial state " + "to solution state ::"
-                + WaterJugProblem.canMeasureWaterBFS(Jug1, Jug2, target));
+                + WaterJugProblemUsingBFS.canMeasureWaterBFS(Jug1, Jug2, target));
     }
 
     static void testDataMinimumInitialVerticesToTraverseWholeMatrix() {
@@ -2985,7 +3013,7 @@ public class Graph {
 
             System.out.println();
         }
-        new MinimumInitialVerticesToReachWholeMatrix().DFS(3, 3, matrix);
+        new MinimumInitialVerticesToReachWholeMatrixUsingDFS().DFS(3, 3, matrix);
     }
 
     static void testDataFindPathInRectangeWithCircles() {
@@ -2994,7 +3022,7 @@ public class Graph {
         List<Integer> X1 = Arrays.asList(1, 3);
         List<Integer> Y1 = Arrays.asList(3, 3);
 
-        PathInRectangeWithCircles object = new PathInRectangeWithCircles();
+        PathInRectangeWithCirclesUsingBFS object = new PathInRectangeWithCirclesUsingBFS();
         // Function call
         System.out.println(object.findPathInRectangeWithCircleBFS(m1, n1, k1, r1, X1, Y1));
 
@@ -3014,7 +3042,8 @@ public class Graph {
         int parent[] = { -1, 0, 0, 0, 3, 1, 1, 2 };
         int n = parent.length;
 
-        System.out.println("Height of N-ary Tree = " + HeightOfTreeFromParentArray.findHeightUsingDFS(parent, n));
+        System.out
+                .println("Height of N-ary Tree = " + HeightOfTreeFromParentArrayUsingDFS.findHeightUsingDFS(parent, n));
     }
 
     static void testDataMinEdgeBwnVerticesUsingBFS() {
@@ -3037,7 +3066,7 @@ public class Graph {
         g.addEdge(7, 8);
         int u = 0;
         int v = 5;
-        System.out.println(MinimumEdgesBwnVerticesBFS.minEdgesBFS(g, u, v, n));
+        System.out.println(MinimumEdgesBwnVerticesOrSourceAndDestinationBFS.minEdgesBFS(g, u, v, n));
     }
 
     static void testDataNodesWithinKDistanceUsingBFS() {
@@ -3056,7 +3085,7 @@ public class Graph {
         int marked[] = { 1, 2, 4 };
         int K = 3;
 
-        System.out.println(NodesWithinKDistanceFromSetofNodes.nodesWithinKDistance(g, marked, K));
+        System.out.println(NodesWithinKDistanceFromSetofNodesUsingBFS.nodesWithinKDistance(g, marked, K));
     }
 
     static void testDataCountNonAccessiblePairOfPositionsInMatrix() {
@@ -3088,7 +3117,7 @@ public class Graph {
         int N = 30;
         int knightPos[] = { 1, 1 };
         int targetPos[] = { 30, 30 };
-        System.out.println(MinimumStepsToReachTargetByKnight.minStepToReachTarget(knightPos, targetPos, N));
+        System.out.println(MinimumStepsToReachTargetByKnightUsingBFS.minStepToReachTarget(knightPos, targetPos, N));
     }
 
     static void testDataConvertNumberFromXtoYUsingMulandSub() {
@@ -3245,7 +3274,7 @@ public class Graph {
         BFSOnConnectedComponentsOfGraphOrDisconnectedGraph.bfs(g);
     }
     /**
-     * 1. https://www.geeksforgeeks.org/count-number-trees-forest/ 
+     * 1. https://www.geeksforgeeks.org/count-number-trees-forest/
      * 2.https://www.geeksforgeeks.org/minimum-initial-vertices-traverse-whole-matrix-given-conditions/
      * 3. https://www.geeksforgeeks.org/water-jug-problem-using-bfs/ 4.
      * https://www.geeksforgeeks.org/path-rectangle-containing-circles/ 5.

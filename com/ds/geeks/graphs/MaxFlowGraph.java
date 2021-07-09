@@ -206,7 +206,7 @@ public class MaxFlowGraph {
         }
         // REsidual graph will have the edges set to zero, whose edges are involved in
         // finding the maximum flow, hence the edge j will not be visited
-        new Graph(vertices).dfs(rGraph, s, visited);
+        new Graph(vertices).DFSonMatrix(rGraph, s, visited);
         // Found the reachable vertices from source in residual graph
 
         // Now find the vertices which are not reachable from this reachable vertices,

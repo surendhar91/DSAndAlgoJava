@@ -726,7 +726,7 @@ public class ArrayArrangements {
         int arr1[] = Arrays.copyOf(arr, arr.length);
         int index1[] = Arrays.copyOf(index, index.length);
 
-        /**
+    /**
          * A Simple Solution is to use an auxiliary array temp[] of same size as given
          * arrays. Traverse the given array and put all elements at their correct place
          * in temp[] using index[]. Finally copy temp[] to arr[] and set all values of

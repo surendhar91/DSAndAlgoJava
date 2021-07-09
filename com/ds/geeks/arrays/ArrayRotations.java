@@ -108,7 +108,7 @@ public class ArrayRotations {
   }
 
   /*
-   * Function to get pivot. For array 3, 4, 5, 6, 1, 2 it returns 3 (index of 6)
+   * Function to get pivot. For array 3, 4, 5, 6, 1, 2 it returns 3 (index of 6), increasing and decreasing.
    */
   static int findPivot(int arr[], int low, int high) {
     // base cases

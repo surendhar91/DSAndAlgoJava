@@ -166,7 +166,7 @@ public class GraphTester {
     moves[16] = 3;
     moves[18] = 6;
     
-        System.out.println("Min dice needed is "+Graph.getMinDiceThrows(moves, N));
+        System.out.println("Min dice needed is "+Graph.getMinDiceThrowsInSnakeAndLadder(moves, N));
         
         System.out.println("--------Minimum cash flow Greedy Graph-----");
          // graph[i][j] indicates the amount that person i needs to
@@ -176,7 +176,7 @@ public class GraphTester {
                         {0, 0, 0},};
  
     // Print the solution
-    Graph.minCashFlow(amount,3);//calculate the net amount (credit-debit) for each person. find the maxdebitor and maxcreditor, then settle the amount.
+    Graph.minCashFlowBwnFriends(amount,3);//calculate the net amount (credit-debit) for each person. find the maxdebitor and maxcreditor, then settle the amount.
         
     
         System.out.println("------------Following words of dictionary were present----");
@@ -184,7 +184,7 @@ public class GraphTester {
                          {'U','E','K'},
                          {'Q','S','E'}};
  
-    graph.findWords(boggle,3,3);
+    graph.findWordsFromBoggle(boggle,3,3);
         
     
     //Add directions to undirected graph - very interesting problem..
