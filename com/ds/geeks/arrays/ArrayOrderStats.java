@@ -773,7 +773,7 @@ public class ArrayOrderStats {
         for (int i = 0; i < k; i++) {
             if (cand.get(j) > max.get(i)) {
                 max.add(i, cand.get(j));
-                max.remove(k);
+                max.remove(k);// remove the min element i.e. the last element.
                 j++;
             }
         }
@@ -788,7 +788,7 @@ public class ArrayOrderStats {
         for (int i = 0; i < min.size(); i++) {
             if (min.get(i) > ms) {
                 min.add(i, ms);
-                min.remove(min.size() - 1);
+                min.remove(min.size() - 1);// remove the max element in the min.
                 break;
             }
         }
@@ -1510,6 +1510,67 @@ public class ArrayOrderStats {
             return findSmallestMissingNumberInArray(arr, mid + 1, end);
 
         return findSmallestMissingNumberInArray(arr, start, mid);
+    }
+
+    static class FindKClosestPointsToOrigin {
+        // Point class to store
+        // a point
+        static class Pair implements Comparable<Pair> {
+            int first, second;
+
+            Pair(int a, int b) {
+                first = a;
+                second = b;
+            }
+
+            public int compareTo(Pair o) {
+                int x1 = first * first;
+                int y1 = second * second;
+                int x2 = o.first * o.first;
+                int y2 = o.second * o.second;
+                return (x1 + y1) - (x2 + y2);
+            }
+        }
+
+        // Function to find the K closest points
+        static void kClosestPoints(int x[], int y[], int n, int k) {
+            // Create a priority queue
+            PriorityQueue<Pair> pq = new PriorityQueue<>();
+
+            // Pushing all the points
+            // in the queue
+            for (int i = 0; i < n; i++) {
+                pq.add(new Pair(x[i], y[i]));
+            }
+
+            // Print the first K elements
+            // of the queue
+            for (int i = 0; i < k; i++) {
+
+                // Remove the top of the queue
+                // and store in a temporary pair
+                Pair p = pq.poll();
+
+                // Print the first (x)
+                // and second (y) of pair
+                System.out.println(p.first + " " + p.second);
+            }
+        }
+
+        // Driver code
+        public static void testDataFindKClosestPointsInArray() {
+
+            // x coordinate of points
+            int x[] = { 1, -2 };
+
+            // y coordinate of points
+            int y[] = { 3, 2 };
+            int K = 1;
+
+            int n = x.length;
+
+            kClosestPoints(x, y, n, K);
+        }
     }
 
     static int maxSumSuchThatElementsAreNotAdjacent(int[] arr) {

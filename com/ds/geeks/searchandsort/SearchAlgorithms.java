@@ -602,6 +602,7 @@ public class SearchAlgorithms {
         /*
          * Function to get index of ceiling of x in arr[low..high]
          */
+        // https://www.geeksforgeeks.org/ceiling-in-a-sorted-array/
         static int ceilSearch(int arr[], int low, int high, int x) {
             int mid;
 
@@ -964,9 +965,14 @@ public class SearchAlgorithms {
              * If arr[mid] is greater than the next element and smaller than the previous
              * element then maximum lies on left side of mid
              */
+
             if (arr[mid] > arr[mid + 1] && arr[mid] < arr[mid - 1])
+                // 1 3 5 10 9 7 6 4, if the mid is in the decreasing part, let's say 7 is mid,
+                // 7(mid)>6(mid+1), 7(mid)<9(mid-1)
                 return findMaximum(arr, low, mid - 1);
             else
+                // If the mid is in the increasing part. 80 100 200, mid is 100, mid>mid-1,
+                // mid<mid+1
                 return findMaximum(arr, mid + 1, high);
         }
 
@@ -1173,6 +1179,7 @@ public class SearchAlgorithms {
         // A utility function to find median of three integers
         static float MO3(int a, int b, int c) {
             return a + b + c - Math.max(a, Math.max(b, c)) - Math.min(a, Math.min(b, c));
+            // a+b+c if c is max, min is a, then b is median.
         }
 
         // A utility function to find a median of four integers
@@ -1180,13 +1187,14 @@ public class SearchAlgorithms {
             int Max = Math.max(a, Math.max(b, Math.max(c, d)));
             int Min = Math.min(a, Math.min(b, Math.min(c, d)));
             return (float) ((a + b + c + d - Max - Min) / 2.0);
+            // a+b+c+d if c is max, min is d, then b + a/2 is median.
         }
 
         // Utility function to find median of single array
         static float medianSingle(int arr[], int n) {
             if (n == 0)
                 return -1;
-            if (n % 2 == 0)
+            if (n % 2 == 0)// when even, n/2, n/2-1 gives the median.
                 return (float) ((double) (arr[n / 2] + arr[n / 2 - 1]) / 2);
             return arr[n / 2];
         }
@@ -1214,12 +1222,16 @@ public class SearchAlgorithms {
                 // A = {9}, B[] = {5, 8, 10, 20, 30} and
                 // A[] = {1}, B[] = {5, 8, 10, 20, 30}
                 if (M % 2 == 1)
-                    return MO2(B[M / 2], (int) MO3(A[0], B[M / 2 - 1], B[M / 2 + 1]));
+                    return MO2(B[M / 2], (int) MO3(A[0], B[M / 2 - 1], B[M / 2 + 1]));// A[0] will be subtracted if it's
+                                                                                      // minimum, M03 here gives the mid
+                                                                                      // element when the A[] is added.
+                /** In the above example, 1) 9 becomes the mid, 2) 8 becomes the mid */
 
                 // Case 3: If the larger array has even number of element,
                 // then median will be one of the following 3 elements
                 // ... The middle two elements of larger array
                 // ... The only element of smaller array
+                // B is {1, 5, 8, 10, 20, 30}, A is [9], Mediain of 8, 10 and 9, is 9.
                 return MO3(B[M / 2], B[M / 2 - 1], A[0]);
             }
 
@@ -1238,6 +1250,11 @@ public class SearchAlgorithms {
                 // just before the middle in bigger array
                 // 3. Min of second element of smaller array and element
                 // just after the middle in bigger array
+                /**
+                 * Example: B is {5, 8, 10, 20, 30}, A is [3, 9], 1. Middle element is 10. 2.
+                 * Max: [3, 8], Min [9, 20]: 8, 9 3. Median of (8, 9, 10) is 9. {3, 5, 8, 9, 10,
+                 * 20, 30}
+                 */
                 if (M % 2 == 1)
                     return MO3(B[M / 2], Math.max(A[0], B[M / 2 - 1]), Math.min(A[1], B[M / 2 + 1]));
 
@@ -1350,6 +1367,11 @@ public class SearchAlgorithms {
             // greater than it, then left half
             // must have a peak element
             else if (mid > 0 && arr[mid - 1] > arr[mid])
+                // Example: {1, 3, 20, 4, 1, 0 ,7} middle element is 4, peak must be in the left
+                // half, this is because 20 can be the corner element or it's lef neighbor can
+                // be smaller than the element in which case it's a peak, Else, the instead of
+                // 3, if it's 25, we traverse left,and 25 will be the peak element. The vice
+                // versa condition applies for the right array.
                 return findPeakUtil(arr, low, (mid - 1), n);
 
             // If middle element is not peak
@@ -1604,16 +1626,17 @@ public class SearchAlgorithms {
             // same as mid, then output element lies on
             // right side, else on left side
             if (mid % 2 == 0) {
-                if (arr[mid] == arr[mid + 1])
+                if (arr[mid] == arr[mid + 1])// Assume 3 as the mid.
                     search(arr, mid + 2, high);
                 else
+                    // mid and mid+1 is not the same, then the element must be in low...mid
                     search(arr, low, mid);
             }
             // If mid is odd
             else if (mid % 2 == 1) {
-                if (arr[mid] == arr[mid - 1])
+                if (arr[mid] == arr[mid - 1])// Assume 3 as the mid
                     search(arr, mid + 1, high);
-                else
+                else// mid, and mid-1, element must be in the first half
                     search(arr, low, mid - 1);// including mid-1
             }
         }
