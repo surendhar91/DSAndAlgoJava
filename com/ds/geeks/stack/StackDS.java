@@ -356,7 +356,7 @@ public class StackDS {
   //Function to find largest rectangular area possible in a given histogram.
   // Find left and right smaller element of every ith element in an array, and find the
   // largest rectangular area in the histogram.
-  public static int getMaxRectangleArea(int arr[], int n) {
+  public static int findMaxRectangleAreaInHistogram(int arr[], int n) {
     // your code here
     //we create an empty stack here.
     Stack<Integer> s = new Stack<>();
@@ -568,7 +568,7 @@ public class StackDS {
   public static void testDataFindMaxRectangleAreaInHistogram() {
     int hist[] = { 6, 2, 5, 4, 5, 1, 6 };
     System.out.println(
-      "Maximum area is " + getMaxRectangleArea(hist, hist.length)
+      "Maximum area is " + findMaxRectangleAreaInHistogram(hist, hist.length)
     );
   }
 

@@ -686,6 +686,100 @@ public class ArrayOrderStats {
         return ans;
     }
 
+    static int subArraySumEqualsK_N_squareTime(int[] arr, int k)
+    {
+        /**
+         * GivenGiven an array of integers nums and an integer k, return the total
+         * number of continuous subarrays whose sum equals to k.
+         * 
+         * 
+         * 
+         * Example 1:
+         * 
+         * Input: nums = [1,1,1], k = 2 Output: 2 Example 2:
+         * 
+         * Input: nums = [1,2,3], k = 3 Output: 2
+         */
+        int count = 0;
+        int[] sum = new int[arr.length + 1];
+        sum[0] = 0;
+        for (int i = 1; i <= arr.length; i++)
+            sum[i] = sum[i - 1] + arr[i - 1];
+        for (int start = 0; start < arr.length; start++) {
+            for (int end = start + 1; end <= arr.length; end++) {
+                if (sum[end] - sum[start] == k)
+                    count++;
+            }
+        }
+        return count;
+
+        // Another naive solution
+        /**
+         *  int count = 0;
+        for (int start = 0; start < nums.length; start++) {
+            int sum=0;
+            for (int end = start; end < nums.length; end++) {
+                sum+=nums[end];
+                if (sum == k)
+                    count++;
+            }
+        }
+        return count;
+         */
+    }
+
+    static int subArraySumEqualsK_NTime_usingMap(int[] arr, int k)
+    {
+        /**
+         * The idea behind this approach is as follows: If the cumulative
+         * sum(represented by sum[i] for sum up to i th index) up to two
+         * indices is the same, the sum of the elements lying in between those indices
+         * is zero. Extending the same thought further, if the cumulative sum up to two
+         * indices, say i and j is at a difference of k i.e. if sum[i] - sum[j] =
+         * k, the sum of elements lying between indices i and j is k.
+         * 
+         * Based on these thoughts, we make use of a hashmap mapmap which is used to
+         * store the cumulative sum up to all the indices possible along with the number
+         * of times the same sum occurs. We store the data in the form: (sum_i, no. of
+         * occurrences of sum_i). We traverse over
+         * the array numsnums and keep on finding the cumulative sum. Every time we
+         * encounter a new sum, we make a new entry in the hashmap corresponding to that
+         * sum. If the same sum occurs again, we increment the count corresponding to
+         * that sum in the hashmap. Further, for every sum encountered, we also
+         * determine the number of times the sum sum-k has occurred already, since
+         * it will determine the number of times a subarray with sum kk has occurred up
+         * to the current index. We increment the countcount by the same amount.
+         * 
+         * After the complete array has been traversed, the countcount gives the
+         * required result.
+         * 
+         * The animation below depicts the process.
+         */
+
+            int count = 0, sum = 0;
+            HashMap < Integer, Integer > map = new HashMap < > ();
+            map.put(0, 1);// stores sum, occurrence, similar to (arr[i] in the hash set for finding pair sum in array)
+            for (int i = 0; i < arr.length; i++) {
+                sum += arr[i];
+                if (map.containsKey(sum - k))
+                    count += map.get(sum - k);
+                map.put(sum, map.getOrDefault(sum, 0) + 1);
+            }
+            return count;
+        /**
+         *  Example
+         * Arr: [3, 4, 7, 2, -3, 1, 4, 2]
+         * 0: {(0,1)} sum: 0, count:0, k=7
+         * 3: {(0,1), (3,1)} sum: 3, count:0, k=7, sum-k = -4
+         * 4: {(0,1), (3,1), (7,1)} sum: 7, count:1, k=7, sum-k = 0 [(0,1) is found]
+         * 7: {(0,1), (3,1), (7,1), (14,1)} sum: 14, count:2, k=7, sum-k = 7 [(7,1) is found]
+         * 2: {(0,1), (3,1), (7,1), (14,1), (16,1)} sum: 16, count:2, k=7, sum-k=9
+         * -3: {(0,1), (3,1), (7,1), (14,1), (16,1), (13,1)} sum: 13, count:2, k=7, sum-k=6
+         * 1: {(0,1), (3,1), (7,1), (14,[2]), (16,1), (13,1)} sum: 14, count:3, k=7, sum-k = 7 [(7,1) is found]
+        *  4: {(0,1), (3,1), (7,1), (14,[2]), (16,1), (13,1), (18,1)} summ: 18, count: 3, k=7, sum-k = 11
+           2: {(0,1), (3,1), (7,1), (14,[2]), (16,1), (13,1), (18,1), (20,1)} summ: 20, count: 4, k=7, sum-k = 13 (13,1 is already found)
+         */
+    }
     static int kthLargestSumInContiguousSubArray(int[] arr, int k) {
         // Time complexity is: O(n^2 logk)
         /**

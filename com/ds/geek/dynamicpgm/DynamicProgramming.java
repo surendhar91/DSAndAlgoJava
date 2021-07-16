@@ -4339,7 +4339,7 @@ fib(1) fib(0) */
                 + findMaxProfitWeightedJobScheduling(arr, arr.length));
     }
 
-    int findLengthOfLongestSubstringWhereTwoHalvesAreEqual(char[] str) {
+    int findLengthOfLongestSubstringTwoHalvesEqual(char[] str) {
         /*
          * Given a string ‘str’ of digits, find length of the longest substring of
          * ‘str’, such that the length of the substring is 2k digits and sum of left k
@@ -4393,7 +4393,7 @@ fib(1) fib(0) */
 
         String str = "153803";
         System.out.println("Length of the substring such that two halves sum are equal "
-                + findLengthOfLongestSubstringWhereTwoHalvesAreEqual(str.toCharArray()));
+                + findLengthOfLongestSubstringTwoHalvesEqual(str.toCharArray()));
     }
 
     void countNumberOfWaysToReachTotalScoreTestData() {

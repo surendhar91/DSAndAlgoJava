@@ -456,6 +456,103 @@ public class SearchAlgorithms {
         }
     }
 
+    static class FindKthMissingNumberInSortedArray {
+        /**
+         * Apply a binary search. Since the array is sorted we can find at any given
+         * index how many numbers are missing as arr[index] – (index+1). We would
+         * leverage this knowledge and apply binary search to narrow down our hunt to
+         * find that index from which getting the missing number is easier.
+         */
+        // Function to find
+        // kth missing number
+        static int missingK(int[] arr, int k) {
+            // Input: 2, 3, 5, 9, 10
+            // Missing number: {1,4, 6, 7, 8}, K=3, missing number is 6.
+            int n = arr.length;
+            int l = 0, u = n - 1, mid;
+            while (l <= u) {
+                mid = (l + u) / 2;
+                int numbers_less_than_mid = arr[mid] - (mid + 1); // arr[index] - index+1
+                // missing number in left..mid is 5 - 3 = 2 numbers are missing which are 1 and 4.
+
+                // If the total missing number
+                // count is equal to k we can iterate
+                // backwards for the first missing number
+                // and that will be the answer.
+                if (numbers_less_than_mid == k) {  // missing numbers in left == k, let's say k is 2.
+
+                    // To further optimize we check
+                    // if the previous element's
+                    // missing number count is equal
+                    // to k. Eg: arr = [4,5,6,7,8]
+                    // If you observe in the example array,
+                    // the total count of missing numbers for all
+                    // the indices are same, and we are
+                    // aiming to narrow down the
+                    // search window and achieve O(logn)
+                    // time complexity which
+                    // otherwise would've been O(n).
+                    if (mid > 0 && (arr[mid - 1] - (mid)) == k) {
+                        u = mid - 1;
+                        continue;
+                    }
+
+                    // Else we return arr[mid] - 1.
+                    return arr[mid] - 1; // when k is 2, returns 4, element one less than mid (5).
+                }
+
+                // Here we appropriately
+                // narrow down the search window.
+                if (numbers_less_than_mid < k) {// search in the next half mid...high
+                    l = mid + 1;
+                } else if (k < numbers_less_than_mid) {// search in the first half..
+                    u = mid - 1;
+                }
+            }
+
+
+            // In case the upper limit is -ve
+            // it means the missing number set
+            // is 1,2,..,k and hence we directly return k.
+            // Assume array [6,7,8,9,10], find 3rd missing element, 3rd missing element is k, which is 3.
+            if (u < 0)
+            // this means all the elements are searched, couldn't find the target k missing word, 
+            // then this means that the kth element is the missing element
+                return k;
+
+            // Else we find the residual count
+            // of numbers which we'd then add to
+            // arr[u] and get the missing kth number.
+
+            /**
+             * Assume k is 7, but the array length is just 4,
+             * where arr[4] is 10. The 7th missing element will be 12,
+             * so we will need to get the residual count, for which we will need to subtract 
+             * no of missing elements before the u, and subtract that in k. 
+             * 
+             * arr[u]+k will be the missing element.
+             * 
+             * 
+             * less = 10 - 5 = 5
+             * k = 7-5 = 2
+             * arr[u] + k is 10+2 = 12 is the 7th missing element.
+             */
+            int less = arr[u] - (u + 1);
+            k -= less;
+
+            // Return arr[u] + k
+            return arr[u] + k;
+        }
+
+        // Driver code
+        public static void main(String[] args) {
+            int[] arr = { 2, 3, 5, 9, 10 };
+            int k = 7;
+
+            // Function Call
+            System.out.println("Missing kth number = " + missingK(arr, k));
+        }
+    }
     static class FindMedianOfTwoSortedArraysOfSameSizeUsingBS {
         // Time complexity: O(logn)
         /**

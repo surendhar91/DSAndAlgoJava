@@ -157,7 +157,7 @@ public class GraphHardProblems {
         
         for(int i=0;i<pos;i++){
             //Up until pos, check if the element is already added to the path, if already added return false
-            if(path[i]==v){
+            if(path[i]==v){// This enforces that the element is traversed exactly once.
                 return false;
             }
         }
@@ -175,17 +175,19 @@ public class GraphHardProblems {
             }
         }
         
+        // Find the vertex which is adjacent to pos. 
         for(int v=1;v<graph.length;v++){//Ensures that every vertex is visited
             //v vertices do the following
-            if(isHamSafe(v, graph, path, pos)){//not already added to path and adjacent to the previously added
+            if(isHamSafe(v, graph, path, pos)){//if v is not already added to path and adjacent to the previously added pos.
                 
                 path[pos] = v;//add the v element to path at pos
                 
                 if(hamCycleUtil(graph,path,pos+1)){//note that previously added vertex is passed in path array
+                    // Do a DFS on the adj node.
                     return true;
                 }
                 
-                //If adding the element to path, doesn't lead to a solution, then remove the element from pos path
+                // If adding the element to path, doesn't lead to a solution, then remove the element from pos path 
                 path[pos] = -1;
             }
             
