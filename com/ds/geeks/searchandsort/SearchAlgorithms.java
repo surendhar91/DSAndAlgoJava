@@ -252,6 +252,51 @@ public class SearchAlgorithms {
         }
     }
 
+    static class FindFirstAndLastPositionOfElementInSortedArray {
+        /*
+         * if x is present in arr[] then returns the index of FIRST occurrence of x in
+         * arr[0..n-1], otherwise returns -1
+         */
+        public static int first(int arr[], int low, int high, int x, int n) {
+            if (high >= low) {
+                int mid = low + (high - low) / 2;
+                if ((mid == 0 || x > arr[mid - 1]) && arr[mid] == x)
+                    return mid;
+                else if (x > arr[mid])
+                    return first(arr, (mid + 1), high, x, n);
+                else
+                    return first(arr, low, (mid - 1), x, n);
+            }
+            return -1;
+        }
+
+        /*
+         * if x is present in arr[] then returns the index of LAST occurrence of x in
+         * arr[0..n-1], otherwise returns -1
+         */
+        public static int last(int arr[], int low, int high, int x, int n) {
+            if (high >= low) {
+                int mid = low + (high - low) / 2;
+                if ((mid == n - 1 || x < arr[mid + 1]) && arr[mid] == x)
+                    return mid;
+                else if (x < arr[mid])
+                    return last(arr, low, (mid - 1), x, n);
+                else
+                    return last(arr, (mid + 1), high, x, n);
+            }
+            return -1;
+        }
+
+        public static void testDataFindFirstAndLastPositionOfElementInSortedArray(String[] args) {
+
+            int arr[] = { 1, 2, 2, 2, 2, 3, 4, 7, 8, 8 };
+            int n = arr.length;
+            int x = 8;
+            System.out.println("First Occurrence = " + first(arr, 0, n - 1, x, n));
+            System.out.println("Last Occurrence = " + last(arr, 0, n - 1, x, n));
+        }
+    }
+
     static class ClosestPairUsing2P {
         // ar1[0..m-1] and ar2[0..n-1] are two given sorted
         // arrays/ and x is given number. This function prints
@@ -976,11 +1021,12 @@ public class SearchAlgorithms {
 
     static class FindFixedPointInArrayThatIndexEqualToElement {
         /**
-         * First check whether middle element is Fixed Point or not. If it is, then
-         * return it; otherwise check whether index of middle element is greater than
-         * value at the index. If index is greater, then Fixed Point(s) lies on the
-         * right side of the middle point (obviously only if there is a Fixed Point).
-         * Else the Fixed Point(s) lies on left side.
+         * First check whether middle element is Fixed Point or not. Fixed point is
+         * where the element is equal to the index. If it is, then return it; otherwise
+         * check whether index of middle element is greater than value at the index. If
+         * index is greater, then Fixed Point(s) lies on the right side of the middle
+         * point (obviously only if there is a Fixed Point). Else the Fixed Point(s)
+         * lies on left side.
          */
         static int binarySearch(int arr[], int low, int high) {
             if (high >= low) {
@@ -1004,6 +1050,59 @@ public class SearchAlgorithms {
             int arr[] = { -10, -1, 0, 3, 10, 11, 30, 50, 100 };
             int n = arr.length;
             System.out.println("Fixed Point is " + binarySearch(arr, 0, n - 1));
+        }
+    }
+
+    static class ValidIncreasingAndDecreasingArray {
+        /**
+         * TheGiven an array of integers arr, return true if and only if it is a valid
+         * mountain array.
+         * 
+         * Recall that arr is a mountain array if and only if:
+         * 
+         * arr.length >= 3 There exists some i with 0 < i < arr.length - 1 such that:
+         * arr[0] < arr[1] < ... < arr[i - 1] < arr[i] arr[i] > arr[i + 1] > ... >
+         * arr[arr.length - 1]
+         * 
+         * 
+         * 
+         * Example 1:
+         * 
+         * Input: arr = [2,1] Output: false Example 2:
+         * 
+         * Input: arr = [3,5,5] Output: false Example 3:
+         * 
+         * Input: arr = [0,3,2,1] Output: true
+         */
+        /**
+         * Approach 1: One Pass Intuition
+         * 
+         * If we walk along the mountain from left to right, we have to move strictly
+         * up, then strictly down.
+         * 
+         * Algorithm
+         * 
+         * Let's walk up from left to right until we can't: that has to be the peak. We
+         * should ensure the peak is not the first or last element. Then, we walk down.
+         * If we reach the end, the array is valid, otherwise its not.
+         */
+        public boolean validMountainArray(int[] A) {
+            int N = A.length;
+            int i = 0;
+
+            // walk up
+            while (i + 1 < N && A[i] < A[i + 1])
+                i++;
+
+            // peak can't be first or last
+            if (i == 0 || i == N - 1)
+                return false;
+
+            // walk down
+            while (i + 1 < N && A[i] > A[i + 1])
+                i++;
+
+            return i == N - 1;
         }
     }
 
@@ -1402,6 +1501,60 @@ public class SearchAlgorithms {
         }
     }
 
+    static class IntersectionOfTwoArrays {
+        /**
+         * 
+         * Given two integer arrays nums1 and nums2, return an array of their
+         * intersection. Each element in the result must be unique and you may return
+         * the result in any order.
+         * 
+         * Example 1:
+         * 
+         * Input: nums1 = [1,2,2,1], nums2 = [2,2] Output: [2] Example 2:
+         * 
+         * Input: nums1 = [4,9,5], nums2 = [9,4,9,8,4] Output: [9,4] Explanation: [4,9]
+         * is also accepted.
+         */
+        /**
+         * The idea is to convert both arrays into sets, and then iterate over the
+         * smallest set checking the presence of each element in the larger set. Time
+         * complexity of this approach is \mathcal{O}(n + m)O(n+m) in the average case.
+         */
+        public int[] set_intersection(HashSet<Integer> set1, HashSet<Integer> set2) {
+            // Time complexity: O(n+m) time
+            int [] output = new int[set1.size()];
+            int idx = 0;
+            for (Integer s : set1)
+              if (set2.contains(s)) output[idx++] = s;
+        
+            return Arrays.copyOf(output, idx);
+          }
+        
+          public int[] intersection(int[] nums1, int[] nums2) {
+            HashSet<Integer> set1 = new HashSet<Integer>();
+            for (Integer n : nums1) set1.add(n);
+            HashSet<Integer> set2 = new HashSet<Integer>();
+            for (Integer n : nums2) set2.add(n);
+        
+            if (set1.size() < set2.size()) return set_intersection(set1, set2);
+            else return set_intersection(set2, set1);
+          }
+
+          public int[] intersectionUsingSet(int[] nums1, int[] nums2) {
+            HashSet<Integer> set1 = new HashSet<Integer>();
+            for (Integer n : nums1) set1.add(n);
+            HashSet<Integer> set2 = new HashSet<Integer>();
+            for (Integer n : nums2) set2.add(n);
+        
+            set1.retainAll(set2);
+        
+            int [] output = new int[set1.size()];
+            int idx = 0;
+            for (int s : set1) output[idx++] = s;
+            return output;
+          }
+    }
+    
     static class FindPeakElementAmongNeighbors {
         /**
          * Given an array of integers. Find a peak element in it. An array element is a

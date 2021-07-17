@@ -1,8 +1,10 @@
 package com.ds.geeks.arrays;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -731,6 +733,13 @@ public class ArrayOrderStats {
     static int subArraySumEqualsK_NTime_usingMap(int[] arr, int k)
     {
         /**
+         * 
+         * * GivenGiven an array of integers nums and an integer k, return the total
+         * number of continuous subarrays whose sum equals to k.
+         * 
+         *  * GivenGiven an array of integers nums and an integer k, return the total
+         * number of continuous subarrays whose sum equals to k.
+         * 
          * The idea behind this approach is as follows: If the cumulative
          * sum(represented by sum[i] for sum up to i th index) up to two
          * indices is the same, the sum of the elements lying in between those indices
@@ -779,6 +788,117 @@ public class ArrayOrderStats {
         *  4: {(0,1), (3,1), (7,1), (14,[2]), (16,1), (13,1), (18,1)} summ: 18, count: 3, k=7, sum-k = 11
            2: {(0,1), (3,1), (7,1), (14,[2]), (16,1), (13,1), (18,1), (20,1)} summ: 20, count: 4, k=7, sum-k = 13 (13,1 is already found)
          */
+    }
+    
+    static int shortestSubarrayWithSumAtleastK_windowDeque(int[] arr, int k)
+    {
+        /**
+         * Return the length of the shortest, non-empty, contiguous subarray of nums
+         * with sum at least k.
+         * 
+         * If there is no non-empty subarray with sum at least k, return -1.
+         * 
+         * Example 1:
+         * 
+         * Input: nums = [1], k = 1 Output: 1 Example 2:
+         * 
+         * Input: nums = [1,2], k = 4 Output: -1 Example 3:
+         * 
+         * Input: nums = [2,-1,2], k = 3 Output: 3
+         */
+        /**
+         * "What makes this problem hard is that we have negative values. If you haven't
+         * already done the problem with positive integers only, I highly recommend
+         * solving it first"
+         * 
+         * Minimum Size Subarray Sum
+         * 
+         * Explanation 
+         * 
+         * Calculate prefix sum B of list A. B[j] - B[i] represents the sum
+         * of subarray A[i] ~ A[j-1] 
+         * Deque d will keep indexes of increasing B[i]. For every B[i], we will compare B[i] - B[d[0]] with K.
+         * 
+         * 
+         * Complexity: Every index will be pushed exactly once. Every index will be
+         * popped at most once.
+         * 
+         * Time O(N) Space O(N)
+         * 
+         * 
+         * How to think of such solutions? Basic idea, for array starting at every A[i],
+         * find the shortest one with sum at leat K. In my solution, for B[i], find the
+         * smallest j that B[j] - B[i] >= K. Keep this in mind for understanding two
+         * while loops.
+         * 
+         * 
+         * What is the purpose of first while loop? 
+         * 
+         * For the current prefix sum B[i], it
+         * covers all subarray ending at A[i-1]. We want know if there is a subarray,
+         * which starts from an index, ends at A[i-1] and has at least sum K. So we
+         * start to compare B[i] with the ****smallest prefix****** sum in our deque, which is
+         * B[D[0]], hoping that [i] - B[d[0]] >= K. So if B[i] - B[d[0]] >= K, we can
+         * update our result res = min(res, i - d.popleft()). The while loop helps
+         * compare one by one, until this condition isn't valid anymore.
+         * 
+         * 
+         * Why we pop left in the first while loop? 
+         * 
+         * This the most tricky part that
+         * improve my solution to get only O(N). D[0] exists in our deque, it means that
+         * before B[i], we didn't find a subarray whose sum at least K. B[i] is the
+         * first prefix sum that valid this condition. In other words, A[D[0]] ~ A[i-1]
+         * is the shortest subarray starting at A[D[0]] with sum at least K. We have
+         * already find it for A[D[0]] and it can't be shorter, so we can drop it from
+         * our deque.
+         * 
+         * 
+         * What is the purpose of second while loop? To keep B[D[i]] increasing in the
+         * deque.
+         * 
+         * 
+         * Why keep the deque increase? 
+         * 
+         * If B[i] <= B[d.back()] and moreover we already
+         * know that i > d.back(), it means that compared with d.back(), B[i] can help
+         * us make the subarray length shorter and sum bigger. So no need to keep
+         * d.back() in our deque.
+         * 
+         * More detailed on this, we always add at the LAST position
+            B[d.back] <- B[i] <- ... <- B[future id]
+            B[future id] - B[d.back()] >= k && B[d.back()] >= B[i]
+            B[future id] - B[i] >= k too
+
+            so no need to keep B[d.back()]
+         * 
+         */
+
+            int N = arr.length, res = N + 1;
+            int[] B = new int[N + 1];
+            for (int i = 0; i < N; i++) B[i + 1] = B[i] + arr[i];
+            Deque<Integer> d = new ArrayDeque<>();
+            // Keep the increasing B[i] prefix sum in the deque.
+
+            for (int i = 0; i < N + 1; i++) {
+                // Keep the elements in deque increasing. 
+                while (d.size() > 0 && B[i] <= B[d.getLast()])
+                // This loop serves two purposes: (1) remove the obvious worse candidates 
+                // and (2) left an increasing queue list of candidates.
+                    d.pollLast();
+
+                // The second loop can be guaranteed to narrow down to the best solution simply
+                // by checking from the beginning one by one. Why? because of (2), all the
+                // candidates are in increasing order now.
+                while (d.size() > 0 && B[i] - B[d.getFirst()] >=  k)
+                // current index sum - smallest prefix sum in the queue >=k, then it's the minimum
+                // Do this as long as the condition is valid.
+                    res = Math.min(res, i - d.pollFirst());
+                
+                d.addLast(i);
+            }
+            return res <= N ? res : -1;
+
     }
     static int kthLargestSumInContiguousSubArray(int[] arr, int k) {
         // Time complexity is: O(n^2 logk)
@@ -888,6 +1008,73 @@ public class ArrayOrderStats {
         }
     }
 
+
+    static int maxSubarrayProduct(int arr[]) {
+        int n = arr.length;
+        // max positive product
+        // ending at the current
+        // position
+        int max_product_ending_here = 1;
+
+        // min negative product
+        // ending at the current
+        // position
+        int min_product_ending_here = 1;
+
+        // Initialize overall max product
+        int max_product_so_far = 0;
+        int flag = 0;
+
+        /*
+         * Traverse through the array. Following values are maintained after the ith
+         * iteration: max_ending_here is always 1 or some positive product ending with
+         * arr[i] min_ending_here is always 1 or some negative product ending with
+         * arr[i]
+         */
+        for (int i = 0; i < n; i++) {
+            /*
+             * If this element is positive, update max_ending_here. Update min_ending_here
+             * only if min_ending_here is negative
+             */
+            if (arr[i] > 0) {
+                max_product_ending_here = max_product_ending_here * arr[i];
+                min_product_ending_here = Math.min(min_product_ending_here * arr[i], 1);
+                flag = 1;
+            }
+
+            /*
+             * If this element is 0, then the maximum product cannot end here, make both
+             * max_ending_here and min_ending _here 0 Assumption: Output is alway greater
+             * than or equal to 1.
+             */
+            else if (arr[i] == 0) {
+                max_product_ending_here = 1;
+                min_product_ending_here = 1;
+            }
+
+            /*
+             * If element is negative. This is tricky max_ending_here can either be 1 or
+             * positive. min_ending_here can either be 1 or negative. next min_ending_here
+             * will always be prev. max_ending_here * arr[i] next max_ending_here will be 1
+             * if prev min_ending_here is 1, otherwise next max_ending_here will be prev
+             * min_ending_here * arr[i]
+             */
+            else {
+                int temp = max_product_ending_here;
+                max_product_ending_here = Math.max(min_product_ending_here * arr[i], 1);
+                min_product_ending_here = temp * arr[i];
+            }
+
+            // update max_so_far, if needed
+            if (max_product_so_far < max_product_ending_here)
+                max_product_so_far = max_product_ending_here;
+        }
+
+        if (flag == 0 && max_product_so_far == 0)
+            return 0;
+        return max_product_so_far;
+    }
+
     static int maximumSumInContiguousSubarrayUsingPrefixSum_NTime(int[] arr) {
         /**
          * Given an Array of Positive and Negative Integers, find out the Maximum
@@ -941,6 +1128,43 @@ public class ArrayOrderStats {
 
     }
 
+    static int minimumSizeOfSubarraySumEqualsOrGreaterThanK(int[] arr, int k) {
+        /**
+         * GivenGiven an array of positive integers nums and a positive integer target,
+         * return the minimal length of a contiguous subarray [numsl, numsl+1, ...,
+         * numsr-1, numsr] of which the sum is greater than or equal to target. If there
+         * is no such subarray, return 0 instead.
+         * 
+         * 
+         * 
+         * Example 1:
+         * 
+         * Input: target = 7, nums = [2,3,1,2,4,3] Output: 2 Explanation: The subarray
+         * [4,3] has the minimal length under the problem constraint. Example 2:
+         * 
+         * Input: target = 4, nums = [1,4,4] Output: 1 Example 3:
+         * 
+         * Input: target = 11, nums = [1,1,1,1,1,1,1,1] Output: 0
+         */
+
+        if (arr == null || arr.length == 0)
+            return 0;
+
+        int start = 0, end = 0, sum = 0, min = Integer.MAX_VALUE;
+
+        while (end < arr.length) {
+            sum += arr[end];
+            end++;
+            while (sum >= k) {
+                min = Math.min(min, end - start);
+                sum -= arr[start];
+                start++;
+            }
+        }
+
+        return min == Integer.MAX_VALUE ? 0 : min;
+    }
+    
     static void kMaxSumsInOverlappingContiguousSubarrays(int aa[], int k) {
         /**
          * The ‘insertMini’ and ‘maxMerge’ functions runs in O(k) time and it takes O(k)

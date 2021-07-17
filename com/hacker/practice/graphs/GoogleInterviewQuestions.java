@@ -2,6 +2,8 @@ package com.hacker.practice.graphs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
@@ -797,6 +800,456 @@ public class GoogleInterviewQuestions {
         }
     }
 
+    static class LongestContinousSubarrayInBinaryArrayWithEqual1sAnd0s {
+        /**
+         * Given a binary array nums, return the maximum length of a contiguous subarray
+         * with an equal number of 0 and 1.
+         * 
+         * Example 1:
+         * 
+         * Input: nums = [0,1] Output: 2 Explanation: [0, 1] is the longest contiguous
+         * subarray with an equal number of 0 and 1. Example 2:
+         * 
+         * Input: nums = [0,1,0] Output: 2 Explanation: [0, 1] (or [1, 0]) is a longest
+         * contiguous subarray with equal number of 0 and 1.
+         */
+        /**
+         * 
+         * Approach 1:
+         * 
+         * 
+         * In this approach, we make use of a countcount variable, which is used to
+         * store the relative number of ones and zeros encountered so far while
+         * traversing the array. The countcount variable is incremented by one for every
+         * \text{1}1 encountered and the same is decremented by one for every \text{0}0
+         * encountered.
+         * 
+         * We start traversing the array from the beginning. If at any moment, the
+         * countcount becomes zero, it implies that we've encountered equal number of
+         * zeros and ones from the beginning till the current index of the array(ii).
+         * Not only this, another point to be noted is that if we encounter the same
+         * countcount twice while traversing the array, it means that the number of
+         * zeros and ones are equal between the indices corresponding to the equal
+         * countcount values. The following figure illustrates the observation for the
+         * sequence [0 0 1 0 0 0 1 1]:
+         * 
+         * Contiguous_Array
+         * 
+         * In the above figure, the subarrays between (A,B), (B,C) and (A,C) (lying
+         * between indices corresponing to count = 2count=2) have equal number of zeros
+         * and ones.
+         * 
+         * Another point to be noted is that the largest subarray is the one between the
+         * points (A, C). Thus, if we keep a track of the indices corresponding to the
+         * same countcount values that lie farthest apart, we can determine the size of
+         * the largest subarray with equal no. of zeros and ones easily.
+         * 
+         * Now, the countcount values can range between \text{-n}-n to \text{+n}+n, with
+         * the extreme points corresponding to the complete array being filled with all
+         * 0's and all 1's respectively. Thus, we make use of an array arrarr(of size
+         * \text{2n+1}2n+1to keep a track of the various countcount's encountered so
+         * far. We make an entry containing the current element's index (ii) in the
+         * arrarr for a new countcount encountered everytime. Whenever, we come across
+         * the same countcount value later while traversing the array, we determine the
+         * length of the subarray lying between the indices corresponding to the same
+         * countcount values.
+         */
+        public int findMaxLengthUsingCountArray(int[] nums) {
+            int[] arr = new int[2 * nums.length + 1];
+            Arrays.fill(arr, -2);
+            arr[nums.length] = -1;
+            int maxlen = 0, count = 0;
+            for (int i = 0; i < nums.length; i++) {
+                count = count + (nums[i] == 0 ? -1 : 1);
+                if (arr[count + nums.length] >= -1) {
+                    maxlen = Math.max(maxlen, i - arr[count + nums.length]);
+                    // To keep track of the indices corresponding to the same count values that lie farthest apart.
+                    // We can determine the size of the largest subarray with equal no of zeros and ones easily.
+                } else {
+                    // For a new count encountered everytime, we make an entry containing the current element's index in the arr,
+                    // so that it can be used next.
+                    arr[count + nums.length] = i;
+                }
+    
+            }
+            return maxlen;
+        }
+
+        /**
+         * We make an entry for a count in the map whenever the count is
+         * encountered first, and later on use the correspoding index to find the length
+         * of the largest subarray with equal no. of zeros and ones when the same
+         * count is encountered again.
+         */
+        public int findMaxLengthUsingMap(int[] nums) {
+            Map<Integer, Integer> map = new HashMap<>();
+            map.put(0, -1);
+            int maxlen = 0, count = 0;
+            for (int i = 0; i < nums.length; i++) {
+                count = count + (nums[i] == 1 ? 1 : -1);
+                if (map.containsKey(count)) {
+                    maxlen = Math.max(maxlen, i - map.get(count));
+                } else {
+                    map.put(count, i);
+                }
+            }
+            return maxlen;
+        }
+        /**
+         * Example
+         *  Index  0  1  2  3  4  5  6
+         *  Arr = [0, 1, 0, 0, 1, 1, 0]
+         * 
+         * Initial: Count = 0 Maxlen = 0, Map: {0, -1}
+         * 0: count=-1, maxlen=0, map:{(0,-1), (-1, 0)}
+         * 1: count=0, maxlen=2, map: {(0,-1), (-1, 0)}
+         * 0: count=-1, maxlen=2, map: {(0,-1),(-1,0)}
+         * 0: count=-2, maxlen=2, map:{(0,-1),(-1,0),(-2,3)}
+         * 4: count=-1, maxlen=4, map:{(0,-1),(-1,0),(-2,3)}
+         * 1: count=0, maxlen=6, map:{(0,-1),(-1,0),(-2,3)}
+         * 0: count=-1, maxlen=6, map:{(0,-1, (-1,0), (-2,3))}
+         */
+    }
+    
+    static class ShuffleAnArray {
+        /**
+         * Given an integer array nums, design an algorithm to randomly shuffle the
+         * array. All permutations of the array should be equally likely as a result of
+         * the shuffling.
+         * 
+         * Implement the Solution class:
+         * 
+         * Solution(int[] nums) Initializes the object with the integer array nums.
+         * int[] reset() Resets the array to its original configuration and returns it.
+         * int[] shuffle() Returns a random shuffling of the array.
+         * 
+         * 
+         * Example 1:
+         * 
+         * Input ["Solution", "shuffle", "reset", "shuffle"] [[[1, 2, 3]], [], [], []]
+         * Output [null, [3, 1, 2], [1, 2, 3], [1, 3, 2]]
+         * 
+         * Explanation Solution solution = new Solution([1, 2, 3]); solution.shuffle();
+         * // Shuffle the array [1,2,3] and return its result. // Any permutation of
+         * [1,2,3] must be equally likely to be returned. // Example: return [3, 1, 2]
+         * solution.reset(); // Resets the array back to its original configuration
+         * [1,2,3]. Return [1, 2, 3] solution.shuffle(); // Returns the random shuffling
+         * of array [1,2,3]. Example: return [1, 3, 2]
+         * 
+         * Solution: 
+         * On each iteration of the algorithm, we generate a random integer between the
+         * current index and the last index of the array. Then, we swap the elements at
+         * the current index and the chosen index - this simulates drawing (and
+         * removing) the element from the hat, as the next range from which we select a
+         * random index will not include the most recently processed one. One small, yet
+         * important detail is that it is possible to swap an element with itself -
+         * otherwise, some array permutations would be more likely than others.
+         */
+        private int[] array;
+        private int[] original;
+
+        Random rand = new Random();
+
+        private int randRange(int min, int max) {
+            return rand.nextInt(max - min) + min;
+        }
+
+        private void swapAt(int i, int j) {
+            int temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+
+        public ShuffleAnArray(int[] nums) {
+            array = nums;
+            original = nums.clone();
+        }
+
+        public int[] reset() {
+            array = original;
+            original = original.clone();
+            return original;
+        }
+
+        public int[] shuffle() {
+            for (int i = 0; i < array.length; i++) {
+                swapAt(i, randRange(i, array.length));
+            }
+            return array;
+        }
+    }
+
+    static class CheckIfAnArrayCanBecomeNonDecreasingArrayWithAtmost1Change {
+        /**
+         * Given an array nums with n integers, your task is to check if it could become
+         * non-decreasing by modifying at most one element.
+         * 
+         * We define an array is non-decreasing if nums[i] <= nums[i + 1] holds for
+         * every i (0-based) such that (0 <= i <= n - 2).
+         * 
+         * 
+         * 
+         * Example 1:
+         * 
+         * Input: nums = [4,2,3] Output: true Explanation: You could modify the first 4
+         * to 1 to get a non-decreasing array. Example 2:
+         * 
+         * Input: nums = [4,2,1] Output: false Explanation: You can't get a
+         * non-decreasing array by modify at most one element.
+         */
+        /**
+         * The problem requires that every number has to be equal or greater than
+         * previous number. If we encounter a failing condition where the number is not
+         * greater or equal to previous (smaller than previous) we need to make a
+         * correction. Correction can be made in either of two ways:
+         * 
+         * Make the previous number smaller or equal to current number Make the current
+         * number equal to previous number We can do (1) as long as the number at
+         * position i-2 is equal or lower than the current element. (if i-2 is valid) In
+         * case 1 below we can do this at (3) (i = 2) as the element 1 (i = 0) fulfills
+         * 1 <= 3. We can replace 7 with 3. However, this cannot be done in case 2 as 4
+         * <= 3 does not satisfy.
+         * 
+         * Correction with technique (1) takes priority as there is no risk in lowering
+         * the value but there is a risk associated if the value is increased. (Consider
+         * scenario in case 1 if we replace 3 with 7, it will fail to satisfy the
+         * condition for the last element)
+         * 
+         * We have to make correction with (2) if we cannot achieve it by (1). In which
+         * case we increase the value of current element by matching previous element.
+         * In case 2, we replace 3 with 7.
+         * 
+         * Also we only compare condition with the previous element only because as we
+         * move forward we know the previous numbers are already validated .
+         **/
+                    /**
+            Case 1:
+                7
+                /\    4
+                /  \  /
+            /    \/
+            /      3
+            1
+            
+            Case 2:
+
+                        9
+                        /
+            7          /
+            /\        /
+            /  \      /
+            /    \    /
+            4      \  /
+                \/
+                3(i)
+                    */
+        public boolean checkPossibility(int[] nums) {
+            int cnt = 0;                                                                    //the number of changes
+            for(int i = 1; i < nums.length && cnt<=1 ; i++){
+                if(nums[i-1] > nums[i]){
+                    cnt++;
+                    if(i-2<0 || nums[i-2] <= nums[i])nums[i-1] = nums[i];                    //modify nums[i-1] of a priority
+                    else nums[i] = nums[i-1];                                                //have to modify nums[i]
+                }
+            }
+            return cnt<=1; 
+        }
+    }
+
+    static class MergeSortedArray {
+        /**
+         * You are given two integer arrays nums1 and nums2, sorted in non-decreasing
+         * order, and two integers m and n, representing the number of elements in nums1
+         * and nums2 respectively.
+         * 
+         * Merge nums1 and nums2 into a single array sorted in non-decreasing order.
+         * 
+         * The final sorted array should not be returned by the function, but instead be
+         * stored inside the array nums1. To accommodate this, nums1 has a length of m +
+         * n, where the first m elements denote the elements that should be merged, and
+         * the last n elements are set to 0 and should be ignored. nums2 has a length of
+         * n.
+         * 
+         * Example 1:
+         * 
+         * Input: nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3 Output:
+         * [1,2,2,3,5,6] Explanation: The arrays we are merging are [1,2,3] and [2,5,6].
+         * The result of the merge is [1,2,2,3,5,6] with the underlined elements coming
+         * from nums1. Example 2:
+         * 
+         * Input: nums1 = [1], m = 1, nums2 = [], n = 0 Output: [1] Explanation: The
+         * arrays we are merging are [1] and []. The result of the merge is [1]. Example
+         * 3:
+         * 
+         * Input: nums1 = [0], m = 0, nums2 = [1], n = 1 Output: [1] Explanation: The
+         * arrays we are merging are [] and [1]. The result of the merge is [1]. Note
+         * that because m = 0, there are no elements in nums1. The 0 is only there to
+         * ensure the merge result can fit in nums1.
+         */
+        void merge(int A[], int m, int B[], int n) {
+            int i=m-1;
+            int j=n-1;
+            int k = m+n-1;
+            while(i >=0 && j>=0)
+            {
+                if(A[i] > B[j])
+                    A[k--] = A[i--];
+                else
+                    A[k--] = B[j--];
+            }
+            while(j>=0)
+                A[k--] = B[j--];
+        }
+    }
+
+    static class ProductOfArrayExceptSelf {
+        /**
+         * Given an integer array nums, return an array answer such that answer[i] is
+         * equal to the product of all the elements of nums except nums[i].
+         * 
+         * The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit
+         * integer.
+         * 
+         * You must write an algorithm that runs in O(n) time and without using the
+         * division operation.
+         * 
+         * 
+         * Example 1:
+         * 
+         * Input: nums = [1,2,3,4] Output: [24,12,8,6] Example 2:
+         * 
+         * Input: nums = [-1,1,0,-3,3] Output: [0,0,9,0,0]
+         */
+        /**
+         * Given numbers [2, 3, 4, 5], regarding the third number 4, the product of array except 4 is 2*3*5 
+         * which consists of two parts: left 2*3 and right 5. The product is left*right. 
+         * We can get lefts and rights:
+
+            Numbers:     2    3    4     5
+            Lefts:            2  2*3 2*3*4
+            Rights:  3*4*5  4*5    5      
+            Let’s fill the empty with 1:
+
+            Numbers:     2    3    4     5
+            Lefts:       1    2  2*3 2*3*4
+            Rights:  3*4*5  4*5    5     1
+            We can calculate lefts and rights in 2 loops. The time complexity is O(n).
+
+            We store lefts in result array. If we allocate a new array for rights. 
+            The space complexity is O(n). To make it O(1), we just need to store it in a variable which is right
+        */
+        public int[] productExceptSelf(int[] nums) {
+            int n = nums.length;
+            int[] res = new int[n];
+            res[0] = 1;
+            for (int i = 1; i < n; i++) {
+                res[i] = res[i - 1] * nums[i - 1];
+            }
+            int right = 1;
+            for (int i = n - 1; i >= 0; i--) {
+                res[i] *= right;
+                right *= nums[i];
+            }
+            return res;
+        }
+
+    }
+    
+    static class SquaresOfSortedArray {
+        /**
+         * Given an integer array nums sorted in non-decreasing order, return an array
+         * of the squares of each number sorted in non-decreasing order.
+         * 
+         * 
+         * 
+         * Example 1:
+         * 
+         * Input: nums = [-4,-1,0,3,10] Output: [0,1,9,16,100] Explanation: After
+         * squaring, the array becomes [16,1,0,9,100]. After sorting, it becomes
+         * [0,1,9,16,100]. Example 2:
+         * 
+         * Input: nums = [-7,-3,2,3,11] Output: [4,9,9,49,121]
+         */
+        public int[] sortedSquares(int[] A) {
+            int n = A.length;
+            int[] result = new int[n];
+            int i = 0, j = n - 1;
+            for (int p = n - 1; p >= 0; p--) {
+                if (Math.abs(A[i]) > Math.abs(A[j])) {
+                    result[p] = A[i] * A[i];
+                    i++;
+                } else {
+                    result[p] = A[j] * A[j];
+                    j--;
+                }
+            }
+            return result;
+        }
+    }
+    
+    static class RemoveDuplicatesFromSortedArray {
+        /**
+         * Given an integer array nums sorted in non-decreasing order, remove the
+         * duplicates in-place such that each unique element appears only once. The
+         * relative order of the elements should be kept the same.
+         * 
+         * Since it is impossible to change the length of the array in some languages,
+         * you must instead have the result be placed in the first part of the array
+         * nums. More formally, if there are k elements after removing the duplicates,
+         * then the first k elements of nums should hold the final result. It does not
+         * matter what you leave beyond the first k elements.
+         * 
+         * Return k after placing the final result in the first k slots of nums.
+         * 
+         * Do not allocate extra space for another array. You must do this by modifying
+         * the input array in-place with O(1) extra memory.
+         * 
+         * Custom Judge:
+         * 
+         * The judge will test your solution with the following code:
+         * 
+         * int[] nums = [...]; // Input array int[] expectedNums = [...]; // The
+         * expected answer with correct length
+         * 
+         * int k = removeDuplicates(nums); // Calls your implementation
+         * 
+         * assert k == expectedNums.length; 
+         * for (int i = 0; i < k; i++) { 
+         * assert nums[i] == expectedNums[i]; 
+         * } 
+         * 
+         * If all assertions pass, then your solution will be
+         * accepted.
+         * 
+         * 
+         * 
+         * Example 1:
+         * 
+         * Input: nums = [1,1,2] Output: 2, nums = [1,2,_] Explanation: Your function
+         * should return k = 2, with the first two elements of nums being 1 and 2
+         * respectively. It does not matter what you leave beyond the returned k (hence
+         * they are underscores). Example 2:
+         * 
+         * Input: nums = [0,0,1,1,1,2,2,3,3,4] Output: 5, nums = [0,1,2,3,4,_,_,_,_,_]
+         * Explanation: Your function should return k = 5, with the first five elements
+         * of nums being 0, 1, 2, 3, and 4 respectively. It does not matter what you
+         * leave beyond the returned k (hence they are underscores).
+         */
+
+         // nums = [1,1,2]
+         public int removeDuplicates(int[] A, int n) {
+             int count = 0;
+             for (int i = 1; i < n; i++) {
+                 if (A[i] == A[i - 1])
+                     count++;
+                 else
+                     A[i - count] = A[i];
+                     // Go back by 1 element and set 2 there.
+             }
+             return n - count;
+         }
+    }
+    
     static class TimeNeededToInformAllEmployeesUsingDFS {
         /**
          * A company has n employees with a unique ID for each employee from 0 to n - 1. The head of the company is the one with headID.
@@ -1930,6 +2383,61 @@ public class GoogleInterviewQuestions {
 
     }
 
+    static class NumberOfSubstringsContainingAllThreeCharacters {
+        /**
+         * Given a string s consisting only of characters a, b and c.
+         * 
+         * Return the number of substrings containing at least one occurrence of all
+         * these characters a, b and c.
+         * 
+         * 
+         * 
+         * Example 1:
+         * 
+         * Input: s = "abcabc" Output: 10 Explanation: The substrings containing at
+         * least one occurrence of the characters a, b and c are "abc", "abca", "abcab",
+         * "abcabc", "bca", "bcab", "bcabc", "cab", "cabc" and "abc" (again). Example 2:
+         * 
+         * Input: s = "aaacb" Output: 3 Explanation: The substrings containing at least
+         * one occurrence of the characters a, b and c are "aaacb", "aacb" and "acb".
+         * Example 3:
+         * 
+         * Input: s = "abc" Output: 1
+         */
+        int numberOfSubstrings(String s) {
+            int num = 0;
+            int begin = 0;
+            int end = 0;
+            int count[] = new int[3];
+            while(end < s.length()) {
+                count[s.charAt(end)-'a']++;
+                while(count[0] > 0 && count[1] > 0 && count[2] > 0) {
+                    num += s.length() - end;
+                    /**
+                     * Why ??
+                     * 
+                     * This is the best line ever
+                     * 
+                     * a a a b b c c a b c when all a, b, c > 0 for first time at j = 5 the n after
+                     * while loop i will be at i = 3, we will add 3 to result because there would be
+                     * three substrings from three a's.
+                     * 
+                     * Then a,b,c > 0 at j = 7 ,then we will move i until i = 5 then we will add 5
+                     * to result because there could be 5 substrings starting from 0 to second b.
+                     * 
+                     * And similarly we proceed....
+                     * 
+                     */
+                    count[s.charAt(begin)-'a']--;
+                    begin++;
+                }
+                end++;
+            }
+            return num;
+        }
+
+    }
+
     static class LongestSubstringWithAtMostKDistinctCharacters {
         /**
          * Given a string S, find the length of the longest substring T 
@@ -2051,6 +2559,589 @@ public class GoogleInterviewQuestions {
         
             return maxLen;
           }
+    }
+
+    static class ReplaceTheSubstringForBalancedString {
+        /**
+         * You are given a string containing only 4 kinds of characters 'Q', 'W', 'E'
+         * and 'R'.
+         * 
+         * A string is said to be balanced if each of its characters appears n/4 times
+         * where n is the length of the string.
+         * 
+         * Return the minimum length of the substring that can be replaced with any
+         * other string of the same length to make the original string s balanced.
+         * 
+         * Return 0 if the string is already balanced.
+         * 
+         * 
+         * 
+         * Example 1:
+         * 
+         * Input: s = "QWER" Output: 0 Explanation: s is already balanced. Example 2:
+         * 
+         * Input: s = "QQWE" Output: 1 Explanation: We need to replace a 'Q' to 'R', so
+         * that "RQWE" (or "QRWE") is balanced. Example 3:
+         * 
+         * Input: s = "QQQW" Output: 2 Explanation: We can replace the first "QQ" to
+         * "ER". Example 4:
+         * 
+         * Input: s = "QQQQ" Output: 3 Explanation: We can replace the last 3 'Q' to
+         * make s = "QWER".
+         * 
+         */
+        /**
+         * The idea is to first count up each type of character. Since we know there are
+         * only 4 characters: Q, W, E, R, we can easily count them up using an int[] arr
+         * of length 4.
+         * 
+         * Then once we count them up, we look at the number of occurrences of each and
+         * see if any of them > N/4 (where N is the length of the String). If they are,
+         * this means that we need this freq[character] - (N/4) number of this character
+         * in the substring we choose to replace.
+         * 
+         * E.g. If we have N = 12 and freq[Q] = freq[0] = 6. Since we know each
+         * character must occur N/4 = 12/4 = 3 times. We have 3 extra Qs. So we need to
+         * make sure our substring at the end has 3 Qs in it. The same principle applies
+         * when there are multiple characters > (N/4).
+         * 
+         * Essentially, we reduced the problem to finding a minimum substring containing
+         * a certain number of each character.
+         * 
+         * Then we go to the freq array and subtract (N/4) from each of freq[Q],
+         * freq[W], freq[E], freq[R]. If it is below 0 (this means our substring does
+         * not need to contain this letter since we are already in demand of this
+         * letter), then we just set it to 0.
+         * 
+         * Then for our sliding window approach - see more:
+         * https://www.geeksforgeeks.org/window-sliding-technique/
+         * 
+         * We update freq[] so that freq[char] always represents how many characters we
+         * need still of each char to get the substring that we need. It is okay for
+         * freq[char] to be < 0 as this mean we have more characters than we need (which
+         * is fine). Each time we have an eligible substring, we update our minLen
+         * variable and try to shrink the window from the left as much as possible.
+         * 
+         * In the end we get the minimum length of a substring containing at least the
+         * characters we need to replace with other characters.
+         * 
+         * 
+         */
+        // Checks that freq[char] <= 0 meaning we have an elligible substring
+        private boolean fulfilled(int[] freq) {
+            boolean fulfilled = true;
+            for (int f : freq) {
+                if (f > 0)
+                    fulfilled = false;
+            }
+            return fulfilled;
+        }
+
+        // Q 0 W 1 E 2 R 3
+        private int charToIdx(char c) {
+            switch (c) {
+                case 'Q':
+                    return 0;
+                case 'W':
+                    return 1;
+                case 'E':
+                    return 2;
+            }
+            return 3;
+        }
+
+        public int balancedString(String s) {
+            // 1) Find freq of each first
+            int N = s.length();
+            int required = N / 4;
+
+            int[] freq = new int[4];
+            for (int i = 0; i < N; ++i) {
+                char c = s.charAt(i);
+                ++freq[charToIdx(c)];
+            }
+
+            // 2) Determine the ones we need to change
+            boolean equal = true;
+            for (int i = 0; i < 4; ++i) {
+                if (freq[i] != required)
+                    equal = false;
+                freq[i] = Math.max(0, freq[i] - required);
+            }
+
+            if (equal)
+                return 0; // Early return if all are equal
+
+            // 3) Use sliding window and try to track what more is needed to find smallest
+            // window
+            int start = 0;
+            int minLen = N; // Maximum will only ever be N
+
+            for (int end = 0; end < N; ++end) {
+                char c = s.charAt(end);
+                --freq[charToIdx(c)];
+
+                while (fulfilled(freq)) {
+                    minLen = Math.min(end - start + 1, minLen);
+
+                    char st = s.charAt(start);
+                    ++freq[charToIdx(st)];
+                    ++start;
+                }
+            }
+
+            return minLen;
+        }
+    }
+    
+    static class SubarraysWithKDifferentIntegers {
+        /**
+         * Given an array nums of positive integers, call a (contiguous, not necessarily
+         * distinct) subarray of nums good if the number of different integers in that
+         * subarray is exactly k.
+         * 
+         * (For example, [1,2,3,1,2] has 3 different integers: 1, 2, and 3.)
+         * 
+         * Return the number of good subarrays of nums.
+         * 
+         * 
+         * 
+         * Example 1:
+         * 
+         * Input: nums = [1,2,1,2,3], k = 2 Output: 7 Explanation: Subarrays formed with
+         * exactly 2 different integers: [1,2], [2,1], [1,2], [2,3], [1,2,1], [2,1,2],
+         * [1,2,1,2]. Example 2:
+         * 
+         * Input: nums = [1,2,1,3,4], k = 3 Output: 3 Explanation: Subarrays formed with
+         * exactly 3 different integers: [1,2,1,3], [2,1,3], [1,3,4].
+         */
+        /**
+         * This problem is a hard ask, until you realize that we've actually solved this
+         * problem before in other sliding window problems. Generally, the sliding
+         * window problems have some kind of aggregate, atMost k, largest substring, min
+         * substring with k etc. They're always "given an array or string, find some
+         * computed sub problem" value.
+         * 
+         * So how do we use this our advantage? Well, the ask: different integers in
+         * that subarray is exactly K is exactly this. We can rewrite the problem to
+         * something like this:
+         * 
+         * subArrayExactlyK = subArrayAtMostK - subArrayAtMostK - 1. This is basically
+         * saying, give me the amount of subarrays we can form with at least 3, and give
+         * me the amount of subarrays we can form with at least 2, and the diff between
+         * the two will be only subarrays at 3 (since we have eliminated everything 2
+         * and under).
+         * 
+         * 
+         * Example: Input: A = [1,2,1,2,3], K = 2 Output: 7
+         * 
+         * subArrayAtMostK = 12 if k = 2, there are 12 possible subarrays that are at
+         * least 2 values. This is the array possibilities we create, where the count is
+         * the end - start (see below code example), since a sub problem will contribute
+         * to the overall amount of possibilities. You see below for the AtMostK
+         * problems if this concept is confusing. The other trick here is that in other
+         * atMostK problems, they ask for length, but length can also be a substitute
+         * for amount of sub problems, since the length of any given range, say 1212,
+         * also constitutes 4 different subarray possibilities. [1, 12, 121, 1212, 23]
+         * 
+         * Example: A = [1,2,1,2,3], K = 2
+         * 
+         * Here's what we get:
+         * 
+         * [1] is one valid result of a contiguous subarray that has at most K different
+         * integers and has the length of 1.
+         * 
+         * [1,2] is one valid result of a contiguous subarray that has at most K
+         * different integers and has the length of 2.
+         * 
+         * 
+         * [1,2,1] is one valid result of a contiguous subarray that has at most K
+         * different integers and has the length of 3.
+         * 
+         * [1,2,1,2] is one valid result of a contiguous subarray that has at most K
+         * different integers and has the length of 4.
+         * 
+         * Then when we see the last element 3, we will see that the only valid
+         * contiguous subarray with at most K (which is 2) different integers that can
+         * be created is:
+         * 
+         * [2,3] is one valid result of a contiguous subarray that has at most K
+         * different integers and has the length of 2. So our function will return the
+         * sum of the length of all of those subarrays:
+         * 
+         * 1 + 2 + 3 + 4 which is 10 different contiguous subarrays with at most K
+         * different integers for the subarray [1,2,1,2].
+         * 
+         * 2 which is 2 different contiguous subarrays with at most K different integers
+         * for the subarray [2,3].
+         * 
+         * Here the answer is 10 + 2 which is 12 different contiguous subarrays with at
+         * most K = 2 different integers. 1 + 2 + 3 + 4 + 2 = 12
+         * 
+         * subArrayAtMostK - 1 = 5 since k = 1, every subarray is a single element, so
+         * the length of the array. There are by definition, only 5 different subarrays
+         * that can be formed. [1, 2, 1, 2, 3] 1 + 1 + 1 + 1 + 1 = 5
+         * 
+         * So the amount of subarrays possible with at least 2 - the amount of subarrays
+         * with at least 1 = the exactly subarrays that contain only 2, since we have
+         * stripped out answers with only 1.
+         * 
+         * 12 - 5 = 7;
+         * 
+         * 
+         */
+        /**
+         * I still don't get why the number of contiguous subarrays is equal to the sum
+         * of lengths. Why does that work? 
+         * 
+         We want to find all valid contiguous
+         * subarrays that[1,2,1,2,3] would produce with at most K different integers.
+         * You will notice though -- that when we say at most K different integers -- we
+         * only use K to help us find the valid windows (ex. [1,2,1,2] and [2,3]) Once
+         * we have those valid windows though, we don't really care what K is (that's
+         * because at most means 0 to K unique Integers, which literally means any
+         * contiguous subarray now). So, stop thinking about how K will affect the
+         * subarrays to understand the summation of lengths.
+         * 
+         * Okay, so now that we have our (let's call them "complete") valid subarrays
+         * [1,2,1,2] and [2,3] -- we can begin to understand why we take the summation
+         * of lengths to count all subarrays. Remember how we listed all the subarrays
+         * earlier and how I asked you to remember why we group subarrays by length?
+         * 
+         * Here's why: [1,2,1,2] will produce 1 subarrays of length 4, 2 subarrays of
+         * length 3, 3 subarrays of length 2, and 4 subarray of length 1 (see above)
+         * [2,3] will produce 1 subarrays of length 2, 2 subarray of length 1 (see
+         * above)
+         * 
+         * Do you notice anything?
+         * 
+         * [1,2,1,2] = 1 + 2 + 3 + 4 (sum of our 1 subarrays of length 4, 2 subarray of
+         * length 3, etc.) = 10 [2,3] = 1 + 2 (*Special case: this creates 1 subarray of
+         * length 2, and 2 subarray of length 2, but since our [2] one was accounted for
+         * already, we only get 2 new subarrays so subtract 1) - 1 = 2
+         * 
+         * When we summed the different lengths (see above where we listed the
+         * iterations), we also get the same growth (i.e. 1 + 2 + 3 + 4)!
+         * 
+         * So another way to understand this in the context of this problem is, that the
+         * code above will produce valid (sliding) window (like [1,2], [1,2,1],
+         * [1,2,1,2]). As we expand the length of that window, we can sum the length of
+         * those windows to get our different combinations because if our "complete"
+         * window was [1,2,1,2], we could do 1 + 2 + 3 + 4 (or length of [1] + length of
+         * [1,2] + length of [1,2,1] + length of [1,2,1,2]).
+         * 
+         * We also noticed that for [2,3], by only adding 2, we were able to ignore that
+         * duplicate subarray. The sliding window did not return [2] because the window
+         * expanded to [1,2,1,2,3] -- invalidating the window and then compressed the
+         * window to [2,3] by moving i forward. This allowed us to skip those duplicate
+         * subarrays. You can expand this to other examples including where K is larger.
+         * The fact that our sliding window compresses by moving forward i will allow
+         * the lower summations to be ignored (i.e. our duplicate subarrays).
+         */
+         public int subarraysWithKDistinct(int[] A, int K) {
+            int i = helper(A, K);
+            int j = helper(A, K - 1);
+
+            return i - j;
+        }
+
+        private int helper(int[] A, int K) {
+            if (A == null || A.length == 0) {
+                return 0;
+            }
+
+            int start = 0;
+            int end = 0;
+            int len = 0;
+            Map<Integer, Integer> map = new HashMap<>();
+
+            List<String> pairs = new ArrayList<>();
+
+            while (end < A.length) {
+                int endNum = A[end];
+
+                map.put(endNum, map.getOrDefault(endNum, 0) + 1);
+
+                end++;
+
+                while (map.size() > K) {
+                    int startNum = A[start];
+
+                    map.put(startNum, map.get(startNum) - 1);
+
+                    if (map.get(startNum) == 0) {
+                        map.remove(startNum);
+                    }
+
+                    start++;
+                }
+
+                len += end - start;
+
+                // just a hack to visualize the pairs we build for learning and comprehension
+                StringBuilder sb = new StringBuilder();
+                for (int i = start; i < end; i++) {
+                    sb.append(A[i]);
+                }
+                pairs.add(sb.toString());
+            }
+
+            System.out.println(pairs.toString());
+
+            return len;
+        }
+    }
+
+    static class CountNumberOfNiceSubarrays {
+        /**
+         * Given an array of integers nums and an integer k. A continuous subarray is
+         * called nice if there are k odd numbers on it.
+         * 
+         * Return the number of nice sub-arrays.
+         * 
+         * Example 1:
+         * 
+         * Input: nums = [1,1,2,1,1], k = 3 Output: 2 Explanation: The only sub-arrays
+         * with 3 odd numbers are [1,1,2,1] and [1,2,1,1]. Example 2:
+         * 
+         * Input: nums = [2,4,6], k = 1 Output: 0 Explanation: There is no odd numbers
+         * in the array. Example 3:
+         * 
+         * Input: nums = [2,2,2,1,2,2,1,2,2,2], k = 2 Output: 16
+         */
+        /**
+         * My personal feedback after 15 sliding window type of questions is that
+         * basically you need to figure out if this problem can be solved using the
+         * sliding window code template. The keyword you might want to pay attention to
+         * is something like subarray/substring with at most/least K different
+         * numbers/letters. Then if the question is asking for a subarray/substring with
+         * exact K different numbers/letters, that's where the strategy from 992 could
+         * be applied to.
+         */
+
+        public int numberOfSubarrays(int[] A, int k) {
+            /**
+             * 
+             * Window 1:
+             * 
+             * End is indicated by [], start by ()
+             * 
+             * ([2]) 2 1 1 2 2 1 2 start=0, end=0
+             * odd=0, count=0
+             * 
+             * (2) 2 1 [1] 2 2 1 2 start=0, end=3
+             * odd=2, count=0 
+             * 
+             * When odd is equal to k, we can analyse our left part 
+             * and count how many subarrays with odd == k we can produce.
+              We are doing it with start iterating until we get to odd number.
+
+             * 2 2 (1) [1] 2 2 1 2 start=2, end=3
+             * odd=2, count=3
+             * We can see that there are 3 subarrays we can produce with odd == k.
+             * 
+             * Start is at odd number.
+             * 
+             * Continue with end again, until we find odd==k in the next window. 
+             * Every next even number we meet is going to double previous count. Let's see:
+             * 
+             * 2 2 (1) 1 2 (2) 1 2 start=3, end=5
+             * count = 3+3+3 = 9
+             * 
+             When we meet odd number again we need to reset count=0
+             and repeat the above steps.
+             * 
+             */
+            int res = 0, start = 0, end = 0, count = 0, odd=0;
+            // Actually it's same as three pointers.
+            // Though we use count to count the number of even numebers.
+            while(end < A.length) {
+                if (A[end] % 2 == 1) {
+                    odd++;
+                    count = 0;
+                }
+                while (odd == k) {
+                    // if k odd numbers are found, analyze the left part and count how many subarrays
+                    // with odd==k we can produce, we're doing it with start iterating until we get to odd number.
+                    //k += A[i++] & 1     Replacing this line with the below two lines: 
+                    if(A[start] % 2 == 1) {
+                        odd--;  //odd>=k
+                    }
+                    count++;
+                    start++;
+                }
+                end++; // Increment until we encounter odd of k
+                res += count;// continue with end again, Since odd >= k then every next even number we meet
+                             // is going to double previous count.
+
+                            // When we meet odd number again we need to reset count=1 and repeat step (2) with j again. In our example there's going to be only one subarray:
+            }
+            return res;
+        }
+    }
+    
+    static class FuritIntoBaskets_LengthOfLongestSubarrayWithAtmost2DistinctIntegers_SlidingWindowForKElements {
+        /**
+         * You are visiting a farm that has a single row of fruit trees arranged from
+         * left to right. The trees are represented by an integer array fruits where
+         * fruits[i] is the type of fruit the ith tree produces.
+         * 
+         * You want to collect as much fruit as possible. However, the owner has some
+         * strict rules that you must follow:
+         * 
+         * You only have two baskets, and each basket can only hold a single type of
+         * fruit. There is no limit on the amount of fruit each basket can hold.
+         * Starting from any tree of your choice, you must pick exactly one fruit from
+         * every tree (including the start tree) while moving to the right. The picked
+         * fruits must fit in one of your baskets. Once you reach a tree with fruit that
+         * cannot fit in your baskets, you must stop. Given the integer array fruits,
+         * return the maximum number of fruits you can pick.
+         * 
+         * Example 1:
+            Input: fruits = [1,2,1]
+            Output: 3
+            Explanation: We can pick from all 3 trees.
+            Example 2:
+
+            Input: fruits = [0,1,2,2]
+            Output: 3
+            Explanation: We can pick from trees [1,2,2].
+            If we had started at the first tree, we would only pick from trees [0,1].
+            Example 3:
+
+            Input: fruits = [1,2,3,2,2]
+            Output: 4
+            Explanation: We can pick from trees [2,3,2,2].
+            If we had started at the first tree, we would only pick from trees [1,2].
+            Example 4:
+
+            Input: fruits = [3,3,3,1,2,1,1,2,3,3,4]
+            Output: 5
+            Explanation: We can pick from trees [1,2,1,1,2].
+         */
+
+        public static int totalFruit(int[] tree) {
+            int begin = 0, end = 0, type = 0, len = 0;
+            Map<Integer, Integer> map = new HashMap<>();
+            while (end < tree.length) {
+                int in = tree[end++]; // new character gets in from string right.
+                if (map.getOrDefault(in, 0) == 0)
+                    type++;
+                map.put(in, map.getOrDefault(in, 0) + 1);
+                while (type > 2) {
+                    int out = tree[begin++]; // old character gets out from string left.
+                    System.out.println("Out: " + out + " freq " + map.get(out));
+                    if (map.put(out, map.get(out) - 1) == 1)
+                    // Returns the value to which this map previously associated the key,
+                    //or null if the map contained no mapping for the key.
+                    /** the above can be written as
+                     *  
+                     * if(map.get(out)==1)
+                     * {
+                     *      map.put(out, map.get(out)-1);
+                     * }
+                     * 
+                     */
+                        type--;
+                }
+                len = Math.max(len, end - begin);
+            }
+            return len;
+        }
+
+        public static void main(String[] args){
+            System.out.println(totalFruit(new int[]{3,3,3,1,2,1,1,2,3,3,4}));
+        }
+
+    }
+    
+    static class MaxConsecutiveOnesInBinaryArrayIfYouCanFlipAtMostKZeroes {
+        /**
+         * Given a binary array nums and an integer k, return the maximum number of
+         * consecutive 1's in the array if you can flip at most k 0's.
+         * 
+         * Example 1:
+         * 
+         * Input: nums = [1,1,1,0,0,0,1,1,1,1,0], k = 2 Output: 6 Explanation:
+         * [1,1,1,0,0,1,1,1,1,1,1] Bolded numbers were flipped from 0 to 1. The longest
+         * subarray is underlined. Example 2:
+         * 
+         * Input: nums = [0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1], k = 3 Output: 10
+         * Explanation: [0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1] Bolded numbers were
+         * flipped from 0 to 1. The longest subarray is underlined.
+         */
+        public int longestOnes(int[] A, int K) {
+            int start = 0;
+            int end = 0;
+            int max = 0;
+            
+            int numZeroes = 0;
+            for (end= 0; end<A.length; end++) {
+        
+                if (A[end]==0) numZeroes++;
+                
+                if (numZeroes > K) {
+                    // If the used number of zeroes > K, then you will need to increment the start
+                    // To identify the next window such that number of zeroes == k
+                    // 
+                    if (A[start]==0) numZeroes--;
+                    start ++;
+                }
+                if (numZeroes <= K) {
+                    // this is probably what I could come up during interview...
+                    max = Math.max(max, end-start +1 );
+                }
+            }
+            return max;
+        }
+    }
+    
+    static class BinarySubarraysWithSum_PrefixSumWithHashMap {
+        /**
+         * Given a binary array nums and an integer goal, return the number of non-empty
+         * subarrays with a sum goal.
+         * 
+         * A subarray is a contiguous part of the array.
+         * 
+         * Example 1:
+         * 
+         * Input: nums = [1,0,1,0,1], goal = 2 Output: 4 Explanation: The 4 subarrays
+         * are bolded and underlined below: [1,0,1,0,1] [1,0,1,0,1] [1,0,1,0,1]
+         * [1,0,1,0,1] Example 2:
+         * 
+         * Input: nums = [0,0,0,0,0], goal = 0 Output: 15
+         */
+        /**
+         * Intuition
+         * 
+         * Let P[i] = A[0] + A[1] + ... + A[i-1]. Then P[j+1] - P[i] = A[i] + A[i+1] +
+         * ... + A[j], the sum of the subarray [i, j].
+         * 
+         * Hence, we are looking for the number of i < j with P[j] - P[i] = S.
+         * 
+         * Algorithm
+         * 
+         * For each j, let's count the number of i with P[j] = P[i] + S. This is
+         * analogous to counting the number of subarrays ending in j with sum S.
+         * 
+         * It comes down to counting how many P[i] + S we've seen before. We can keep
+         * this count on the side to help us find the final answer.
+         */
+        public int numSubarraysWithSum(int[] A, int S) {
+            int N = A.length;
+            int[] P = new int[N + 1];
+            for (int i = 0; i < N; ++i)
+                P[i+1] = P[i] + A[i];
+    
+            Map<Integer, Integer> count = new HashMap();
+            int ans = 0;
+            for (int x: P) {
+                ans += count.getOrDefault(x, 0);
+                count.put(x+S, count.getOrDefault(x+S, 0) + 1);
+            }
+    
+            return ans;
+        }
     }
 
     static class SubstringWithConcatenationOfAllWordsInArray {
@@ -4104,6 +5195,97 @@ public class GoogleInterviewQuestions {
         }
 
     }
- // Top 50 questions
+
+    static class LongestWordInDictionaryThroughDeletion {
+        /**
+         * Given a string s and a string array dictionary, return the longest string in
+         * the dictionary that can be formed by deleting some of the given string
+         * characters. If there is more than one possible result, return the longest
+         * word with the smallest lexicographical order. If there is no possible result,
+         * return the empty string.
+         * 
+         * Example 1:
+         * 
+         * Input: s = "abpcplea", dictionary = ["ale","apple","monkey","plea"] Output:
+         * "apple" Example 2:
+         * 
+         * Input: s = "abpcplea", dictionary = ["a","b","c"] Output: "a"
+         */
+        /**
+         * The matching condition in the given problem requires that we need to consider
+         * the matching string in the dictionary with the longest length and in case of
+         * same length, the string which is smallest lexicographically. To ease the
+         * searching process, we can sort the given dictionary's strings based on the
+         * same criteria, such that the more favorable string appears earlier in the
+         * sorted dictionary.
+         * 
+         * Now, instead of performing the deletions in ss, we can directly check if any
+         * of the words given in the dictionary(say xx) is a subsequence of the given
+         * string ss, starting from the beginning of the dictionary. This is because, if
+         * xx is a subsequence of ss, we can obtain xx by performing delete operations
+         * on ss.
+         * 
+         * If xx is a subsequence of ss every character of xx will be present in ss.
+         */
+        /**
+         * Time complexity : O(n⋅xlogn+n⋅x). Here nn
+         * refers to the number of strings in list dd and xx refers to average string
+         * length. Sorting takes O(nlogn) and isSubsequence takes O(x) to
+         * check whether a string is a subsequence of another string or not.
+         * 
+         * Space complexity : O(logn). Sorting takes O(logn) space in
+         * average case.
+         */
+        public String findLongestWordUsingSort(String s, List < String > d) {
+            Collections.sort(d, new Comparator < String > () {
+                public int compare(String s1, String s2) {
+                    return s2.length() != s1.length() ? s2.length() - s1.length() : s1.compareTo(s2);
+                }
+            });
+            for (String str: d) {
+                if (isSubsequence(str, s))
+                    return str;
+            }
+            return "";
+        }
+
+        /**
+         * Without sorting:
+         * 
+         * Since sorting the dictionary could lead to a huge amount of extra effort, we
+         * can skip the sorting and directly look for the strings xx in the unsorted
+         * dictionary dd such that xx is a subsequence in ss. If such a string xx is
+         * found, we compare it with the other matching strings found till now based on
+         * the required length and lexicographic criteria. Thus, after considering every
+         * string in dd, we can obtain the required result.
+         */
+
+         /**
+          * Time complexity : O(n⋅x). One iteration over all strings is required. 
+          Here n refers to the number of strings in list d and x refers to average string length.
+
+            Space complexity : O(x).
+          */
+        public boolean isSubsequence(String x, String y) {
+            int j = 0;
+            for (int i = 0; i < y.length() && j < x.length(); i++)
+                if (x.charAt(j) == y.charAt(i))
+                    j++;
+            return j == x.length();
+        }
+
+        public String findLongestWord(String s, List<String> d) {
+            String max_str = "";
+            for (String str : d) {
+                if (isSubsequence(str, s)) {
+                    if (str.length() > max_str.length()
+                            || (str.length() == max_str.length() && str.compareTo(max_str) < 0))
+                        max_str = str;
+                }
+            }
+            return max_str;
+        }
+    }
+    // Top 50 questions
 }
 
